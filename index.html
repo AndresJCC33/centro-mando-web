@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Centro de Mando · picks de NBA, LVBP y fútbol</title>
+<meta name="description" content="Lo que dicen los motores de NBA, LVBP y fútbol de cada juego, sus picks confiables y cómo les ha ido.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="estilos.css">
+</head>
+<body data-dep="Todos">
+<header class="cancha" id="inicio">
+  <div class="cancha-fondo" aria-hidden="true"></div>
+  <div class="ancho cancha-contenido">
+    <p class="marca">Centro de Mando</p>
+    <h1 id="titular">Cargando la jornada…</h1>
+    <p class="bajada" id="bajada"></p>
+    <div class="deportes" role="group" aria-label="Deporte">
+      <button type="button" data-dep="Todos" aria-pressed="true">Todos</button>
+      <button type="button" data-dep="NBA" aria-pressed="false">NBA</button>
+      <button type="button" data-dep="LVBP" aria-pressed="false">LVBP</button>
+      <button type="button" data-dep="Fútbol" aria-pressed="false">Fútbol</button>
+    </div>
+  </div>
+</header>
+
+<nav class="indice" aria-label="Secciones">
+  <div class="ancho">
+    <a href="#hoy">Picks de hoy</a>
+    <a href="#resultados">Ayer</a>
+    <a href="#ligas">Ligas</a>
+    <a href="#rendimiento">Rendimiento</a>
+    <a href="#motor">Motor</a>
+    <a href="#explorar">Explorar</a>
+    <a href="#como">Cómo se elige un pick</a>
+  </div>
+</nav>
+
+<main class="ancho">
+  <p class="aviso" id="error" hidden></p>
+
+  <section id="hoy">
+    <h2>Picks de hoy</h2>
+    <p class="nota">Solo lo que pasó todos los filtros de su deporte. Si no hay ninguno, hoy no se apuesta.</p>
+    <div id="hoy-picks"></div>
+    <h3>Lo que el motor ve en cada juego</h3>
+    <p class="nota">Que vea un ganador no es una apuesta: solo cuenta lo marcado como pick confiable.</p>
+    <div class="juegos" id="hoy-juegos"></div>
+    <h3>Dónde paga mejor JEL que el precio justo</h3>
+    <p class="nota">Cada lado compara la cuota de JEL con el precio sin margen de una casa de referencia. Positivo es bueno para quien apuesta.</p>
+    <div class="caja"><table id="hoy-precio"><thead><tr><th>Juego</th><th>Lado</th><th class="n">Cuota JEL</th><th class="n">Ventaja</th><th>Referencia</th></tr></thead><tbody></tbody></table></div>
+    <h3>Picks esperando resultado</h3>
+    <div class="caja"><table id="hoy-pend"><thead><tr><th>Fecha</th><th>Juego</th><th>Pick</th><th class="n">Cuota</th><th>Tipo</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="resultados">
+    <h2>Resultados de ayer</h2>
+    <div class="controles">
+      <label>Día <select id="res-dia"><option value="ayer">Ayer</option><option value="hoy">Hoy</option><option value="7d">Últimos 7 días</option><option value="todos">Todos</option></select></label>
+    </div>
+    <p class="resumen" id="res-resumen"></p>
+    <div class="caja"><table id="res-juegos"><thead><tr><th>Fecha</th><th>Juego</th><th>Favorito del motor</th><th class="n">Cuota JEL</th><th>Final</th><th>Favorito</th><th>Decisión</th></tr></thead><tbody></tbody></table></div>
+    <h3>Picks de esos días</h3>
+    <div class="caja"><table id="res-picks"><thead><tr><th>Fecha</th><th>Juego</th><th>Pick</th><th class="n">Cuota</th><th>Resultado</th><th class="n">Unidades</th><th>Tipo</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="ligas">
+    <h2>Ligas: posiciones y tendencias</h2>
+    <div class="controles">
+      <label>Liga <select id="lig-sel"></select></label>
+    </div>
+    <p class="nota" id="lig-nota"></p>
+    <div class="caja alta"><table id="lig-tabla"><thead><tr></tr></thead><tbody></tbody></table></div>
+    <h3>Historial del motor en esta liga</h3>
+    <p class="resumen" id="lig-resumen"></p>
+    <div class="caja"><table id="lig-hist"><thead><tr><th>Fecha</th><th>Juego</th><th>Favorito del motor</th><th class="n">Cuota JEL</th><th>Final</th><th>Favorito</th><th>Decisión</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="rendimiento">
+    <h2>Rendimiento de los picks reales</h2>
+    <p class="nota">Una unidad por pick. Los simulados (señales en prueba, sin dinero) van aparte.</p>
+    <div class="marcador" id="ren-kpis"></div>
+    <div class="grafico" id="ren-grafico" role="img" aria-label="Unidades acumuladas por día"></div>
+    <div class="caja"><table id="ren-motores"><thead><tr><th>Motor</th><th>Estado</th><th class="n">Récord</th><th class="n">Unidades</th><th class="n">ROI</th><th class="n">Pendientes</th><th class="n">Simulados (u)</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="motor">
+    <h2>El motor contra el mercado</h2>
+    <p class="nota">Error de pronóstico (log-loss) en juegos terminados con cuota: más bajo es mejor. Si el mercado tiene menos error, las cuotas saben más que el motor.</p>
+    <div class="caja"><table id="mot-calidad"><thead><tr><th>Motor</th><th class="n">Juegos</th><th class="n">Favorito acertado</th><th class="n">Error del motor</th><th class="n">Error del mercado</th><th>Afina más</th></tr></thead><tbody></tbody></table></div>
+    <h3>Juego por juego</h3>
+    <div class="caja alta"><table id="mot-juegos"><thead><tr><th>Fecha</th><th>Juego</th><th>Final</th><th class="n">Motor</th><th class="n">Mercado</th><th>Favorito</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="explorar">
+    <h2>Explorar: cómo le fue a cada filtro</h2>
+    <p class="nota">Cada lado que clasificó el motor, como si se hubiera apostado 1 unidad. Con menos de 100 terminados el resultado todavía puede ser suerte.</p>
+    <div class="caja"><table id="exp-filtros"><thead><tr><th>Motor</th><th>Filtro</th><th class="n">Lados</th><th class="n">Récord</th><th class="n">Unidades</th><th class="n">ROI</th></tr></thead><tbody></tbody></table></div>
+  </section>
+
+  <section id="como">
+    <h2>Cómo se elige un pick confiable</h2>
+    <p class="nota">Acertar al ganador no es ganar plata. Un pick solo es confiable cuando la cuota paga más de lo que vale y los datos del juego están completos.</p>
+    <div class="reglas">
+      <article class="regla" data-regla="NBA">
+        <h3>NBA</h3>
+        <ol>
+          <li><b>Precio:</b> la cuota de JEL paga al menos 4 % más que el precio justo de Pinnacle (su cuota sin margen).</li>
+          <li><b>El motor está de acuerdo:</b> su probabilidad para ese lado es mayor que la de la referencia.</li>
+          <li><b>Cuota razonable:</b> en moneyline, hasta +250.</li>
+          <li><b>Referencia fresca:</b> tomada a menos de 45 minutos de las cuotas de JEL.</li>
+          <li><b>Datos completos:</b> plantillas oficiales, reporte de lesiones de los dos equipos y ningún jugador clave en duda.</li>
+        </ol>
+        <p class="nota">Vigente desde el 14 de noviembre de 2026. Antes: probabilidad de 55 % o más y valor esperado entre 2 % y 12 %.</p>
+      </article>
+      <article class="regla" data-regla="LVBP">
+        <h3>LVBP</h3>
+        <ol>
+          <li><b>Confianza:</b> el motor le da 56 % o más a ese lado.</li>
+          <li><b>Valor:</b> valor esperado de 2 % o más, usando la probabilidad combinada del motor y de JEL.</li>
+          <li><b>Abridores conocidos:</b> los dos anunciados y con historial suficiente. Sin abridor no hay pick.</li>
+          <li><b>Antes del juego:</b> una vez iniciado, nada cuenta.</li>
+        </ol>
+        <p class="nota">La LVBP no tiene casa de referencia, así que hoy el motor está en seguimiento: sus señales se registran como simuladas, sin dinero, hasta demostrar ventaja.</p>
+      </article>
+      <article class="regla" data-regla="Fútbol">
+        <h3>Fútbol</h3>
+        <ol>
+          <li><b>Valor:</b> valor esperado de 2 % o más contra la cuota de JEL.</li>
+          <li><b>Probabilidad:</b> 45 % o más para el resultado elegido.</li>
+          <li><b>Referencia fresca:</b> cuotas de otras casas tomadas al mismo momento que las de JEL.</li>
+        </ol>
+        <p class="nota">Champions y ligas de clubes. En partidos de selecciones el motor solo opina si hay referencia.</p>
+      </article>
+    </div>
+    <h3>Lo que significa cada decisión</h3>
+    <dl class="glosario">
+      <dt>Pick confiable</dt><dd>Cumple todas las reglas de su deporte. Es lo único que se apuesta.</dd>
+      <dt>Valor sin confianza</dt><dd>La cuota paga bien, pero el motor no está lo bastante seguro.</dd>
+      <dt>Confianza sin valor</dt><dd>El motor ve un ganador claro, pero la cuota no paga lo que vale.</dd>
+      <dt>Frenado por el motor</dt><dd>Cumplía las reglas, pero faltaba un dato (lesiones, abridor) o el juego ya había empezado.</dd>
+      <dt>Sin señal</dt><dd>Ni confianza ni valor.</dd>
+      <dt>Valor esperado (EV)</dt><dd>Lo que se espera ganar por cada unidad apostada a esa cuota, según la probabilidad estimada.</dd>
+      <dt>Precio justo</dt><dd>La probabilidad que queda al quitarle el margen a la cuota de una casa de referencia.</dd>
+      <dt>CLV</dt><dd>Diferencia entre la cuota tomada y la de cierre. Positivo es buena señal a largo plazo.</dd>
+      <dt>Unidad</dt><dd>La apuesta base. Ganado: cuota decimal menos uno. Perdido: menos una.</dd>
+    </dl>
+  </section>
+</main>
+
+<footer class="pie">
+  <div class="ancho">
+    <p id="pie-fecha">—</p>
+    <p>Esto es un registro de modelos estadísticos, no una recomendación de apuesta. Las cuotas son de JEL al momento de la captura y pueden haber cambiado. Solo para mayores de 18 años: apuesta solo lo que puedas perder.</p>
+  </div>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

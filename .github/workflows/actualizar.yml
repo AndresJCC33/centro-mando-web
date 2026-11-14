@@ -1,0 +1,34 @@
+name: Actualizar datos de la página
+# Baja lo último del hub (Drive) y las tablas de posiciones, y publica si algo cambió.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "12,42 * * * *"
+concurrency:
+  group: actualizar
+  cancel-in-progress: false
+permissions:
+  contents: write
+jobs:
+  actualizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install curl_cffi
+      - name: Bajar datos
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+        run: python herramientas/actualizar.py
+      - name: Publicar si cambió
+        if: always()
+        run: |
+          git config user.name "centro-mando-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add datos
+          git diff --cached --quiet || (git commit -m "Datos al $(TZ=America/Caracas date '+%d-%b %H:%M')" && git push)
