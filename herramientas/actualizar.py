@@ -27,7 +27,7 @@ def bajar(url, headers=None, datos=None, timeout=40):
         else:
             r = creq.post(url, data=datos, timeout=timeout, headers=headers or {})
         if r.status_code != 200:
-            raise RuntimeError(f"HTTP {r.status_code}")
+            raise RuntimeError(f"HTTP {r.status_code} {(r.text or '')[:200]}")
         return r.content
     except ImportError:
         req = urllib.request.Request(url, data=urllib.parse.urlencode(datos).encode() if datos else None,
