@@ -1,9 +1,11 @@
 """Actualiza los datos de la página:
   datos/vitrina.json     copia de CENTRO_MANDO/datos/vitrina.json en Drive (lo escribe el hub)
+  datos/futbol_dia.json  análisis del día del motor de fútbol (UCL_ENGINE/salidas/ucl_AAAA-MM-DD.csv)
   datos/posiciones.json  tablas de posiciones con últimos 5, racha y promedios, calculadas de fuentes públicas:
                          NBA (cdn.nba.com), LVBP (statsapi.mlb.com) y ligas de fútbol (football-data.co.uk)
 Cada fuente es independiente: si una falla, se conserva lo que ya había de esa liga y se avisa.
 """
+import re
 import csv
 import io
 import json
@@ -66,7 +68,52 @@ def bajar_vitrina():
         raise RuntimeError(f"vitrina.json sin las tablas {sorted(faltan)}")
     with open(os.path.join(DATOS, "vitrina.json"), "wb") as f:
         f.write(cuerpo)
+    try:
+        print("fútbol del día:", bajar_futbol(listar, h))
+    except Exception as e:  # noqa: BLE001
+        AVISOS.append(f"fútbol del día: {type(e).__name__}: {e}")
     return doc.get("generado")
+
+
+CAMPOS_FUTBOL = ["competicion", "partido", "local", "visita", "confianza", "referencia", "pL", "pE", "pV",
+                 "mL", "mE", "mV", "mkL", "mkE", "mkV", "EV_L", "EV_E", "EV_V", "justa_L", "justa_E", "justa_V",
+                 "O15", "O25", "O35", "U25", "BTTS", "O25_justa", "U25_justa", "xG_L", "xG_V",
+                 "marcadores_top5", "tipo_pick", "pick_txt", "pick_ev", "pick_prob", "razon", "tot_pick_txt"]
+
+
+def bajar_futbol(listar, h):
+    """Análisis del día del motor de fútbol: la tabla ucl_AAAA-MM-DD.csv más reciente de UCL_ENGINE/salidas."""
+    raiz = listar("name = 'UCL_ENGINE' and 'root' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false")
+    if not raiz:
+        raise RuntimeError("no encontré UCL_ENGINE")
+    sal = listar(f"name = 'salidas' and '{raiz[0]['id']}' in parents and trashed = false")
+    if not sal:
+        raise RuntimeError("no encontré UCL_ENGINE/salidas")
+    xs = [x for x in listar(f"name contains 'ucl_20' and '{sal[0]['id']}' in parents and trashed = false")
+          if re.fullmatch(r"ucl_\d{4}-\d{2}-\d{2}\.csv", x["name"])]
+    if not xs:
+        raise RuntimeError("no hay ucl_AAAA-MM-DD.csv")
+    x = max(xs, key=lambda x: x["name"])
+    texto = bajar(f"https://www.googleapis.com/drive/v3/files/{x['id']}?alt=media", headers=h).decode("utf-8-sig")
+    partidos = []
+    for r in csv.DictReader(io.StringIO(texto)):
+        d = {}
+        for k in CAMPOS_FUTBOL:
+            v = (r.get(k) or "").strip()
+            if v in ("", "nan", "NaN"):
+                d[k] = None
+                continue
+            try:
+                d[k] = float(v) if k not in ("competicion", "partido", "local", "visita", "confianza", "referencia",
+                                             "marcadores_top5", "tipo_pick", "pick_txt", "razon", "tot_pick_txt") else v
+            except ValueError:
+                d[k] = v
+        partidos.append(d)
+    fecha = x["name"][4:14]
+    doc = {"fecha": fecha, "archivo_modificado": x["modifiedTime"], "partidos": partidos}
+    with open(os.path.join(DATOS, "futbol_dia.json"), "w", encoding="utf-8") as f:
+        json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
+    return f"{fecha} ({len(partidos)} partidos)"
 
 
 # ---------------------------------------------------------------- posiciones

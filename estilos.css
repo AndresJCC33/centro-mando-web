@@ -151,3 +151,10 @@ body[data-dep="NBA"] .regla[data-regla="NBA"], body[data-dep="LVBP"] .regla[data
 td.pos-n { color: var(--tinta-suave); width: 2rem; }
 .controles { flex-wrap: wrap; }
 td:nth-child(-n+2) { white-space: nowrap; }
+
+/* Fútbol del día */
+.juego table.mini { width: 100%; border-collapse: collapse; font-size: 0.86rem; margin: 0.3rem 0; }
+.juego table.mini th { position: static; background: none; font-weight: 600; color: var(--tinta-suave); font-size: 0.75rem; padding: 0.15rem 0.3rem; text-align: right; }
+.juego table.mini td { padding: 0.2rem 0.3rem; border-top: 1px solid var(--linea); }
+.juego table.mini td:first-child { max-width: 8.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.juego table.mini .n { text-align: right; }

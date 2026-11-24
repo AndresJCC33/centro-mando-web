@@ -309,11 +309,62 @@
     llenar('#lig-hist', hist.slice(0, 120).map((r) => ({ celdas: [F.dia(r.fecha), r.partido, r.favorito ? `${corto(r, r.favorito)} ${F.pct(r.p_fav)}` : '—', { t: F.am(r.cuota_fav_am), c: 'n' }, final(r), { t: r.fav_ok === 1 ? 'Acertó' : r.fav_ok === 0 ? 'Falló' : 'Pendiente', c: r.fav_ok === 1 ? 'pos' : r.fav_ok === 0 ? 'neg' : 'tenue' }, decision(r)] })), 'El motor todavía no ha evaluado juegos de esta liga.');
   };
 
+
+  let FUT = null;
+  const RES = { L: 'Local', E: 'Empate', V: 'Visita' };
+  const decAm = (d) => (d >= 2 ? Math.round((d - 1) * 100) : Math.round(-100 / (d - 1)));
+  const pintarFutbol = () => {
+    const sec = $('#futbol');
+    const ps = FUT && Array.isArray(FUT.partidos) ? FUT.partidos : [];
+    sec.hidden = !ps.length || !(dep === 'Todos' || dep === 'Fútbol');
+    if (sec.hidden) return;
+    const conRef = ps.filter((p) => p.referencia).length;
+    $('#fut-nota').textContent = `${FUT.fecha === hoy() ? 'Jornada de hoy' : 'Última jornada analizada'}: ${F.dia(FUT.fecha)}, ${ps.length} partidos. ` +
+      (conRef ? `${conRef} con cuotas de otras casas como referencia.` : 'Sin cuotas de otras casas como referencia: ningún partido puede dar pick confiable.');
+    const picks = $('#fut-picks');
+    picks.replaceChildren();
+    const buenos = ps.filter((p) => p.tipo_pick && !/NO CONFIABLE|SIN/.test(p.tipo_pick));
+    picks.append(el('p', 'resumen', buenos.length ? `Picks del motor: ${buenos.map((p) => `${p.pick_txt} (${p.tipo_pick.toLowerCase()}, ventaja ${F.pcts(p.pick_ev)})`).join('; ')}.` : 'Picks confiables de fútbol: ninguno en esta jornada.'));
+    const caja = $('#fut-juegos');
+    caja.replaceChildren();
+    for (const p of ps) {
+      const c = el('article', 'juego');
+      if (p.tipo_pick && !/NO CONFIABLE|SIN/.test(p.tipo_pick)) c.dataset.estado = 'pick';
+      c.append(el('div', 'liga', `${p.competicion} · confianza ${String(p.confianza || '—').toLowerCase()}${p.referencia ? ' · ref. ' + p.referencia : ''}`));
+      c.append(el('div', 'partido', p.partido));
+      const t = el('table', 'mini');
+      const th = el('tr');
+      for (const h of ['', 'JEL', 'Prob.', 'Justa', 'Ventaja']) th.append(el('th', h ? 'n' : '', h));
+      const thd = el('thead');
+      thd.append(th);
+      t.append(thd);
+      const tb = el('tbody');
+      for (const k of ['L', 'E', 'V']) {
+        const pr = p['p' + k];
+        const ev = p['EV_' + k];
+        const tr = el('tr');
+        tr.append(el('td', '', k === 'L' ? p.local : k === 'V' ? p.visita : 'Empate'));
+        tr.append(el('td', 'n cuota', pr && ev != null ? F.am(decAm((1 + ev) / pr)) : '—'));
+        tr.append(el('td', 'n', F.pct(pr)));
+        tr.append(el('td', 'n', F.am(p['justa_' + k])));
+        tr.append(el('td', 'n ' + signo(ev), F.pcts(ev)));
+        tb.append(tr);
+      }
+      t.append(tb);
+      c.append(t);
+      c.append(el('div', 'detalle', `Goles esperados ${nf(1).format(p.xG_L)} – ${nf(1).format(p.xG_V)}. Más de 2.5: ${F.pct(p.O25)} (justa ${F.am(p.O25_justa)}); menos de 2.5: ${F.pct(p.U25)}. Más de 1.5: ${F.pct(p.O15)}; más de 3.5: ${F.pct(p.O35)}. Ambos anotan: ${F.pct(p.BTTS)}.`));
+      if (p.marcadores_top5) c.append(el('div', 'detalle', 'Marcadores más repetidos: ' + p.marcadores_top5.split(', ').slice(0, 3).join(', ') + '.'));
+      if (p.tipo_pick) c.append(el('div', 'detalle ' + (/NO CONFIABLE/.test(p.tipo_pick) ? 'neg' : 'pos'), `${p.tipo_pick === 'NO CONFIABLE' ? 'No confiable (no apostar)' : p.tipo_pick}: ${p.pick_txt}, ventaja ${F.pcts(p.pick_ev)}${p.razon ? '. ' + p.razon : ''}.`));
+      caja.append(c);
+    }
+  };
+
   const pintar = () => {
     document.body.dataset.dep = dep;
     document.querySelectorAll('.deportes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dep === dep)));
     const dia = pintarCabecera();
     pintarHoy(dia);
+    pintarFutbol();
     pintarResultados();
     pintarLigas();
     pintarRendimiento();
@@ -328,8 +379,9 @@
   window.addEventListener('resize', () => { if (D && window.innerWidth !== ancho) { ancho = window.innerWidth; pintarRendimiento(); } });
 
   const leer = (u) => fetch(u, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] }))])
-    .then(([doc, pos]) => {
+  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null)])
+    .then(([doc, pos, fut]) => {
+      FUT = fut;
       D = doc;
       P = pos && Array.isArray(pos.ligas) ? pos : { ligas: [] };
       for (const n of ['picks', 'modelo', 'motores', 'previa', 'precio', 'juegos', 'filtros']) T[n] = tabla(n);
