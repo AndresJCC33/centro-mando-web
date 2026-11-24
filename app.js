@@ -312,6 +312,13 @@
 
   let FUT = null;
   const RES = { L: 'Local', E: 'Empate', V: 'Visita' };
+  const PROB_MIN = 0.45;
+  const estadoFut = (p) => {
+    if (!p.tipo_pick) return null;
+    if (/NO CONFIABLE/.test(p.tipo_pick)) return { ok: false, txt: 'No confiable (no apostar)' };
+    if (p.pick_prob != null && p.pick_prob < PROB_MIN) return { ok: false, txt: `Valor sin confianza: prob. ${F.pct(p.pick_prob, 1)}, bajo el 45 % que exige un pick confiable (no apostar)` };
+    return { ok: true, txt: 'Pick confiable' };
+  };
   const decAm = (d) => (d >= 2 ? Math.round((d - 1) * 100) : Math.round(-100 / (d - 1)));
   const pintarFutbol = () => {
     const sec = $('#futbol');
@@ -323,13 +330,16 @@
       (conRef ? `${conRef} con cuotas de otras casas como referencia.` : 'Sin cuotas de otras casas como referencia: ningún partido puede dar pick confiable.');
     const picks = $('#fut-picks');
     picks.replaceChildren();
-    const buenos = ps.filter((p) => p.tipo_pick && !/NO CONFIABLE|SIN/.test(p.tipo_pick));
-    picks.append(el('p', 'resumen', buenos.length ? `Picks del motor: ${buenos.map((p) => `${p.pick_txt} (${p.tipo_pick.toLowerCase()}, ventaja ${F.pcts(p.pick_ev)})`).join('; ')}.` : 'Picks confiables de fútbol: ninguno en esta jornada.'));
+    const buenos = ps.filter((p) => estadoFut(p) && estadoFut(p).ok);
+    const valor = ps.filter((p) => estadoFut(p) && !estadoFut(p).ok && !/NO CONFIABLE/.test(p.tipo_pick));
+    picks.append(el('p', 'resumen', buenos.length ? `Picks confiables: ${buenos.map((p) => `${p.pick_txt} (prob. ${F.pct(p.pick_prob)}, ventaja ${F.pcts(p.pick_ev)})`).join('; ')}.` : 'Picks confiables de fútbol: ninguno en esta jornada.'));
+    if (valor.length) picks.append(el('p', 'nota', `Con valor pero sin confianza (no se apuestan, quedan simulados): ${valor.map((p) => `${p.pick_txt}, prob. ${F.pct(p.pick_prob)}`).join('; ')}.`));
     const caja = $('#fut-juegos');
     caja.replaceChildren();
     for (const p of ps) {
       const c = el('article', 'juego');
-      if (p.tipo_pick && !/NO CONFIABLE|SIN/.test(p.tipo_pick)) c.dataset.estado = 'pick';
+      const est = estadoFut(p);
+      if (est && est.ok) c.dataset.estado = 'pick';
       c.append(el('div', 'liga', `${p.competicion} · confianza ${String(p.confianza || '—').toLowerCase()}${p.referencia ? ' · ref. ' + p.referencia : ''}`));
       c.append(el('div', 'partido', p.partido));
       const t = el('table', 'mini');
@@ -354,7 +364,7 @@
       c.append(t);
       c.append(el('div', 'detalle', `Goles esperados ${nf(1).format(p.xG_L)} – ${nf(1).format(p.xG_V)}. Más de 2.5: ${F.pct(p.O25)} (justa ${F.am(p.O25_justa)}); menos de 2.5: ${F.pct(p.U25)}. Más de 1.5: ${F.pct(p.O15)}; más de 3.5: ${F.pct(p.O35)}. Ambos anotan: ${F.pct(p.BTTS)}.`));
       if (p.marcadores_top5) c.append(el('div', 'detalle', 'Marcadores más repetidos: ' + p.marcadores_top5.split(', ').slice(0, 3).join(', ') + '.'));
-      if (p.tipo_pick) c.append(el('div', 'detalle ' + (/NO CONFIABLE/.test(p.tipo_pick) ? 'neg' : 'pos'), `${p.tipo_pick === 'NO CONFIABLE' ? 'No confiable (no apostar)' : p.tipo_pick}: ${p.pick_txt}, ventaja ${F.pcts(p.pick_ev)}${p.razon ? '. ' + p.razon : ''}.`));
+      if (est) c.append(el('div', 'detalle ' + (est.ok ? 'pos' : 'neg'), `${est.txt}: ${p.pick_txt}, ventaja ${F.pcts(p.pick_ev)}${p.razon ? '. ' + p.razon.charAt(0).toUpperCase() + p.razon.slice(1) : ''}.`));
       caja.append(c);
     }
   };
