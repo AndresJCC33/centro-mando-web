@@ -20,6 +20,7 @@ from actualizar import bajar, CARACAS, DATOS  # noqa: E402
 
 API = "https://api.the-odds-api.com/v4"
 VENTAJA = 0.04
+VENTAJA_MAX = 0.15
 # deporte en The Odds API -> (nombre en la página, deporte de la página, mercados)
 LIGAS = {
     "soccer_uefa_champs_league": ("Champions League", "Fútbol", "h2h"),
@@ -121,6 +122,10 @@ def analizar_evento(e, ahora):
         m = next((m for m in b["markets"] if m["key"] == "h2h"), None)
         if not m:
             continue
+        # Mismo mercado que Pinnacle: en hockey algunas casas dan a 3 vías (90 minutos con empate) y su cuota
+        # de cada equipo no es comparable con la de Pinnacle, que incluye la prórroga.
+        if len(m["outcomes"]) != len(mk["outcomes"]) or {o["name"] for o in m["outcomes"]} != set(inv):
+            continue
         for o in m["outcomes"]:
             blandas.setdefault(o["name"], []).append((o["price"], b["title"]))
     orden = [e["home_team"]] + (["Draw"] if "Draw" in justa else []) + [e["away_team"]]
@@ -132,6 +137,10 @@ def analizar_evento(e, ahora):
         ofertas = sorted(blandas.get(nombre, []), reverse=True)
         mejor, casa = (ofertas[0] if ofertas else (None, None))
         ventaja = mejor * p - 1 if mejor else None
+        if ventaja is not None and ventaja > VENTAJA_MAX:  # más que esto es casi siempre un error de la casa o del mercado
+            ofertas = [(c, k) for c, k in ofertas if c * p - 1 <= VENTAJA_MAX]
+            mejor, casa = (ofertas[0] if ofertas else (None, None))
+            ventaja = mejor * p - 1 if mejor else None
         n_valor = sum(1 for c, _ in ofertas if c * p - 1 >= VENTAJA)
         tipo = ""
         if ventaja is not None and ventaja >= VENTAJA:
