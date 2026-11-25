@@ -1,0 +1,37 @@
+name: Vigilante de precios
+# Cuotas de Pinnacle y casas blandas (The Odds API) para las ligas elegidas; publica datos/precios.json.
+on:
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "vacío = corrida normal; sondeo = ver créditos y casas"
+        default: ""
+permissions:
+  contents: write
+concurrency:
+  group: actualizar
+  cancel-in-progress: false
+jobs:
+  precios:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install curl_cffi
+      - name: Precios
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+        run: python herramientas/precios.py ${{ inputs.modo }}
+      - name: Publicar si cambió
+        if: ${{ inputs.modo != 'sondeo' }}
+        run: |
+          git config user.name "centro-mando-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull -q --rebase origin main || true
+          git add datos
+          git diff --cached --quiet || (git commit -m "Precios al $(TZ=America/Caracas date '+%d-%b %H:%M')" && git push)
