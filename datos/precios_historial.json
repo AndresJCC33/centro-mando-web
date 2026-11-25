@@ -1,0 +1,52 @@
+{
+"picks": [
+{
+"id": "87fec8c093d5b8f825bc61121105cc27|Stanford Cardinal",
+"evento": "87fec8c093d5b8f825bc61121105cc27",
+"deporte_api": "basketball_ncaab",
+"liga": "NCAAB",
+"deporte": "NCAAB",
+"fecha": "2026-11-26",
+"inicio": "2026-11-26T00:59-04:00",
+"partido": "Saint Louis Billikens vs Stanford Cardinal",
+"seleccion": "Stanford Cardinal",
+"clave": "Stanford Cardinal",
+"cuota": 170,
+"cuota_dec": 2.7,
+"casa": "Everygame",
+"p_justa": 0.4025,
+"ventaja": 0.0868,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-25T12:58-04:00",
+"p_cierre": 0.4025,
+"clv": 0.0868,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+},
+{
+"id": "836e49363e2e574ede8873b9e53cb5f7|South Carolina Gamecocks",
+"evento": "836e49363e2e574ede8873b9e53cb5f7",
+"deporte_api": "basketball_ncaab",
+"liga": "NCAAB",
+"deporte": "NCAAB",
+"fecha": "2026-11-25",
+"inicio": "2026-11-25T17:30-04:00",
+"partido": "USC Trojans vs South Carolina Gamecocks",
+"seleccion": "South Carolina Gamecocks",
+"clave": "South Carolina Gamecocks",
+"cuota": 470,
+"cuota_dec": 5.701,
+"casa": "Everygame",
+"p_justa": 0.1861,
+"ventaja": 0.0609,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-25T12:58-04:00",
+"p_cierre": 0.1861,
+"clv": 0.0609,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+}
+]
+}
