@@ -225,6 +225,11 @@ def correr():
             partidos.append(a)
             for l in a["lados"]:
                 pid = f"{e['id']}|{l['clave']}"
+                # antes de empezar, un pick guardado toma la clasificación vigente (cambió la regla o la cuota)
+                if l["tipo"] and pid in picks and picks[pid]["resultado"] == "PENDIENTE" and picks[pid]["tipo"] != l["tipo"]:
+                    dec = (1 + l["ventaja"]) / l["p"]
+                    picks[pid].update(tipo=l["tipo"], cuota=l["mejor"], cuota_dec=round(dec, 3), casa=l["casa"],
+                                      p_justa=l["p"], ventaja=l["ventaja"])
                 if l["tipo"] and pid not in picks:
                     dec = (1 + l["ventaja"]) / l["p"]
                     picks[pid] = dict(id=pid, evento=e["id"], deporte_api=k, liga=nombre, deporte=deporte,
