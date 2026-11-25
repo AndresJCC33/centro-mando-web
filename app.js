@@ -619,7 +619,10 @@
     caja.replaceChildren();
     const ls = ligasPrecio();
     const conf = ls.flatMap((l) => l.partidos.filter((p) => new Date(p.inicio) > new Date()).flatMap((p) => p.lados.filter((x) => x.tipo === 'PICK CONFIABLE').map((x) => ({ ...x, p_: p, liga: l.nombre }))));
-    if (!conf.length) return;
+    if (!conf.length) {
+      if (SOLO_PRECIO.has(dep)) caja.append(el('p', 'sin-pick', `Ahora mismo ninguna casa paga 4 % o más sobre el precio justo en ${dep}. Todos los juegos y cuotas están en la pestaña Precios.`));
+      return;
+    }
     caja.append(el('h3', '', 'Picks por precio (vigilante)'));
     for (const l of conf) {
       const c = el('article', 'pick');
@@ -633,7 +636,7 @@
   // ---------------------------------------------------------------- Pestañas
   const PESTANAS = ['hoy', 'precios', 'futbol', 'resultados', 'historial', 'ligas', 'mas'];
   // Fútbol solo con Todos o Fútbol; Posiciones solo donde hay tabla de posiciones
-  const tabVisible = (tab) => (tab === 'precios' ? dep !== 'MLB' : tab === 'futbol' ? dep === 'Todos' || dep === 'Fútbol' : tab === 'ligas' ? ['Todos', 'NBA', 'LVBP', 'Fútbol'].includes(dep) : true);
+  const tabVisible = (tab) => (tab === 'precios' ? !['MLB', 'LVBP'].includes(dep) : tab === 'resultados' ? !SOLO_PRECIO.has(dep) : tab === 'futbol' ? dep === 'Todos' || dep === 'Fútbol' : tab === 'ligas' ? ['Todos', 'NBA', 'LVBP', 'Fútbol'].includes(dep) : true);
   let tabActual = 'hoy';
   const ajustarTabs = () => {
     document.querySelectorAll('.pestanas button').forEach((b) => { b.hidden = !tabVisible(b.dataset.tab); });
@@ -716,6 +719,11 @@
   const pintar = () => {
     document.body.dataset.dep = dep;
     ajustarTabs();
+    $('#hoy-bloque-picks').hidden = dep === 'MLB';
+    $('#hoy-picks').hidden = SOLO_PRECIO.has(dep);
+    $('#hoy-bloque-motor').hidden = dep === 'MLB' || SOLO_PRECIO.has(dep);
+    $('#motor').hidden = SOLO_PRECIO.has(dep);
+    $('#explorar').hidden = SOLO_PRECIO.has(dep);
     document.querySelectorAll('.deportes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dep === dep)));
     pintarComoMotor();
     const dia = pintarCabecera();

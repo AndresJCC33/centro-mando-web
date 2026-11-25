@@ -119,8 +119,12 @@ select { font: inherit; padding: 0.4rem 0.6rem; border: 1px solid var(--linea); 
 .regla[data-regla="Fútbol"] { border-top-color: #3ccf86; }
 .regla h3 { margin: 0 0 0.5rem; font-family: "Big Shoulders Display", sans-serif; font-weight: 800; font-size: 1.6rem; }
 .regla ol { margin: 0; padding-left: 1.2rem; display: grid; gap: 0.45rem; font-size: 0.95rem; }
-body:not([data-dep="Todos"]) .regla { opacity: 0.45; }
-body[data-dep="NBA"] .regla[data-regla="NBA"], body[data-dep="LVBP"] .regla[data-regla="LVBP"], body[data-dep="Fútbol"] .regla[data-regla="Fútbol"] { opacity: 1; }
+/* Reglas: con un deporte elegido solo se ven las suyas */
+body:not([data-dep="Todos"]) .regla { display: none; }
+body[data-dep="NBA"] .regla[data-regla="NBA"], body[data-dep="LVBP"] .regla[data-regla="LVBP"], body[data-dep="MLB"] .regla[data-regla="MLB"],
+body[data-dep="Fútbol"] .regla[data-regla="Fútbol"], body[data-dep="Fútbol"] .regla[data-regla="Precios"],
+body[data-dep="NCAAB"] .regla[data-regla="Precios"], body[data-dep="NHL"] .regla[data-regla="Precios"], body[data-dep="NFL"] .regla[data-regla="Precios"] { display: block; }
+.regla[data-regla="MLB"] { border-top-color: #d94a4a; }
 .glosario { display: grid; grid-template-columns: minmax(9rem, max-content) 1fr; gap: 0.5rem 1.25rem; margin: 0.5rem 0 0; }
 .glosario dt { font-weight: 600; }
 .glosario dd { margin: 0; color: var(--tinta-suave); }

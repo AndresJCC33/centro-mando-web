@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css">
+<link rel="stylesheet" href="estilos.css?v=20261125d">
 </head>
 <body data-dep="Todos">
 <header class="cancha" id="inicio">
@@ -51,15 +51,19 @@
       <ol class="pasos" id="motor-pasos"></ol>
       <p class="nota" id="motor-nota"></p>
     </div>
+    <div id="hoy-bloque-picks">
     <h2>Picks de hoy</h2>
     <p class="nota">Solo lo que pasó todos los filtros de su deporte. Si no hay ninguno, hoy no se apuesta.</p>
     <div id="hoy-picks"></div>
     <div id="hoy-vigilante"></div>
+    </div>
+    <div id="hoy-bloque-motor">
     <h3>Lo que el motor ve en cada juego</h3>
     <p class="nota">Que vea un ganador no es una apuesta: solo cuenta lo marcado como pick confiable.</p>
     <div class="juegos" id="hoy-juegos"></div>
     <h3>Picks esperando resultado</h3>
     <div class="caja"><table id="hoy-pend"><thead><tr><th>Fecha</th><th>Juego</th><th>Pick</th><th class="n">Cuota</th><th>Tipo</th></tr></thead><tbody></tbody></table></div>
+    </div>
   </section>
 
   <section id="precios" data-tab="precios">
@@ -184,6 +188,14 @@
         </ol>
         <p class="nota">Basado en el estudio de 38 ligas: cuando una casa blanda pagó 4 % o más sobre Pinnacle, esas apuestas le ganaron al cierre en promedio. El historial del vigilante mide si se repite.</p>
       </article>
+      <article class="regla" data-regla="MLB">
+        <h3>MLB</h3>
+        <ol>
+          <li><b>En stand-by:</b> no hay juegos hasta la temporada 2027.</li>
+          <li><b>PRO V5 y V5 base:</b> sus picks de 2026 quedan como historial; el PRO V5 perdió contra el V3 en el backtest.</li>
+          <li><b>V3:</b> sus señales van con monto 0 hasta validar 300 señales que le ganen al cierre (CLV positivo).</li>
+        </ol>
+      </article>
       <article class="regla" data-regla="Fútbol">
         <h3>Fútbol</h3>
         <ol>
@@ -215,6 +227,6 @@
     <p>Esto es un registro de modelos estadísticos, no una recomendación de apuesta. Las cuotas son las del momento en que se tomaron y pueden haber cambiado. Solo para mayores de 18 años: apuesta solo lo que puedas perder.</p>
   </div>
 </footer>
-<script src="app.js"></script>
+<script src="app.js?v=20261125d"></script>
 </body>
 </html>
