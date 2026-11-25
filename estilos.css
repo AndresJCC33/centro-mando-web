@@ -173,3 +173,7 @@ body[data-dep="NCAAB"] { --acento: #4f8cff; --cancha-a: #2b4c8c; --cancha-b: #1d
 .juego .partido { overflow-wrap: anywhere; }
 .juego table.mini { table-layout: fixed; font-size: 0.82rem; }
 .juego table.mini th:first-child, .juego table.mini td:first-child { width: 34%; }
+.como-motor { background: var(--panel); border: 1px solid var(--linea); border-radius: var(--radio); padding: 0.2rem 1rem 0.6rem; margin: 1rem 0 1.5rem; }
+.como-motor h2 { font-size: 1.25rem; }
+.pasos { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.45rem; color: var(--tinta-suave); font-size: 0.92rem; }
+.pasos b { color: var(--tinta); }
