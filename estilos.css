@@ -180,3 +180,12 @@ body[data-dep="NCAAB"] { --acento: #4f8cff; --cancha-a: #2b4c8c; --cancha-b: #1d
 body[data-dep="NHL"] { --acento: #5fb3d9; --cancha-a: #3d6f8a; --cancha-b: #24485c; }
 body[data-dep="NFL"] { --acento: #c9a227; --cancha-a: #3f6b2e; --cancha-b: #2c4d20; }
 body[data-dep="MLB"] { --acento: #d94a4a; --cancha-a: #9a3b2c; --cancha-b: #2e6b45; }
+/* Análisis por partido */
+details.analisis { margin-top: 0.5rem; border-top: 1px solid var(--linea); padding-top: 0.4rem; }
+details.analisis > summary { cursor: pointer; font-weight: 600; font-size: 0.88rem; color: var(--acento); list-style: none; }
+details.analisis > summary::-webkit-details-marker { display: none; }
+details.analisis > summary::before { content: "+ "; }
+details.analisis[open] > summary::before { content: "− "; }
+details.analisis > summary:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+details.analisis p { margin: 0.35rem 0; }
+.juego table.mini.an th:first-child, .juego table.mini.an td:first-child { width: 40%; }

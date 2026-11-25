@@ -140,6 +140,8 @@
       a.append(el('span', 'decision', decision(r) + (r.confiable && r.senal ? `: ${r.senal}` : '')));
       if (!r.confiable && r.senal) a.append(el('span', 'detalle', `Mejor señal: ${r.senal}${r.senal_ev != null ? ` (EV ${F.pcts(r.senal_ev)})` : ''}`));
       if (r.marcador) a.append(el('span', 'detalle', `Final: ${final(r)}`));
+      const an = analisisDe(r.deporte, r.local, r.visitante);
+      if (an) a.append(an);
       caja.append(a);
     }
     const lados = deDep(T.precio).filter((r) => r.fecha === dia && r.p_ref != null && r.ventaja != null).sort((a, b) => Number(b.confiable) - Number(a.confiable) || b.ventaja - a.ventaja).slice(0, 8);
@@ -376,9 +378,107 @@
       c.append(el('div', 'detalle', `Goles esperados ${nf(1).format(p.xG_L)} – ${nf(1).format(p.xG_V)}. Más de 2.5: ${F.pct(p.O25)} (justa ${F.am(p.O25_justa)}); menos de 2.5: ${F.pct(p.U25)}. Más de 1.5: ${F.pct(p.O15)}; más de 3.5: ${F.pct(p.O35)}. Ambos anotan: ${F.pct(p.BTTS)}.`));
       if (p.marcadores_top5) c.append(el('div', 'detalle', 'Marcadores más repetidos: ' + p.marcadores_top5.split(', ').slice(0, 3).join(', ') + '.'));
       if (est) c.append(el('div', 'detalle ' + (est.ok ? 'pos' : 'neg'), `${est.txt}: ${p.pick_txt}, ventaja ${F.pcts(p.pick_ev)}${p.razon ? '. ' + p.razon.charAt(0).toUpperCase() + p.razon.slice(1) : ''}.`));
+      const an = analisisFutbol(p.local, p.visita);
+      if (an) c.append(an);
       caja.append(c);
     }
   };
+
+
+  // ---------------------------------------------------------------- Análisis por partido (estadísticas reales)
+  let AN = null;
+  const n1 = (v) => (v == null || !isFinite(v) ? '—' : nf(1).format(v));
+  const forma = (u) => (u || []).map((x) => x.r).join(' ');
+  const tablaAn = (cab, filas) => {
+    const t = el('table', 'mini an');
+    const thd = el('thead');
+    const tr = el('tr');
+    cab.forEach((h, i) => tr.append(el('th', i ? 'n' : '', h)));
+    thd.append(tr);
+    t.append(thd);
+    const tb = el('tbody');
+    for (const f of filas) {
+      const r = el('tr');
+      f.forEach((v, i) => r.append(el('td', i ? 'n' : '', v)));
+      tb.append(r);
+    }
+    t.append(tb);
+    return t;
+  };
+  const plegable = (titulo, ...hijos) => {
+    const d = el('details', 'analisis');
+    d.append(el('summary', '', titulo), ...hijos);
+    return d;
+  };
+  // proyección: promedio entre lo que hace cada equipo y lo que concede su rival
+  const proy = (a, b) => (a == null || b == null ? null : (a + b) / 2);
+  const ladoFut = (e, casa) => {
+    const l = e[casa ? 'casa' : 'fuera'];
+    const o = e[casa ? 'fuera' : 'casa'];
+    if (l && l.pj >= 3) return l;
+    const m = {};   // con menos de 3 partidos de ese lado, uso el promedio de los dos lados
+    for (const k of Object.keys({ ...l, ...o })) if (k !== 'pj') m[k] = l && l[k] != null && o && o[k] != null ? (l[k] + o[k]) / 2 : (l && l[k]) ?? (o && o[k]);
+    return m;
+  };
+  const STATS_FUT = [['goles', 'Goles'], ['tiros', 'Tiros'], ['arco', 'Tiros al arco'], ['corners', 'Córners'], ['faltas', 'Faltas'], ['amarillas', 'Amarillas'], ['rojas', 'Rojas']];
+  const analisisFutbol = (local, visita) => {
+    if (!AN || !AN.futbol) return null;
+    const nom = (n) => AN.futbol.nombres[n] || (AN.futbol.equipos[n] ? n : null);
+    const L = AN.futbol.equipos[nom(local)];
+    const V = AN.futbol.equipos[nom(visita)];
+    if (!L || !V) return null;
+    const a = ladoFut(L, true);
+    const b = ladoFut(V, false);
+    const filas = [];
+    for (const [k, t] of STATS_FUT) {
+      const pl = proy(a[k], b[k + '_c']);
+      const pv = proy(b[k], a[k + '_c']);
+      if (pl == null && pv == null) continue;
+      filas.push([t, n1(pl), n1(pv), n1(pl != null && pv != null ? pl + pv : null)]);
+    }
+    const hijos = [tablaAn(['Proyección', local, visita, 'Partido'], filas)];
+    hijos.push(el('p', 'detalle', `En casa ${local} promedia ${n1(L.casa.goles)} goles a favor y ${n1(L.casa.goles_c)} en contra (${L.casa.pj} PJ); fuera ${visita} promedia ${n1(V.fuera.goles)} y ${n1(V.fuera.goles_c)} (${V.fuera.pj} PJ).`));
+    hijos.push(el('p', 'detalle', `Más de 2.5 goles en sus partidos: ${local} ${F.pct(L.mas25)}, ${visita} ${F.pct(V.mas25)}. Ambos anotan: ${F.pct(L.ambos)} y ${F.pct(V.ambos)}.`));
+    hijos.push(el('p', 'detalle', `Últimos 5 (más reciente primero): ${local} ${forma(L.ultimos)}; ${visita} ${forma(V.ultimos)}.`));
+    hijos.push(el('p', 'nota', `Temporada en curso de su liga (${L.liga}${V.liga !== L.liga ? ' / ' + V.liga : ''}), datos de football-data. La proyección es el promedio entre lo que cada equipo hace (local en casa, visita fuera) y lo que concede su rival; no es la simulación del motor.`));
+    return plegable('Análisis: goles, tiros, córners, faltas y tarjetas', ...hijos);
+  };
+  const NBA_ST = [['pts', 'Puntos'], ['reb', 'Rebotes'], ['ast', 'Asistencias'], ['tri', 'Triples'], ['perd', 'Pérdidas'], ['robos', 'Robos'], ['tapones', 'Tapones'], ['faltas', 'Faltas']];
+  const analisisNBA = (local, visita) => {
+    const L = AN && AN.nba && AN.nba[local];
+    const V = AN && AN.nba && AN.nba[visita];
+    if (!L || !V) return null;
+    const filas = NBA_ST.map(([k, t]) => {
+      const pl = proy(L[k], V[k + '_c']);
+      const pv = proy(V[k], L[k + '_c']);
+      return [t, n1(pl), n1(pv), n1(pl != null && pv != null ? pl + pv : null)];
+    });
+    const hijos = [tablaAn(['Proyección', local, visita, 'Partido'], filas)];
+    hijos.push(el('p', 'detalle', `${local} en casa: ${n1(L.casa.pts)} a favor y ${n1(L.casa.pts_c)} en contra (${L.casa.pj} PJ). ${visita} fuera: ${n1(V.fuera.pts)} y ${n1(V.fuera.pts_c)} (${V.fuera.pj} PJ).`));
+    hijos.push(el('p', 'detalle', `Últimos 5: ${local} ${forma(L.ultimos)}; ${visita} ${forma(V.ultimos)}.`));
+    for (const [eq, E] of [[local, L], [visita, V]]) {
+      if (!E.jugadores || !E.jugadores.length) continue;
+      hijos.push(tablaAn([`${eq} (promedios)`, 'Min', 'Pts', 'Reb', 'Ast', '3P'], E.jugadores.map((j) => [j.n, n1(j.min), n1(j.pts), n1(j.reb), n1(j.ast), n1(j.tri)])));
+    }
+    hijos.push(el('p', 'nota', 'Promedios de la temporada con las cajas oficiales de la NBA. La proyección es el promedio entre lo que hace cada equipo y lo que permite su rival; el total y el margen del motor están arriba.'));
+    return plegable('Análisis: puntos, rebotes, asistencias, triples y jugadores', ...hijos);
+  };
+  const LV_ST = [['carreras', 'Carreras'], ['hits', 'Hits'], ['hr', 'Jonrones'], ['ponches', 'Ponches (bateando)'], ['boletos', 'Boletos (bateando)']];
+  const analisisLVBP = (local, visita) => {
+    const L = AN && AN.lvbp && AN.lvbp[local];
+    const V = AN && AN.lvbp && AN.lvbp[visita];
+    if (!L || !V) return null;
+    const filas = LV_ST.map(([k, t]) => {
+      const pl = proy(L[k], V[k + '_c']);
+      const pv = proy(V[k], L[k + '_c']);
+      return [t, n1(pl), n1(pv), n1(pl != null && pv != null ? pl + pv : null)];
+    });
+    return plegable('Análisis: carreras, hits, jonrones, ponches y boletos',
+      tablaAn(['Proyección', corto({ deporte: 'LVBP' }, local), corto({ deporte: 'LVBP' }, visita), 'Juego'], filas),
+      el('p', 'detalle', `Total de carreras promedio en sus juegos: ${corto({ deporte: 'LVBP' }, local)} ${n1(L.total_prom)}, ${corto({ deporte: 'LVBP' }, visita)} ${n1(V.total_prom)}. Últimos 5: ${forma(L.ultimos)}; ${forma(V.ultimos)}.`),
+      el('p', 'nota', 'Temporada en curso, cajas oficiales de la LVBP. La proyección es el promedio entre lo que hace cada equipo y lo que permite su rival.'));
+  };
+  const analisisDe = (deporte, local, visita) => (deporte === 'Fútbol' ? analisisFutbol(local, visita) : deporte === 'NBA' ? analisisNBA(local, visita) : deporte === 'LVBP' ? analisisLVBP(local, visita) : null);
 
 
   // ---------------------------------------------------------------- Precios (vigilante)
@@ -406,10 +506,10 @@
     }
     const vis = ls.filter((l) => preLiga === 'Todas' || l.nombre === preLiga);
     const ahora = new Date();
-    const partidos = vis.flatMap((l) => l.partidos.map((p) => ({ ...p, liga: l.nombre }))).filter((p) => new Date(p.inicio) > ahora);
+    const partidos = vis.flatMap((l) => l.partidos.map((p) => ({ ...p, liga: l.nombre, dep_: l.deporte }))).filter((p) => new Date(p.inicio) > ahora);
     partidos.sort((a, b) => a.inicio.localeCompare(b.inicio));
     $('#pre-nota').textContent = !PR ? 'El vigilante todavía no ha corrido.' : !ls.length ? 'El vigilante no sigue ligas de este deporte.' :
-      `Cuotas tomadas el ${hora(PR.generado)} (se actualizan a las 8:40 am y 5:40 pm). ${partidos.length} partidos en los próximos días.`;
+      `Cuotas tomadas el ${hora(PR.generado)} (se actualizan una vez al día, 9:40 am). ${partidos.length} partidos en los próximos días.`;
     const picks = $('#pre-picks');
     picks.replaceChildren();
     const lados = partidos.flatMap((p) => p.lados.filter((l) => l.tipo).map((l) => ({ ...l, p_: p })));
@@ -445,6 +545,8 @@
       const fav = [...p.lados].sort((a, b) => b.p - a.p)[0];
       if (fav) c.append(el('div', 'detalle', `Pronóstico: ${fav.nombre === 'Empate' ? 'empate' : 'gana ' + fav.nombre} (${F.pct(fav.p)}).`));
       for (const l of p.lados.filter((x) => x.tipo)) c.append(el('div', 'detalle ' + (l.tipo === 'PICK CONFIABLE' ? 'pos' : 'neg'), `${TIPO_PRE[l.tipo]}: ${l.nombre} ${F.am(l.mejor)} en ${l.casa}, ventaja ${F.pcts(l.ventaja)}${l.tipo === 'PICK CONFIABLE' ? '' : ' (prob. bajo 45 %, no se apuesta)'}.`));
+      const an = p.dep_ === 'Fútbol' ? analisisFutbol(p.local, p.visita) : null;
+      if (an) c.append(an);
       caja.append(c);
     }
     const mas = $('#pre-mas');
@@ -581,8 +683,9 @@
   window.addEventListener('resize', () => { if (D && window.innerWidth !== ancho) { ancho = window.innerWidth; pintarRendimiento(); } });
 
   const leer = (u) => fetch(u, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null)])
-    .then(([doc, pos, fut, pre]) => {
+  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null), leer('datos/analisis.json').catch(() => null)])
+    .then(([doc, pos, fut, pre, an]) => {
+      AN = an;
       FUT = fut;
       PR = pre;
       D = doc;

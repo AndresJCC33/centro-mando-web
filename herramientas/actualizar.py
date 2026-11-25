@@ -243,6 +243,11 @@ def main():
     with open(ruta, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
     print("posiciones:", ", ".join(f"{l['liga']} ({len(l['equipos'])} equipos)" for l in doc["ligas"]) or "ninguna")
+    try:
+        import analisis
+        analisis.correr()
+    except Exception as e:  # noqa: BLE001
+        AVISOS.append(f"análisis: {type(e).__name__}: {e}")
     for a in AVISOS:
         print("AVISO:", a)
     sys.exit(0 if ok else 1)
