@@ -158,3 +158,18 @@ td:nth-child(-n+2) { white-space: nowrap; }
 .juego table.mini td { padding: 0.2rem 0.3rem; border-top: 1px solid var(--linea); }
 .juego table.mini td:first-child { max-width: 8.5rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .juego table.mini .n { text-align: right; }
+
+/* Pestañas */
+.pestanas { display: flex; gap: 0.25rem; overflow-x: auto; scrollbar-width: none; }
+.pestanas button { flex: 0 0 auto; background: none; border: 0; border-bottom: 3px solid transparent; color: var(--tinta-suave); font: 600 0.95rem/1 "Public Sans", system-ui, sans-serif; padding: 0.85rem 0.7rem 0.7rem; cursor: pointer; }
+.pestanas button[aria-selected="true"] { color: var(--tinta); border-bottom-color: var(--acento); }
+.pestanas button:focus-visible, .chips button:focus-visible, .mas-btn:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+main > section.fuera { display: none; }
+.chips { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.6rem 0; }
+.chips button { background: var(--panel); color: var(--tinta); border: 1px solid var(--linea); border-radius: 999px; padding: 0.35rem 0.8rem; font: 600 0.85rem/1.2 "Public Sans", system-ui, sans-serif; cursor: pointer; }
+.chips button[aria-pressed="true"] { background: var(--acento); border-color: var(--acento); color: #fff; }
+.mas-btn { display: block; margin: 0.8rem auto; background: var(--panel); color: var(--tinta); border: 1px solid var(--linea); border-radius: var(--radio); padding: 0.6rem 1.2rem; font: 600 0.9rem "Public Sans", system-ui, sans-serif; cursor: pointer; }
+body[data-dep="NCAAB"] { --acento: #4f8cff; --cancha-a: #2b4c8c; --cancha-b: #1d3466; }
+.juego .partido { overflow-wrap: anywhere; }
+.juego table.mini { table-layout: fixed; font-size: 0.82rem; }
+.juego table.mini th:first-child, .juego table.mini td:first-child { width: 34%; }

@@ -369,12 +369,127 @@
     }
   };
 
+
+  // ---------------------------------------------------------------- Precios (vigilante)
+  let PR = null;
+  let preLiga = 'Todas';
+  let preTope = 20;
+  const DEP_LIGA = (l) => l.deporte;
+  const ligasPrecio = () => (PR && Array.isArray(PR.ligas) ? PR.ligas : []).filter((l) => dep === 'Todos' || DEP_LIGA(l) === dep);
+  const hora = (iso) => {
+    const d = new Date(iso);
+    return Number.isNaN(+d) ? iso : d.toLocaleString('es-VE', { weekday: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
+  };
+  const TIPO_PRE = { 'PICK CONFIABLE': 'Pick confiable', 'VALOR SIN CONFIANZA': 'Valor sin confianza' };
+  const pintarPrecios = () => {
+    const ls = ligasPrecio();
+    const chips = $('#pre-ligas');
+    chips.replaceChildren();
+    if (!ls.some((l) => l.nombre === preLiga)) preLiga = 'Todas';
+    for (const nom of ['Todas', ...ls.map((l) => l.nombre)]) {
+      const b = el('button', '', nom);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(nom === preLiga));
+      b.addEventListener('click', () => { preLiga = nom; preTope = 20; pintarPrecios(); });
+      chips.append(b);
+    }
+    const vis = ls.filter((l) => preLiga === 'Todas' || l.nombre === preLiga);
+    const ahora = new Date();
+    const partidos = vis.flatMap((l) => l.partidos.map((p) => ({ ...p, liga: l.nombre }))).filter((p) => new Date(p.inicio) > ahora);
+    partidos.sort((a, b) => a.inicio.localeCompare(b.inicio));
+    $('#pre-nota').textContent = !PR ? 'El vigilante todavía no ha corrido.' : !ls.length ? 'El vigilante no sigue ligas de este deporte.' :
+      `Cuotas tomadas el ${hora(PR.generado)} (se actualizan a las 8:40 am y 5:40 pm). ${partidos.length} partidos en los próximos días.`;
+    const picks = $('#pre-picks');
+    picks.replaceChildren();
+    const lados = partidos.flatMap((p) => p.lados.filter((l) => l.tipo).map((l) => ({ ...l, p_: p })));
+    const conf = lados.filter((l) => l.tipo === 'PICK CONFIABLE');
+    const val = lados.filter((l) => l.tipo !== 'PICK CONFIABLE');
+    picks.append(el('p', 'resumen', conf.length ? `Picks confiables: ${conf.map((l) => `${l.nombre} ${F.am(l.mejor)} en ${l.casa} (${l.p_.local} vs ${l.p_.visita}, prob. ${F.pct(l.p)}, ventaja ${F.pcts(l.ventaja)})`).join('; ')}.` : 'Picks confiables por precio: ninguno ahora mismo.'));
+    if (val.length) picks.append(el('p', 'nota', `Con valor pero sin confianza (menos de 45 %, no se apuestan): ${val.map((l) => `${l.nombre} ${F.am(l.mejor)}, prob. ${F.pct(l.p)}`).join('; ')}.`));
+    const caja = $('#pre-juegos');
+    caja.replaceChildren();
+    for (const p of partidos.slice(0, preTope)) {
+      const c = el('article', 'juego');
+      if (p.lados.some((l) => l.tipo === 'PICK CONFIABLE')) c.dataset.estado = 'pick';
+      c.append(el('div', 'liga', `${p.liga} · ${hora(p.inicio)}`));
+      c.append(el('div', 'partido', `${p.local} vs ${p.visita}`));
+      const t = el('table', 'mini');
+      const thd = el('thead');
+      const th = el('tr');
+      for (const h of ['', 'Prob.', 'Justa', 'Mín. JEL', 'Casa']) th.append(el('th', h ? 'n' : '', h));
+      thd.append(th);
+      t.append(thd);
+      const tb = el('tbody');
+      for (const l of p.lados) {
+        const tr = el('tr');
+        tr.append(el('td', '', l.nombre));
+        tr.append(el('td', 'n', F.pct(l.p)));
+        tr.append(el('td', 'n', F.am(l.justa)));
+        tr.append(el('td', 'n cuota', F.am(l.minima_jel)));
+        tr.append(el('td', 'n ' + (l.tipo ? 'pos' : ''), l.mejor == null ? '—' : F.am(l.mejor)));
+        tb.append(tr);
+      }
+      t.append(tb);
+      c.append(t);
+      const fav = [...p.lados].sort((a, b) => b.p - a.p)[0];
+      if (fav) c.append(el('div', 'detalle', `Pronóstico: ${fav.nombre === 'Empate' ? 'empate' : 'gana ' + fav.nombre} (${F.pct(fav.p)}).`));
+      for (const l of p.lados.filter((x) => x.tipo)) c.append(el('div', 'detalle ' + (l.tipo === 'PICK CONFIABLE' ? 'pos' : 'neg'), `${TIPO_PRE[l.tipo]}: ${l.nombre} ${F.am(l.mejor)} en ${l.casa}, ventaja ${F.pcts(l.ventaja)}${l.tipo === 'PICK CONFIABLE' ? '' : ' (prob. bajo 45 %, no se apuesta)'}.`));
+      caja.append(c);
+    }
+    const mas = $('#pre-mas');
+    mas.hidden = partidos.length <= preTope;
+    // historial
+    const hist = (PR && PR.picks ? PR.picks : []).filter((x) => dep === 'Todos' || x.deporte === dep).filter((x) => preLiga === 'Todas' || x.liga === preLiga);
+    const reales = hist.filter((x) => x.tipo === 'PICK CONFIABLE');
+    const resumen = (xs) => {
+      const liq = xs.filter((x) => x.resultado === 'GANADO' || x.resultado === 'PERDIDO');
+      const u = liq.reduce((s, x) => s + (x.unidades || 0), 0);
+      const clv = xs.filter((x) => x.clv != null);
+      const cm = clv.length ? clv.reduce((s, x) => s + x.clv, 0) / clv.length : null;
+      return `${xs.length} picks, ${liq.filter((x) => x.resultado === 'GANADO').length}-${liq.filter((x) => x.resultado === 'PERDIDO').length}, ${F.u(u)} u, CLV medio ${F.pcts(cm)}`;
+    };
+    $('#pre-resumen').textContent = hist.length ? `Confiables: ${resumen(reales)}. Todos (incluye valor sin confianza, simulados): ${resumen(hist)}.` : 'Todavía no hay picks guardados.';
+    llenar('#pre-hist', hist.slice(0, 60).map((x) => ({ celdas: [
+      F.dia(x.fecha), `${x.partido}${x.marcador ? ' (' + x.marcador + ')' : ''}`, `${x.seleccion} · ${x.casa}`, F.am(x.cuota),
+      { t: F.pcts(x.ventaja), c: 'n pos' }, { t: F.pcts(x.clv), c: 'n ' + signo(x.clv) },
+      { t: x.resultado === 'PENDIENTE' ? 'Pendiente' : x.resultado === 'GANADO' ? 'Ganado' : 'Perdido', c: x.resultado === 'GANADO' ? 'pos' : x.resultado === 'PERDIDO' ? 'neg' : '' },
+      TIPO_PRE[x.tipo] || x.tipo] })), 'Sin picks guardados todavía.');
+  };
+  const pintarVigilanteHoy = () => {
+    const caja = $('#hoy-vigilante');
+    caja.replaceChildren();
+    const ls = ligasPrecio();
+    const conf = ls.flatMap((l) => l.partidos.filter((p) => new Date(p.inicio) > new Date()).flatMap((p) => p.lados.filter((x) => x.tipo === 'PICK CONFIABLE').map((x) => ({ ...x, p_: p, liga: l.nombre }))));
+    if (!conf.length) return;
+    caja.append(el('h3', '', 'Picks por precio (vigilante)'));
+    for (const l of conf) {
+      const c = el('article', 'pick');
+      c.append(el('div', 'liga', `${l.liga} · ${hora(l.p_.inicio)}`));
+      c.append(el('div', 'partido', `${l.p_.local} vs ${l.p_.visita}`));
+      c.append(el('div', 'detalle pos', `${l.nombre}: en JEL tómalo solo a ${F.am(l.minima_jel)} o mejor (prob. ${F.pct(l.p)}; ${l.casa} paga ${F.am(l.mejor)}).`));
+      caja.append(c);
+    }
+  };
+
+  // ---------------------------------------------------------------- Pestañas
+  const PESTANAS = ['hoy', 'precios', 'futbol', 'resultados', 'ligas', 'mas'];
+  const mostrar = (tab) => {
+    if (!PESTANAS.includes(tab)) tab = 'hoy';
+    document.querySelectorAll('main > section[data-tab]').forEach((s) => s.classList.toggle('fuera', s.dataset.tab !== tab));
+    document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
+    if (location.hash.slice(1) !== tab) history.replaceState(null, '', '#' + tab);
+  };
+  document.querySelectorAll('.pestanas button').forEach((b) => b.addEventListener('click', () => { mostrar(b.dataset.tab); window.scrollTo({ top: document.querySelector('.indice').offsetTop, behavior: 'smooth' }); }));
+  mostrar(location.hash.slice(1));
+
   const pintar = () => {
     document.body.dataset.dep = dep;
     document.querySelectorAll('.deportes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dep === dep)));
     const dia = pintarCabecera();
     pintarHoy(dia);
     pintarFutbol();
+    pintarPrecios();
+    pintarVigilanteHoy();
     pintarResultados();
     pintarLigas();
     pintarRendimiento();
@@ -384,14 +499,16 @@
 
   document.querySelectorAll('.deportes button').forEach((b) => b.addEventListener('click', () => { dep = b.dataset.dep; pintar(); }));
   $('#res-dia').addEventListener('change', () => pintarResultados());
+  $('#pre-mas').addEventListener('click', () => { preTope += 20; pintarPrecios(); });
   $('#lig-sel').addEventListener('change', () => pintarLigas());
   let ancho = window.innerWidth;
   window.addEventListener('resize', () => { if (D && window.innerWidth !== ancho) { ancho = window.innerWidth; pintarRendimiento(); } });
 
   const leer = (u) => fetch(u, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null)])
-    .then(([doc, pos, fut]) => {
+  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null)])
+    .then(([doc, pos, fut, pre]) => {
       FUT = fut;
+      PR = pre;
       D = doc;
       P = pos && Array.isArray(pos.ligas) ? pos : { ligas: [] };
       for (const n of ['picks', 'modelo', 'motores', 'previa', 'precio', 'juegos', 'filtros']) T[n] = tabla(n);

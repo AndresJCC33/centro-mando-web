@@ -30,9 +30,9 @@ LIGAS = {
 }
 SHARP = "pinnacle"
 REGIONES = "eu"
-NO_BLANDAS = {"pinnacle", "betfair_ex_eu", "betfair_ex_uk", "betfair_ex_au", "smarkets", "matchbook", "betonlineag", "lowvig"}
+NO_BLANDAS = {"pinnacle", "everygame", "gtbets", "betfair_ex_eu", "betfair_ex_uk", "betfair_ex_au", "smarkets", "matchbook", "betonlineag", "lowvig"}
 PROB_MIN = 0.45
-HORAS = 48
+HORAS = 96
 HIST = os.path.join(DATOS, "precios_historial.json")
 SALIDA = os.path.join(DATOS, "precios.json")
 
