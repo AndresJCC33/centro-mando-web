@@ -125,7 +125,11 @@
     const caja = $('#hoy-juegos');
     caja.replaceChildren();
     const delDia = deDep(T.previa).filter((r) => r.fecha === dia).sort((a, b) => Number(b.confiable) - Number(a.confiable) || String(a.deporte).localeCompare(b.deporte) || (b.p_fav || 0) - (a.p_fav || 0));
-    if (!delDia.length) caja.append(el('p', 'vacio', 'Todavía no hay juegos de hoy. Aparecen cuando se cargan las cuotas del día.'));
+    if (SOLO_PRECIO.has(dep)) {
+      const n = pintarMotorEEUU(caja, dia);
+      if (!n) caja.append(el('p', 'vacio', `Hoy no hay juegos de ${dep} con cuotas.`));
+    }
+    if (!delDia.length && !SOLO_PRECIO.has(dep)) caja.append(el('p', 'vacio', 'Todavía no hay juegos de hoy. Aparecen cuando se cargan las cuotas del día.'));
     for (const r of delDia) {
       const a = el('article', 'juego');
       a.dataset.estado = r.confiable ? 'pick' : r.fav_ok === 1 ? 'acerto' : r.fav_ok === 0 ? 'fallo' : '';
@@ -520,11 +524,50 @@
     llenar('#his-motores', [...por.entries()].map(([m, ys]) => { const r = rec(ys); return { celdas: [m, { t: String(ys.length), c: 'n' }, { t: `${r.g}-${r.p}-${r.pu}`, c: 'n' }, { t: r.n ? F.u(r.u) : '—', c: 'n ' + signo(r.u) }, { t: r.n ? F.pcts(r.u / r.n) : '—', c: 'n ' + signo(r.u) }] }; }), 'Sin picks guardados para este deporte.');
     llenar('#his-picks', xs.slice(0, hisTopeP).map((p) => ({ celdas: [F.dia(p.fecha), p.partido, p.sel, { t: F.am(p.cuota), c: 'n' }, { t: p.resultado.charAt(0) + p.resultado.slice(1).toLowerCase(), c: p.resultado === 'GANADO' ? 'pos' : p.resultado === 'PERDIDO' ? 'neg' : 'tenue' }, { t: F.u(p.u), c: 'n ' + signo(p.u) }, p.real ? 'Real' : 'Simulado'] })), 'Sin picks con ese filtro.');
     $('#his-mas-p').hidden = xs.length <= hisTopeP;
-    const js = deDep(T.juegos).filter((j) => j.origen === 'real' && (sel.value === 'todos' || String(j.fecha).startsWith(sel.value))).sort((a, b) => String(b.fecha).localeCompare(a.fecha));
+    const deME = (ME && ME.historial ? ME.historial : []).filter((x) => x.marcador && (dep === 'Todos' || x.deporte === dep))
+      .map((x) => ({ fecha: x.fecha, partido: x.partido, marcador: x.marcador, p_mod: x.gano_local ? x.p_motor : 1 - x.p_motor, fav_ok: (x.p_motor >= 0.5) === x.gano_local ? 1 : 0 }));
+    const js = deDep(T.juegos).filter((j) => j.origen === 'real').concat(deME).filter((j) => sel.value === 'todos' || String(j.fecha).startsWith(sel.value)).sort((a, b) => String(b.fecha).localeCompare(a.fecha));
     const ok = js.filter((j) => j.fav_ok === 1).length;
     $('#his-jres').textContent = js.length ? `${js.length} juegos terminados; el favorito del motor acertó ${ok} (${F.pct(ok / js.length)}).` : '';
-    llenar('#his-juegos', js.slice(0, hisTopeJ).map((j) => ({ celdas: [F.dia(j.fecha), j.partido, j.marcador || '—', { t: F.pct(j.p_mod), c: 'n' }, { t: j.fav_ok === 1 ? 'Acertó' : 'Falló', c: j.fav_ok === 1 ? 'pos' : 'neg' }] })), soloPrecio ? 'Este deporte no tiene motor de simulación: solo el historial de precios de arriba.' : 'Sin juegos terminados con ese filtro.');
+    llenar('#his-juegos', js.slice(0, hisTopeJ).map((j) => ({ celdas: [F.dia(j.fecha), j.partido, j.marcador || '—', { t: F.pct(j.p_mod), c: 'n' }, { t: j.fav_ok === 1 ? 'Acertó' : 'Falló', c: j.fav_ok === 1 ? 'pos' : 'neg' }] })), soloPrecio ? 'El motor empezó el 25-nov-2026: aquí aparecen sus juegos a medida que terminan.' : 'Sin juegos terminados con ese filtro.');
     $('#his-mas-j').hidden = js.length <= hisTopeJ;
+  };
+
+  // ---------------------------------------------------------------- Motores NCAAB, NHL y NFL
+  let ME = null;
+  const UNIDAD = { NCAAB: 'puntos', NHL: 'goles', NFL: 'puntos' };
+  const juegosME = (d) => (ME && ME.deportes && ME.deportes[d] ? ME.deportes[d].juegos : []);
+  const tarjetaME = (d, j) => {
+    const a = el('article', 'juego');
+    const conValor = j.lados.filter((l) => APOSTABLE.has(l.tipo_precio));
+    if (conValor.length) a.dataset.estado = 'pick';
+    a.append(el('span', 'liga', `${d} · ${hora(j.inicio)}${j.neutral ? ' · cancha neutral' : ''}`));
+    a.append(el('span', 'partido', `${j.visita} @ ${j.local}`));
+    const fav = j.p_final >= 0.5 ? j.local : j.visita;
+    a.append(el('span', 'gana', `${fav} ${F.pct(Math.max(j.p_final, 1 - j.p_final))}`));
+    const dig = d === 'NHL' ? 1 : 0;
+    a.append(el('span', 'detalle', `Marcador proyectado: ${j.local} ${nf(dig).format(j.pts_local)} – ${nf(dig).format(j.pts_visita)} ${j.visita} (${UNIDAD[d]}).`));
+    a.append(el('span', 'detalle', `${j.local}: motor ${F.pct(j.p_motor)}, mercado ${j.p_mercado == null ? '—' : F.pct(j.p_mercado)}${ME.mezcla[d] ? `, combinado ${F.pct(j.p_final)}` : ''}.`));
+    if (d === 'NHL') a.append(el('span', 'detalle', `Prórroga ${F.pct(j.p_prorroga)}. Gana por 2 o más (−1.5): ${j.local} ${F.pct(j.p_local_m15)}, ${j.visita} ${F.pct(j.p_visita_m15)}. Marcadores más repetidos: ${j.marcadores}.`));
+    if (j.pj_local != null && (j.pj_local < 5 || j.pj_visita < 5)) a.append(el('span', 'detalle neg', 'Pocos juegos esta temporada: el motor todavía se apoya mucho en la temporada pasada.'));
+    for (const l of conValor) {
+      const ok = l.ventaja_final >= 0.02;
+      a.append(el('span', 'decision', `${TIPO_PRE[l.tipo_precio]}: ${l.nombre}` + (ME.mezcla[d] ? (ok ? ` (con el motor sigue habiendo valor: ${F.pcts(l.ventaja_final)})` : ' (el motor no acompaña: mejor no)') : '')));
+    }
+    if (!conValor.length) {
+      const mejor = j.lados.reduce((m, l) => (m == null || l.ventaja_final > m.ventaja_final ? l : m), null);
+      if (ME.mezcla[d] && mejor && mejor.ventaja_final >= 0.03) a.append(el('span', 'decision', `Señal del motor: ${mejor.nombre}, ventaja ${F.pcts(mejor.ventaja_final)} con la probabilidad combinada (en prueba, sin dinero).`));
+      else a.append(el('span', 'decision', 'Sin pick'));
+    }
+    return a;
+  };
+  const pintarMotorEEUU = (caja, dia) => {
+    const ds = dep === 'Todos' ? [...SOLO_PRECIO] : [dep];
+    let n = 0;
+    for (const d of ds) {
+      for (const j of juegosME(d).filter((x) => String(x.inicio).slice(0, 10) === dia)) { caja.append(tarjetaME(d, j)); n += 1; }
+    }
+    return n;
   };
 
   // ---------------------------------------------------------------- Precios (vigilante)
@@ -682,24 +725,24 @@
       ['Goles esperados', 'Calcula cuántos goles debería marcar cada equipo en ese partido, según su fuerza y si juega en casa.'],
       ['Simulación', 'Juega cada partido 200 000 veces: probabilidad de local, empate y visita, de más o menos goles, de que anoten los dos y los marcadores más repetidos.'],
       ['Precio', 'Mezcla su probabilidad con el mercado y la compara con Pinnacle. Pick confiable: valor de 2 % o más y probabilidad de 45 % o más.']] },
-    NCAAB: { t: 'Cómo se pronostica la NCAAB', p: [
-      ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
-      ['Casas blandas', 'Compara con más de 20 casas (William Hill, Unibet, 888, Betsson…) una vez al día.'],
-      ['Valor', 'Pick confiable: una casa paga 4 % o más sobre el precio justo y la probabilidad es de 45 % o más. Valor probado: 3 % o más con probabilidad de 25 % a 45 %. Los batacazos no se apuestan.'],
-      ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
-      n: 'Para la NCAAB todavía no hay motor de simulación: en nuestro estudio, ningún modelo con estadísticas públicas mejoró el cierre de Pinnacle.' },
-    NHL: { t: 'Cómo se pronostica la NHL', p: [
-      ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
-      ['Casas blandas', 'Compara con más de 20 casas una vez al día.'],
-      ['Valor', 'Pick confiable: una casa paga 4 % o más sobre el precio justo y la probabilidad es de 45 % o más. Valor probado: 3 % o más con probabilidad de 25 % a 45 %. Los batacazos no se apuestan.'],
-      ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
-      n: 'Para la NHL todavía no hay motor de simulación: solo el vigilante de precios.' },
-    NFL: { t: 'Cómo se pronostica la NFL', p: [
-      ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
-      ['Casas blandas', 'Compara con más de 20 casas una vez al día.'],
-      ['Valor', 'Pick confiable: una casa paga 4 % o más sobre el precio justo y la probabilidad es de 45 % o más. Valor probado: 3 % o más con probabilidad de 25 % a 45 %. Los batacazos no se apuestan.'],
-      ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
-      n: 'Para la NFL todavía no hay motor de simulación: solo el vigilante de precios.' },
+    NCAAB: { t: 'Cómo trabaja el motor de la NCAAB', p: [
+      ['Posesiones', 'Con las cajas de ESPN de cada juego cuenta las posesiones y mide los puntos por cada 100 posesiones que anota y que permite cada equipo, ajustados por rival, y su ritmo.'],
+      ['Temporada anterior', 'Al inicio del año parte del rating de la temporada pasada y lo va soltando a medida que hay juegos; las palizas se recortan para que no inflen a nadie.'],
+      ['Simulación', 'Juega el partido 20 000 veces con el ritmo y la eficiencia de los dos (con prórroga si empatan) y saca la probabilidad de ganar y el marcador proyectado.'],
+      ['Mezcla con el mercado', 'En el backtest 2016-2021 el motor quedó muy cerca del cierre (error medio del margen 8,7 contra 8,6 con 15 juegos o más) y mezclado al 10 % lo iguala o lo mejora apenas. Por eso la probabilidad final es 90 % Pinnacle y 10 % motor, y solo cuando los dos equipos llevan 4 juegos o más.']],
+      n: 'Con pocos juegos el motor se equivoca más que el mercado: diferencias grandes al inicio de la temporada no son valor.' },
+    NHL: { t: 'Cómo trabaja el motor de la NHL', p: [
+      ['Goles', 'Con todos los juegos de esta temporada y la anterior mide el ataque y la defensa de cada equipo (los juegos recientes pesan más) y saca los goles esperados de cada uno.'],
+      ['Simulación', 'Juega el partido 20 000 veces: tiempo regular y, si empatan, prórroga 3 contra 3 y shootout. De ahí salen la probabilidad de ganar, de la prórroga, de ganar por 2 o más (−1.5) y los marcadores más repetidos.'],
+      ['Precio', 'Compara con Pinnacle sin margen y con más de 20 casas: pick confiable con 4 % o más de ventaja y 45 % o más de probabilidad; valor probado con 3 % o más entre 25 % y 45 %.'],
+      ['En prueba', 'En el backtest 2015-2023 el motor quedó un poco por detrás del cierre (log-loss 0,673 contra 0,667), así que hoy decide el precio y el motor se mide aparte hasta demostrar que suma.']],
+      n: 'Siguiente paso: tiros, goles esperados y porteros titulares.' },
+    NFL: { t: 'Cómo trabaja el motor de la NFL', p: [
+      ['EPA', 'Con cada jugada de nflverse mide cuántos puntos esperados gana o pierde cada ataque y cada defensa por jugada, ajustado por rival, sin los minutos de la basura.'],
+      ['Puntos', 'Suma los puntos a favor y en contra ajustados por rival y la ventaja de local.'],
+      ['Simulación', 'El margen y el total salen de miles de juegos reales con un margen esperado parecido, así respeta los números clave (3, 7, 10).'],
+      ['En prueba', 'En el backtest 2014-2026 su error medio fue 10,3 puntos contra 9,9 del cierre: todavía no sabe de lesiones de mariscales, así que decide el precio y el motor se mide aparte.']],
+      n: 'Siguiente paso: mariscal titular y lesiones.' },
     MLB: { t: 'Cómo trabaja el motor de MLB', p: [
       ['Statcast', 'Baja cada lanzamiento de la temporada: velocidad de bate, ángulo y velocidad de salida, giro de la bola. Con eso mide la calidad real del contacto (xwOBA), la tendencia al jonrón y al ponche de cada bateador y lanzador.'],
       ['Duelos', 'Cruza cada bateador con cada lanzador con un Log5 jerárquico (liga, equipo, jugador) y ajusta por estadio y clima.'],
@@ -727,7 +770,9 @@
     ajustarTabs();
     $('#hoy-bloque-picks').hidden = dep === 'MLB';
     $('#hoy-picks').hidden = SOLO_PRECIO.has(dep);
-    $('#hoy-bloque-motor').hidden = dep === 'MLB' || SOLO_PRECIO.has(dep);
+    $('#hoy-bloque-motor').hidden = dep === 'MLB';
+    $('#hoy-pend').closest('.caja').hidden = SOLO_PRECIO.has(dep);
+    $('#hoy-pend').closest('.caja').previousElementSibling.hidden = SOLO_PRECIO.has(dep);
     $('#motor').hidden = SOLO_PRECIO.has(dep);
     $('#explorar').hidden = SOLO_PRECIO.has(dep);
     document.querySelectorAll('.deportes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dep === dep)));
@@ -757,9 +802,10 @@
   window.addEventListener('resize', () => { if (D && window.innerWidth !== ancho) { ancho = window.innerWidth; pintarRendimiento(); } });
 
   const leer = (u) => fetch(u, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null), leer('datos/analisis.json').catch(() => null)])
-    .then(([doc, pos, fut, pre, an]) => {
+  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null), leer('datos/analisis.json').catch(() => null), leer('datos/motores_eeuu.json').catch(() => null)])
+    .then(([doc, pos, fut, pre, an, me]) => {
       AN = an;
+      ME = me;
       FUT = fut;
       PR = pre;
       D = doc;

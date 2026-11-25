@@ -1,0 +1,31 @@
+name: Motores NCAAB, NHL y NFL
+# Vuelve a simular con los resultados nuevos (sin gastar créditos: usa las cuotas que ya bajó el vigilante)
+# y califica los pronósticos de los juegos que terminaron.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 17,23 * * *"   # 1:17 pm y 7:17 pm de Caracas
+permissions:
+  contents: write
+concurrency:
+  group: actualizar
+  cancel-in-progress: false
+jobs:
+  motores:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install curl_cffi numpy pandas scipy pyarrow
+      - name: Simular
+        run: python herramientas/motores_eeuu.py
+      - name: Publicar si cambió
+        run: |
+          git config user.name "centro-mando-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull -q --rebase origin main || true
+          git add datos
+          git diff --cached --quiet || (git commit -m "Motores EE. UU. al $(TZ=America/Caracas date '+%d-%b %H:%M')" && git push)
