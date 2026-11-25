@@ -31,7 +31,7 @@
   };
   const T = {};
   const deDep = (filas) => (dep === 'Todos' ? filas : filas.filter((r) => r.deporte === dep));
-  const hoy = () => D.hoy;
+  const hoy = () => new Date().toLocaleDateString('en-CA', { timeZone: 'America/Caracas' });
   const menos = (f, n) => new Date(Date.parse(f + 'T12:00:00Z') - n * 86400000).toISOString().slice(0, 10);
   const corto = (r, eq) => (r.deporte === 'LVBP' ? String(eq || '').split(' ')[0] : String(eq || ''));
   const final = (r) => {
@@ -72,12 +72,12 @@
   const pintarCabecera = () => {
     const previa = deDep(T.previa);
     const fechas = [...new Set(previa.map((r) => r.fecha))].sort();
-    const dia = fechas.includes(hoy()) ? hoy() : fechas.filter((f) => f <= hoy()).pop();
+    const dia = hoy();   // solo la jornada de hoy: lo de días anteriores vive en Resultados
     const delDia = previa.filter((r) => r.fecha === dia);
     const conf = delDia.filter((r) => r.confiable).length;
     const cuando = dia === hoy() ? 'Hoy' : dia ? `El ${F.dia(dia)}` : 'Hoy';
     const nombre = dep === 'Todos' ? '' : ` de ${dep}`;
-    $('#titular').textContent = !delDia.length ? `Sin juegos${nombre} cargados` : conf ? `${cuando}: ${conf} pick${conf === 1 ? '' : 's'} confiable${conf === 1 ? '' : 's'}${nombre}` : `${cuando} no hay pick confiable${nombre}`;
+    $('#titular').textContent = !delDia.length ? `Todavía no hay juegos${nombre} de hoy cargados` : conf ? `${cuando}: ${conf} pick${conf === 1 ? '' : 's'} confiable${conf === 1 ? '' : 's'}${nombre}` : `${cuando} no hay pick confiable${nombre}`;
     const liq = deDep(T.picks).filter((p) => p.tipo === 'PICK' && LIQ.has(p.resultado));
     const u = liq.reduce((s, p) => s + (p.unidades || 0), 0);
     $('#bajada').textContent = `${delDia.length} juego${delDia.length === 1 ? '' : 's'} evaluado${delDia.length === 1 ? '' : 's'} por el motor.` + (liq.length ? ` En la temporada, los picks reales${nombre} llevan ${F.u(u)} unidades en ${liq.length} apuestas.` : ` Todavía no hay picks reales${nombre} liquidados.`);
@@ -482,9 +482,55 @@
   document.querySelectorAll('.pestanas button').forEach((b) => b.addEventListener('click', () => { mostrar(b.dataset.tab); window.scrollTo({ top: document.querySelector('.indice').offsetTop, behavior: 'smooth' }); }));
   mostrar(location.hash.slice(1));
 
+
+  // ---------------------------------------------------------------- Cómo trabaja el motor (por deporte)
+  const MOTOR = {
+    Todos: { t: 'Cómo trabaja el motor', p: [
+      ['Historia', 'Baja los resultados y las estadísticas de cada temporada de cada liga.'],
+      ['Plantillas del día', 'Revisa quién juega: alineaciones, abridores y reporte de lesiones.'],
+      ['Simulación', 'Juega cada partido miles de veces y de ahí saca la probabilidad de cada resultado, de los totales y de los marcadores.'],
+      ['Precio', 'Compara esa probabilidad con la cuota y con el precio justo de Pinnacle. Solo marca pick confiable cuando la cuota paga más de lo que vale y pasa todos los filtros.']],
+      n: 'Toca NBA, LVBP, Fútbol o NCAAB arriba para ver cómo trabaja el motor de cada deporte.' },
+    NBA: { t: 'Cómo trabaja el motor de la NBA', p: [
+      ['Jugada por jugada', 'Baja el play-by-play oficial de nba.com de toda la temporada y arma, posesión por posesión, el ritmo y la eficiencia de cada equipo y de cada quinteto.'],
+      ['Plantillas y lesiones', 'Usa las plantillas oficiales del día y el reporte de lesiones de la NBA: si falta un jugador clave, el equipo se recalcula sin él.'],
+      ['Simulación', 'Juega el partido miles de veces y saca la probabilidad de ganar, de cubrir el hándicap y del total de puntos.'],
+      ['Precio contra Pinnacle', 'Pick confiable solo si la cuota paga al menos 4 % más que el precio justo de Pinnacle, el motor está de acuerdo y la línea no pasa de +250.']] },
+    LVBP: { t: 'Cómo trabaja el motor de la LVBP', p: [
+      ['Turno por turno', 'Baja del calendario oficial cada juego de la temporada y arma el perfil de cada bateador y lanzador: ponches, boletos, sencillos, dobles, jonrones y outs.'],
+      ['Abridores', 'Toma los abridores anunciados. Sin abridor anunciado usa uno promedio y no da pick.'],
+      ['Simulación', 'Juega el partido turno al bate por turno al bate miles de veces y saca la probabilidad de ganar, del total de carreras y del run line.'],
+      ['Filtros', 'Confianza de 56 % o más y valor esperado de 2 % o más. Como la LVBP no tiene casa de referencia, hoy sus señales van como simuladas.']] },
+    'Fútbol': { t: 'Cómo trabaja el motor de fútbol', p: [
+      ['Historia', 'Baja los resultados de las ligas europeas (football-data) y de la Champions, y mide la fuerza de ataque y de defensa de cada equipo.'],
+      ['Goles esperados', 'Calcula cuántos goles debería marcar cada equipo en ese partido, según su fuerza y si juega en casa.'],
+      ['Simulación', 'Juega cada partido 200 000 veces: probabilidad de local, empate y visita, de más o menos goles, de que anoten los dos y los marcadores más repetidos.'],
+      ['Precio', 'Mezcla su probabilidad con el mercado y la compara con Pinnacle. Pick confiable: valor de 2 % o más y probabilidad de 45 % o más.']] },
+    NCAAB: { t: 'Cómo se pronostica la NCAAB', p: [
+      ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
+      ['Casas blandas', 'Compara con más de 20 casas (William Hill, Unibet, 888, Betsson…) dos veces al día.'],
+      ['Valor', 'Marca pick cuando una casa paga al menos 4 % sobre el precio justo y la probabilidad es de 45 % o más.'],
+      ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
+      n: 'Para la NCAAB todavía no hay motor de simulación: en nuestro estudio, ningún modelo con estadísticas públicas mejoró el cierre de Pinnacle.' },
+  };
+  const pintarComoMotor = () => {
+    const m = MOTOR[dep] || MOTOR.Todos;
+    $('#motor-titulo').textContent = m.t;
+    const ol = $('#motor-pasos');
+    ol.replaceChildren();
+    for (const [t, d] of m.p) {
+      const li = el('li');
+      li.append(el('b', '', t + '. '), document.createTextNode(d));
+      ol.append(li);
+    }
+    $('#motor-nota').textContent = m.n || '';
+    $('#motor-nota').hidden = !m.n;
+  };
+
   const pintar = () => {
     document.body.dataset.dep = dep;
     document.querySelectorAll('.deportes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dep === dep)));
+    pintarComoMotor();
     const dia = pintarCabecera();
     pintarHoy(dia);
     pintarFutbol();
