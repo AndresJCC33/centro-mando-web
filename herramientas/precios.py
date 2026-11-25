@@ -164,7 +164,7 @@ def analizar_evento(e, ahora):
         tipo = ""
         if ventaja is not None and ventaja >= VENTAJA and p >= PROB_MIN:
             tipo = "PICK CONFIABLE"
-        elif ventaja is not None and ventaja >= VENTAJA_VP and p >= PROB_VP:
+        elif ventaja is not None and ventaja >= VENTAJA_VP and PROB_VP <= p < PROB_MIN:
             tipo = "VALOR PROBADO"
         elif ventaja is not None and ventaja >= VENTAJA:
             tipo = "VALOR SIN CONFIANZA"
