@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css?v=20261125e">
+<link rel="stylesheet" href="estilos.css?v=20261125f">
 </head>
 <body data-dep="Todos">
 <header class="cancha" id="inicio">
@@ -182,9 +182,11 @@
       <article class="regla" data-regla="Precios">
         <h3>Precios (vigilante: Champions, Premier, LaLiga, Bundesliga, Serie A, Ligue 1, Grecia, Eredivisie, LaLiga 2, 2. Bundesliga, NCAAB, NHL y NFL)</h3>
         <ol>
-          <li><b>Pronóstico:</b> la probabilidad justa de Pinnacle, sin margen.</li>
+          <li><b>Pronóstico:</b> la probabilidad justa de Pinnacle, sin su margen (método de potencia, que no infla a los batacazos).</li>
           <li><b>Valor:</b> una casa blanda paga al menos 4 % más que ese precio justo. En cualquier casa vale lo mismo: apuesta solo si paga la cuota mínima o más.</li>
-          <li><b>Probabilidad:</b> 45 % o más para el lado elegido. Con menos, queda como valor sin confianza y no se apuesta.</li>
+          <li><b>Probabilidad:</b> 45 % o más para el lado elegido: pick confiable.</li>
+          <li><b>Valor probado:</b> probabilidad de 25 % a 45 % y la casa paga 3 % o más sobre el precio justo. En 7 temporadas de 22 ligas de fútbol ese tramo ganó (ROI ≈ +4 % en unas 3.800 apuestas). Se lleva con su propio historial.</li>
+          <li><b>Batacazos:</b> menos de 25 % no se apuesta aunque pague mucho; en el mismo estudio perdieron.</li>
         </ol>
         <p class="nota">Basado en el estudio de 38 ligas: cuando una casa blanda pagó 4 % o más sobre Pinnacle, esas apuestas le ganaron al cierre en promedio. El historial del vigilante mide si se repite.</p>
       </article>
@@ -227,6 +229,6 @@
     <p>Esto es un registro de modelos estadísticos, no una recomendación de apuesta. Las cuotas son las del momento en que se tomaron y pueden haber cambiado. Solo para mayores de 18 años: apuesta solo lo que puedas perder.</p>
   </div>
 </footer>
-<script src="app.js?v=20261125e"></script>
+<script src="app.js?v=20261125f"></script>
 </body>
 </html>

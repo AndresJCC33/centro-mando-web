@@ -86,7 +86,7 @@
       $('#bajada').textContent = 'No hay juegos hasta la próxima temporada. El historial de 2026 está en la pestaña Historial.';
     } else if (SOLO_PRECIO.has(dep)) {
       const vp = (PR && PR.picks ? PR.picks : []).filter((x) => x.deporte === dep && String(x.inicio || '').slice(0, 10) === dia);
-      const c = vp.filter((x) => x.tipo === 'PICK CONFIABLE').length;
+      const c = vp.filter((x) => APOSTABLE.has(x.tipo)).length;
       const jj = ligasPrecio().reduce((s, l) => s + l.partidos.filter((p) => String(p.inicio || '').slice(0, 10) === dia).length, 0);
       $('#titular').textContent = c ? `Hoy: ${c} pick${c === 1 ? '' : 's'} confiable${c === 1 ? '' : 's'} de ${dep}` : jj ? `Hoy no hay pick confiable de ${dep}` : `Hoy no hay juegos de ${dep} con cuotas`;
       $('#bajada').textContent = `${jj} juego${jj === 1 ? '' : 's'} vigilado${jj === 1 ? '' : 's'} hoy contra el precio justo de Pinnacle. Detalle en la pestaña Precios.`;
@@ -492,7 +492,7 @@
     // picks del hub y, para los deportes solo de precio, los del vigilante
     let todos = deDep(T.picks).map((p) => ({ fecha: String(p.fecha).slice(0, 10), partido: p.partido, sel: `${p.mercado === 'Moneyline' ? '' : p.mercado + ' '}${p.seleccion}`, cuota: p.cuota_am, resultado: p.resultado, u: p.unidades, real: p.tipo === 'PICK', motor: p.motor }));
     const vig = (PR && PR.picks ? PR.picks : []).filter((x) => dep === 'Todos' || x.deporte === dep)
-      .map((x) => ({ fecha: String(x.inicio || x.fecha).slice(0, 10), partido: x.partido, sel: x.seleccion, cuota: x.cuota, resultado: x.resultado, u: x.unidades, real: x.tipo === 'PICK CONFIABLE', motor: `Vigilante de precios · ${x.liga}` }));
+      .map((x) => ({ fecha: String(x.inicio || x.fecha).slice(0, 10), partido: x.partido, sel: x.seleccion, cuota: x.cuota, resultado: x.resultado, u: x.unidades, real: APOSTABLE.has(x.tipo), motor: `${TIPO_PRE[x.tipo] || 'Vigilante'} · ${x.liga}` }));
     todos = todos.concat(vig).sort((a, b) => b.fecha.localeCompare(a.fecha));
     const sel = $('#his-mes');
     const meses = [...new Set(todos.map((p) => p.fecha.slice(0, 7)))].sort().reverse();
@@ -537,7 +537,9 @@
     const d = new Date(iso);
     return Number.isNaN(+d) ? iso : d.toLocaleString('es-VE', { weekday: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
   };
-  const TIPO_PRE = { 'PICK CONFIABLE': 'Pick confiable', 'VALOR SIN CONFIANZA': 'Valor sin confianza' };
+  const TIPO_PRE = { 'PICK CONFIABLE': 'Pick confiable', 'VALOR PROBADO': 'Valor probado', 'VALOR SIN CONFIANZA': 'Valor sin confianza' };
+  const APOSTABLE = new Set(['PICK CONFIABLE', 'VALOR PROBADO']);
+  const minimaDe = (l) => (l.tipo === 'VALOR PROBADO' && l.minima_vp != null ? l.minima_vp : l.minima ?? l.minima_jel);
   const pintarPrecios = () => {
     const ls = ligasPrecio();
     const chips = $('#pre-ligas');
@@ -560,14 +562,17 @@
     picks.replaceChildren();
     const lados = partidos.flatMap((p) => p.lados.filter((l) => l.tipo).map((l) => ({ ...l, p_: p })));
     const conf = lados.filter((l) => l.tipo === 'PICK CONFIABLE');
-    const val = lados.filter((l) => l.tipo !== 'PICK CONFIABLE');
-    picks.append(el('p', 'resumen', conf.length ? `Picks confiables: ${conf.map((l) => `${l.nombre} ${F.am(l.mejor)} en ${l.casa} (${l.p_.local} vs ${l.p_.visita}, prob. ${F.pct(l.p)}, ventaja ${F.pcts(l.ventaja)})`).join('; ')}.` : 'Picks confiables por precio: ninguno ahora mismo.'));
+    const vpr = lados.filter((l) => l.tipo === 'VALOR PROBADO');
+    const val = lados.filter((l) => l.tipo === 'VALOR SIN CONFIANZA');
+    const txt = (l) => `${l.nombre} ${F.am(l.mejor)} en ${l.casa} (${l.p_.local} vs ${l.p_.visita}, prob. ${F.pct(l.p)}, ventaja ${F.pcts(l.ventaja)})`;
+    picks.append(el('p', 'resumen', conf.length ? `Picks confiables: ${conf.map(txt).join('; ')}.` : 'Picks confiables por precio: ninguno ahora mismo.'));
+    if (vpr.length) picks.append(el('p', 'resumen', `Valor probado (25–45 % de probabilidad y 3 % o más de ventaja): ${vpr.map(txt).join('; ')}.`));
     if (val.length) picks.append(el('p', 'nota', `Con valor pero sin confianza (menos de 45 %, no se apuestan): ${val.map((l) => `${l.nombre} ${F.am(l.mejor)}, prob. ${F.pct(l.p)}`).join('; ')}.`));
     const caja = $('#pre-juegos');
     caja.replaceChildren();
     for (const p of partidos.slice(0, preTope)) {
       const c = el('article', 'juego');
-      if (p.lados.some((l) => l.tipo === 'PICK CONFIABLE')) c.dataset.estado = 'pick';
+      if (p.lados.some((l) => APOSTABLE.has(l.tipo))) c.dataset.estado = 'pick';
       c.append(el('div', 'liga', `${p.liga} · ${hora(p.inicio)}`));
       c.append(el('div', 'partido', `${p.local} vs ${p.visita}`));
       const t = el('table', 'mini');
@@ -590,7 +595,7 @@
       c.append(t);
       const fav = [...p.lados].sort((a, b) => b.p - a.p)[0];
       if (fav) c.append(el('div', 'detalle', `Pronóstico: ${fav.nombre === 'Empate' ? 'empate' : 'gana ' + fav.nombre} (${F.pct(fav.p)}).`));
-      for (const l of p.lados.filter((x) => x.tipo)) c.append(el('div', 'detalle ' + (l.tipo === 'PICK CONFIABLE' ? 'pos' : 'neg'), `${TIPO_PRE[l.tipo]}: ${l.nombre} ${F.am(l.mejor)} en ${l.casa}, ventaja ${F.pcts(l.ventaja)}${l.tipo === 'PICK CONFIABLE' ? '' : ' (prob. bajo 45 %, no se apuesta)'}.`));
+      for (const l of p.lados.filter((x) => x.tipo)) c.append(el('div', 'detalle ' + (APOSTABLE.has(l.tipo) ? 'pos' : 'neg'), `${TIPO_PRE[l.tipo]}: ${l.nombre} ${F.am(l.mejor)} en ${l.casa}, ventaja ${F.pcts(l.ventaja)}${APOSTABLE.has(l.tipo) ? `; tómalo a ${F.am(minimaDe(l))} o mejor` : ' (batacazo: no se apuesta)'}.`));
       const an = p.dep_ === 'Fútbol' ? analisisFutbol(p.local, p.visita) : null;
       if (an) c.append(an);
       caja.append(c);
@@ -600,6 +605,7 @@
     // historial
     const hist = (PR && PR.picks ? PR.picks : []).filter((x) => dep === 'Todos' || x.deporte === dep).filter((x) => preLiga === 'Todas' || x.liga === preLiga);
     const reales = hist.filter((x) => x.tipo === 'PICK CONFIABLE');
+    const probados = hist.filter((x) => x.tipo === 'VALOR PROBADO');
     const resumen = (xs) => {
       const liq = xs.filter((x) => x.resultado === 'GANADO' || x.resultado === 'PERDIDO');
       const u = liq.reduce((s, x) => s + (x.unidades || 0), 0);
@@ -607,7 +613,7 @@
       const cm = clv.length ? clv.reduce((s, x) => s + x.clv, 0) / clv.length : null;
       return `${xs.length} picks, ${liq.filter((x) => x.resultado === 'GANADO').length}-${liq.filter((x) => x.resultado === 'PERDIDO').length}, ${F.u(u)} u, CLV medio ${F.pcts(cm)}`;
     };
-    $('#pre-resumen').textContent = hist.length ? `Confiables: ${resumen(reales)}. Todos (incluye valor sin confianza, simulados): ${resumen(hist)}.` : 'Todavía no hay picks guardados.';
+    $('#pre-resumen').textContent = hist.length ? `Confiables: ${resumen(reales)}. Valor probado: ${resumen(probados)}. Todos (incluye valor sin confianza, simulados): ${resumen(hist)}.` : 'Todavía no hay picks guardados.';
     llenar('#pre-hist', hist.slice(0, 60).map((x) => ({ celdas: [
       F.dia(x.fecha), `${x.partido}${x.marcador ? ' (' + x.marcador + ')' : ''}`, `${x.seleccion} · ${x.casa}`, F.am(x.cuota),
       { t: F.pcts(x.ventaja), c: 'n pos' }, { t: F.pcts(x.clv), c: 'n ' + signo(x.clv) },
@@ -618,9 +624,9 @@
     const caja = $('#hoy-vigilante');
     caja.replaceChildren();
     const ls = ligasPrecio();
-    const conf = ls.flatMap((l) => l.partidos.filter((p) => new Date(p.inicio) > new Date()).flatMap((p) => p.lados.filter((x) => x.tipo === 'PICK CONFIABLE').map((x) => ({ ...x, p_: p, liga: l.nombre }))));
+    const conf = ls.flatMap((l) => l.partidos.filter((p) => new Date(p.inicio) > new Date()).flatMap((p) => p.lados.filter((x) => APOSTABLE.has(x.tipo)).map((x) => ({ ...x, p_: p, liga: l.nombre }))));
     if (!conf.length) {
-      if (SOLO_PRECIO.has(dep)) caja.append(el('p', 'sin-pick', `Ahora mismo ninguna casa paga 4 % o más sobre el precio justo en ${dep}. Todos los juegos y cuotas están en la pestaña Precios.`));
+      if (SOLO_PRECIO.has(dep)) caja.append(el('p', 'sin-pick', `Ahora mismo no hay pick confiable ni de valor probado en ${dep}. Todos los juegos y cuotas están en la pestaña Precios.`));
       return;
     }
     caja.append(el('h3', '', 'Picks por precio (vigilante)'));
@@ -628,7 +634,7 @@
       const c = el('article', 'pick');
       c.append(el('div', 'liga', `${l.liga} · ${hora(l.p_.inicio)}`));
       c.append(el('div', 'partido', `${l.p_.local} vs ${l.p_.visita}`));
-      c.append(el('div', 'detalle pos', `${l.nombre}: tómalo solo a ${F.am(l.minima ?? l.minima_jel)} o mejor (prob. ${F.pct(l.p)}; ${l.casa} paga ${F.am(l.mejor)}).`));
+      c.append(el('div', 'detalle pos', `${TIPO_PRE[l.tipo]} · ${l.nombre}: tómalo solo a ${F.am(minimaDe(l))} o mejor (prob. ${F.pct(l.p)}; ${l.casa} paga ${F.am(l.mejor)}).`));
       caja.append(c);
     }
   };
@@ -679,19 +685,19 @@
     NCAAB: { t: 'Cómo se pronostica la NCAAB', p: [
       ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
       ['Casas blandas', 'Compara con más de 20 casas (William Hill, Unibet, 888, Betsson…) una vez al día.'],
-      ['Valor', 'Marca pick cuando una casa paga al menos 4 % sobre el precio justo y la probabilidad es de 45 % o más.'],
+      ['Valor', 'Pick confiable: una casa paga 4 % o más sobre el precio justo y la probabilidad es de 45 % o más. Valor probado: 3 % o más con probabilidad de 25 % a 45 %. Los batacazos no se apuestan.'],
       ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
       n: 'Para la NCAAB todavía no hay motor de simulación: en nuestro estudio, ningún modelo con estadísticas públicas mejoró el cierre de Pinnacle.' },
     NHL: { t: 'Cómo se pronostica la NHL', p: [
       ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
       ['Casas blandas', 'Compara con más de 20 casas una vez al día.'],
-      ['Valor', 'Marca pick cuando una casa paga al menos 4 % sobre el precio justo y la probabilidad es de 45 % o más.'],
+      ['Valor', 'Pick confiable: una casa paga 4 % o más sobre el precio justo y la probabilidad es de 45 % o más. Valor probado: 3 % o más con probabilidad de 25 % a 45 %. Los batacazos no se apuestan.'],
       ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
       n: 'Para la NHL todavía no hay motor de simulación: solo el vigilante de precios.' },
     NFL: { t: 'Cómo se pronostica la NFL', p: [
       ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
       ['Casas blandas', 'Compara con más de 20 casas una vez al día.'],
-      ['Valor', 'Marca pick cuando una casa paga al menos 4 % sobre el precio justo y la probabilidad es de 45 % o más.'],
+      ['Valor', 'Pick confiable: una casa paga 4 % o más sobre el precio justo y la probabilidad es de 45 % o más. Valor probado: 3 % o más con probabilidad de 25 % a 45 %. Los batacazos no se apuestan.'],
       ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
       n: 'Para la NFL todavía no hay motor de simulación: solo el vigilante de precios.' },
     MLB: { t: 'Cómo trabaja el motor de MLB', p: [

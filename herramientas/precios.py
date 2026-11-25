@@ -21,6 +21,11 @@ from actualizar import bajar, CARACAS, DATOS  # noqa: E402
 API = "https://api.the-odds-api.com/v4"
 VENTAJA = 0.04
 VENTAJA_MAX = 0.15
+# «Valor probado» (desde el 25-nov-2026): probabilidad de 25 % a 45 % y la casa paga 3 % o más sobre el precio justo.
+# En 7 temporadas de 22 ligas de fútbol (football-data, mejor cuota contra Pinnacle de apertura sin margen por el
+# método de potencia) ese tramo dio ROI de +4,0 % en 3.841 apuestas; los batacazos de menos de 12 % perdieron.
+VENTAJA_VP = 0.03
+PROB_VP = 0.25
 # deporte en The Odds API -> (nombre en la página, deporte de la página, mercados)
 LIGAS = {
     "soccer_uefa_champs_league": ("Champions League", "Fútbol", "h2h"),
@@ -105,6 +110,21 @@ def leer(path, defecto):
         return defecto
 
 
+def sin_margen(inv):
+    """Probabilidad justa por el método de potencia: p_i = (1/cuota_i)^k con k tal que sumen 1. A diferencia del
+    reparto proporcional, no le regala probabilidad a los batacazos (sesgo favorito-batacazo)."""
+    lo, hi = 1.0, 3.0
+    for _ in range(60):
+        k = (lo + hi) / 2
+        if sum(v ** k for v in inv.values()) > 1:
+            lo = k
+        else:
+            hi = k
+    k = (lo + hi) / 2
+    tot = sum(v ** k for v in inv.values())
+    return {n: v ** k / tot for n, v in inv.items()}
+
+
 def analizar_evento(e, ahora):
     pin = next((b for b in e["bookmakers"] if b["key"] == SHARP), None)
     if pin is None:
@@ -113,8 +133,7 @@ def analizar_evento(e, ahora):
     if mk is None or len(mk["outcomes"]) < 2:
         return None
     inv = {o["name"]: 1 / o["price"] for o in mk["outcomes"] if o.get("price", 0) > 1}
-    tot = sum(inv.values())
-    justa = {k: v / tot for k, v in inv.items()}
+    justa = sin_margen(inv)
     blandas = {}
     for b in e["bookmakers"]:
         if b["key"] in NO_BLANDAS:
@@ -143,10 +162,14 @@ def analizar_evento(e, ahora):
             ventaja = mejor * p - 1 if mejor else None
         n_valor = sum(1 for c, _ in ofertas if c * p - 1 >= VENTAJA)
         tipo = ""
-        if ventaja is not None and ventaja >= VENTAJA:
-            tipo = "PICK CONFIABLE" if p >= PROB_MIN else "VALOR SIN CONFIANZA"
+        if ventaja is not None and ventaja >= VENTAJA and p >= PROB_MIN:
+            tipo = "PICK CONFIABLE"
+        elif ventaja is not None and ventaja >= VENTAJA_VP and p >= PROB_VP:
+            tipo = "VALOR PROBADO"
+        elif ventaja is not None and ventaja >= VENTAJA:
+            tipo = "VALOR SIN CONFIANZA"
         lados.append(dict(nombre="Empate" if nombre == "Draw" else nombre, clave=nombre, p=round(p, 4),
-                          justa=am(1 / p), minima=am((1 / p) * (1 + VENTAJA)),
+                          justa=am(1 / p), minima=am((1 / p) * (1 + VENTAJA)), minima_vp=am((1 / p) * (1 + VENTAJA_VP)),
                           mejor=am(mejor) if mejor else None, casa=casa, ventaja=round(ventaja, 4) if ventaja is not None else None,
                           casas_con_valor=n_valor, casas=len(ofertas), tipo=tipo))
     inicio = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
