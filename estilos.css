@@ -30,18 +30,18 @@ body { margin: 0; background: var(--papel); color: var(--tinta); font-family: "P
 .cancha-fondo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(10, 18, 36, 0.55), rgba(10, 18, 36, 0.78)); }
 /* Todos: tablero de luces */
 body[data-dep="Todos"] .cancha-fondo { background: radial-gradient(circle at 1px 1px, rgba(241, 89, 42, 0.35) 1.2px, transparent 1.6px) 0 0 / 14px 14px, linear-gradient(135deg, var(--cancha-a), var(--cancha-b)); }
-/* NBA: duela de tablones con el círculo central */
-body[data-dep="NBA"] .cancha-fondo { background:
-  radial-gradient(circle at 82% 50%, transparent 0 88px, rgba(255, 255, 255, 0.75) 88px 92px, transparent 92px),
-  linear-gradient(90deg, transparent calc(82% - 2px), rgba(255, 255, 255, 0.75) calc(82% - 2px) calc(82% + 2px), transparent calc(82% + 2px)),
-  repeating-linear-gradient(90deg, rgba(90, 50, 10, 0.22) 0 1px, transparent 1px 46px),
-  repeating-linear-gradient(0deg, rgba(90, 50, 10, 0.1) 0 1px, transparent 1px 180px),
-  linear-gradient(135deg, var(--cancha-a), var(--cancha-b)); }
-/* LVBP: arcilla del cuadro, líneas de cal y grama */
-body[data-dep="LVBP"] .cancha-fondo { background:
-  linear-gradient(35deg, transparent calc(50% - 2px), rgba(255, 255, 255, 0.8) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)) 100% 100% / 60% 200% no-repeat,
-  linear-gradient(-35deg, transparent calc(50% - 2px), rgba(255, 255, 255, 0.8) calc(50% - 2px) calc(50% + 2px), transparent calc(50% + 2px)) 100% 100% / 60% 200% no-repeat,
-  radial-gradient(ellipse at 100% 120%, var(--cancha-a) 0 42%, var(--cancha-b) 42.5%); }
+/* Cada deporte: su cancha dibujada (fondos/*.svg) y el nombre de la liga como marca de agua */
+body[data-dep="NBA"] .cancha-fondo { background: url("fondos/nba.svg?v=1") 80% 50% / cover no-repeat, var(--cancha-b); --marca: "NBA"; }
+body[data-dep="NCAAB"] .cancha-fondo { background: url("fondos/ncaab.svg?v=1") 80% 50% / cover no-repeat, var(--cancha-b); --marca: "NCAAB"; }
+body[data-dep="NHL"] .cancha-fondo { background: url("fondos/nhl.svg?v=1") 50% 50% / cover no-repeat, var(--cancha-b); --marca: "NHL"; }
+body[data-dep="NFL"] .cancha-fondo { background: url("fondos/nfl.svg?v=1") 50% 50% / cover no-repeat, var(--cancha-b); --marca: "NFL"; }
+body[data-dep="MLB"] .cancha-fondo { background: url("fondos/mlb.svg?v=2") 72% 100% / cover no-repeat, #0f1d33; --marca: "MLB"; }
+body[data-dep="LVBP"] .cancha-fondo { background: url("fondos/lvbp.svg?v=2") 72% 100% / cover no-repeat, #2a1a14; --marca: "LVBP"; }
+.cancha-fondo::before { content: var(--marca, ""); position: absolute; right: -0.04em; bottom: -0.18em; z-index: 1; font: 800 clamp(6rem, 24vw, 17rem)/1 "Big Shoulders Display", "Arial Black", sans-serif; letter-spacing: 0.02em; color: transparent; -webkit-text-stroke: 2px rgba(255, 255, 255, 0.22); pointer-events: none; }
+body:not([data-dep="Todos"]):not([data-dep="Fútbol"]) .cancha-fondo::after { background: linear-gradient(90deg, rgba(10, 18, 36, 0.86) 0%, rgba(10, 18, 36, 0.62) 55%, rgba(10, 18, 36, 0.42) 100%); }
+@media (max-width: 640px) {
+  body:not([data-dep="Todos"]):not([data-dep="Fútbol"]) .cancha-fondo::after { background: linear-gradient(180deg, rgba(10, 18, 36, 0.62) 0%, rgba(10, 18, 36, 0.84) 100%); }
+}
 /* Fútbol: franjas de corte y círculo central */
 body[data-dep="Fútbol"] .cancha-fondo { background:
   radial-gradient(circle at 78% 50%, transparent 0 96px, rgba(255, 255, 255, 0.7) 96px 99px, transparent 99px),
@@ -193,3 +193,5 @@ details.analisis[open] > summary::before { content: "− "; }
 details.analisis > summary:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
 details.analisis p { margin: 0.35rem 0; }
 .juego table.mini.an th:first-child, .juego table.mini.an td:first-child { width: 40%; }
+/* El hielo es claro: un poco más de sombra para que el texto se lea */
+body[data-dep="NHL"] .cancha-fondo::after { background: linear-gradient(90deg, rgba(10, 18, 36, 0.9) 0%, rgba(10, 18, 36, 0.72) 55%, rgba(10, 18, 36, 0.55) 100%) !important; }
