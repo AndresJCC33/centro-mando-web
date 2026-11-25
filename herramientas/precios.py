@@ -1,7 +1,7 @@
 """Vigilante de precios: cuotas de Pinnacle y de casas blandas (The Odds API) para ligas elegidas.
 
 Por cada partido publica el pronóstico (probabilidad justa de Pinnacle, sin margen), la cuota justa, la cuota mínima
-que tendría que pagar JEL para que valga la pena (justa x (1 + VENTAJA)) y los picks de valor: casas blandas que pagan
+que tendría que pagar tu casa para que valga la pena (justa x (1 + VENTAJA)) y los picks de valor: casas blandas que pagan
 VENTAJA o más sobre el precio justo de Pinnacle. Guarda cada pick, toma la última foto antes del partido como cierre
 (CLV) y lo califica con los marcadores de The Odds API.
 
@@ -22,12 +22,22 @@ API = "https://api.the-odds-api.com/v4"
 VENTAJA = 0.04
 # deporte en The Odds API -> (nombre en la página, deporte de la página, mercados)
 LIGAS = {
+    "soccer_uefa_champs_league": ("Champions League", "Fútbol", "h2h"),
+    "soccer_epl": ("Inglaterra · Premier League", "Fútbol", "h2h"),
+    "soccer_spain_la_liga": ("España · LaLiga", "Fútbol", "h2h"),
+    "soccer_germany_bundesliga": ("Alemania · Bundesliga", "Fútbol", "h2h"),
+    "soccer_italy_serie_a": ("Italia · Serie A", "Fútbol", "h2h"),
+    "soccer_france_ligue_one": ("Francia · Ligue 1", "Fútbol", "h2h"),
     "soccer_greece_super_league": ("Grecia · Super League", "Fútbol", "h2h"),
     "soccer_netherlands_eredivisie": ("Países Bajos · Eredivisie", "Fútbol", "h2h"),
     "soccer_spain_segunda_division": ("España · LaLiga 2", "Fútbol", "h2h"),
     "soccer_germany_bundesliga2": ("Alemania · 2. Bundesliga", "Fútbol", "h2h"),
     "basketball_ncaab": ("NCAAB", "NCAAB", "h2h"),
+    "icehockey_nhl": ("NHL", "NHL", "h2h"),
+    "americanfootball_nfl": ("NFL", "NFL", "h2h"),
 }
+# Si quedan menos créditos que esto, el vigilante se detiene para no dejar sin cuotas a la cartelera automática.
+RESERVA_CREDITOS = 60
 SHARP = "pinnacle"
 REGIONES = "eu"
 NO_BLANDAS = {"pinnacle", "everygame", "gtbets", "betfair_ex_eu", "betfair_ex_uk", "betfair_ex_au", "smarkets", "matchbook", "betonlineag", "lowvig"}
@@ -127,7 +137,7 @@ def analizar_evento(e, ahora):
         if ventaja is not None and ventaja >= VENTAJA:
             tipo = "PICK CONFIABLE" if p >= PROB_MIN else "VALOR SIN CONFIANZA"
         lados.append(dict(nombre="Empate" if nombre == "Draw" else nombre, clave=nombre, p=round(p, 4),
-                          justa=am(1 / p), minima_jel=am((1 / p) * (1 + VENTAJA)),
+                          justa=am(1 / p), minima=am((1 / p) * (1 + VENTAJA)),
                           mejor=am(mejor) if mejor else None, casa=casa, ventaja=round(ventaja, 4) if ventaja is not None else None,
                           casas_con_valor=n_valor, casas=len(ofertas), tipo=tipo))
     inicio = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
@@ -159,6 +169,11 @@ def correr():
         except Exception as ex:  # noqa: BLE001
             avisos.append(f"{nombre}: {ex}")
             continue
+        if creditos is not None and float(creditos) < RESERVA_CREDITOS:
+            avisos.append(f"Quedan {creditos} créditos de The Odds API: me detuve en {nombre} para guardar la reserva.")
+            parar = True
+        else:
+            parar = False
         partidos = []
         for e in datos:
             inicio = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
@@ -189,6 +204,8 @@ def correr():
                                       marcador="", unidades=None)
         partidos.sort(key=lambda x: x["inicio"])
         ligas.append(dict(clave=k, nombre=nombre, deporte=deporte, partidos=partidos))
+        if parar:
+            break
     # Calificar con marcadores (solo deportes con picks ya jugados hace más de 3 horas)
     por_calificar = {p["deporte_api"] for p in picks.values() if p["resultado"] == "PENDIENTE"
                      and datetime.fromisoformat(p["inicio"]) < ahora - timedelta(hours=3)}

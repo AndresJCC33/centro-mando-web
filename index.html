@@ -23,6 +23,9 @@
       <button type="button" data-dep="LVBP" aria-pressed="false">LVBP</button>
       <button type="button" data-dep="Fútbol" aria-pressed="false">Fútbol</button>
       <button type="button" data-dep="NCAAB" aria-pressed="false">NCAAB</button>
+      <button type="button" data-dep="NHL" aria-pressed="false">NHL</button>
+      <button type="button" data-dep="NFL" aria-pressed="false">NFL</button>
+      <button type="button" data-dep="MLB" aria-pressed="false">MLB</button>
     </div>
   </div>
 </header>
@@ -60,7 +63,7 @@
 
   <section id="precios" data-tab="precios">
     <h2>Precios: pronóstico y cuota mínima</h2>
-    <p class="nota">Pronóstico = probabilidad justa de Pinnacle, la casa más precisa, sin su margen. Si JEL paga la <b>cuota mínima</b> o más, esa apuesta tiene al menos 4 % de valor.</p>
+    <p class="nota">Pronóstico = probabilidad justa de Pinnacle, la casa más precisa, sin su margen. Si tu casa paga la <b>cuota mínima</b> o más, esa apuesta tiene al menos 4 % de valor.</p>
     <div class="chips" id="pre-ligas" role="group" aria-label="Liga"></div>
     <p class="nota" id="pre-nota"></p>
     <div id="pre-picks"></div>
@@ -70,9 +73,9 @@
     <p class="nota">Cada pick se guarda con la mejor cuota de una casa blanda. CLV = cuánto le ganó esa cuota al último precio de Pinnacle antes del partido: positivo de forma sostenida es la señal de que el método funciona.</p>
     <p class="resumen" id="pre-resumen"></p>
     <div class="caja"><table id="pre-hist"><thead><tr><th>Fecha</th><th>Juego</th><th>Pick</th><th class="n">Cuota</th><th class="n">Ventaja</th><th class="n">CLV</th><th>Resultado</th><th>Tipo</th></tr></thead><tbody></tbody></table></div>
-    <h3>Dónde paga mejor JEL que el precio justo</h3>
-    <p class="nota">Cada lado compara la cuota de JEL con el precio sin margen de una casa de referencia. Positivo es bueno para quien apuesta.</p>
-    <div class="caja"><table id="hoy-precio"><thead><tr><th>Juego</th><th>Lado</th><th class="n">Cuota JEL</th><th class="n">Ventaja</th><th>Referencia</th></tr></thead><tbody></tbody></table></div>
+    <h3>Dónde se paga mejor que el precio justo</h3>
+    <p class="nota">Cada lado compara la cuota ofrecida con el precio sin margen de una casa de referencia. Positivo es bueno para quien apuesta.</p>
+    <div class="caja"><table id="hoy-precio"><thead><tr><th>Juego</th><th>Lado</th><th class="n">Cuota</th><th class="n">Ventaja</th><th>Referencia</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section id="futbol" data-tab="futbol">
@@ -80,7 +83,7 @@
     <p class="nota" id="fut-nota"></p>
     <div id="fut-picks"></div>
     <div class="juegos" id="fut-juegos"></div>
-    <p class="nota">Probabilidad = mezcla del motor con el mercado, sin margen. Ventaja = cuánto paga JEL por encima de esa probabilidad. Sin cuotas de otras casas (referencia), la ventaja es solo del modelo y no basta para apostar.</p>
+    <p class="nota">Probabilidad = mezcla del motor con el mercado, sin margen. Ventaja = cuánto paga la cuota por encima de esa probabilidad. Sin cuotas de otras casas (referencia), la ventaja es solo del modelo y no basta para apostar.</p>
   </section>
 
   <section id="resultados" data-tab="resultados">
@@ -89,7 +92,7 @@
       <label>Día <select id="res-dia"><option value="ayer">Ayer</option><option value="hoy">Hoy</option><option value="7d">Últimos 7 días</option><option value="todos">Todos</option></select></label>
     </div>
     <p class="resumen" id="res-resumen"></p>
-    <div class="caja"><table id="res-juegos"><thead><tr><th>Fecha</th><th>Juego</th><th>Favorito del motor</th><th class="n">Cuota JEL</th><th>Final</th><th>Favorito</th><th>Decisión</th></tr></thead><tbody></tbody></table></div>
+    <div class="caja"><table id="res-juegos"><thead><tr><th>Fecha</th><th>Juego</th><th>Favorito del motor</th><th class="n">Cuota</th><th>Final</th><th>Favorito</th><th>Decisión</th></tr></thead><tbody></tbody></table></div>
     <h3>Picks de esos días</h3>
     <div class="caja"><table id="res-picks"><thead><tr><th>Fecha</th><th>Juego</th><th>Pick</th><th class="n">Cuota</th><th>Resultado</th><th class="n">Unidades</th><th>Tipo</th></tr></thead><tbody></tbody></table></div>
   </section>
@@ -103,7 +106,7 @@
     <div class="caja alta"><table id="lig-tabla"><thead><tr></tr></thead><tbody></tbody></table></div>
     <h3>Historial del motor en esta liga</h3>
     <p class="resumen" id="lig-resumen"></p>
-    <div class="caja"><table id="lig-hist"><thead><tr><th>Fecha</th><th>Juego</th><th>Favorito del motor</th><th class="n">Cuota JEL</th><th>Final</th><th>Favorito</th><th>Decisión</th></tr></thead><tbody></tbody></table></div>
+    <div class="caja"><table id="lig-hist"><thead><tr><th>Fecha</th><th>Juego</th><th>Favorito del motor</th><th class="n">Cuota</th><th>Final</th><th>Favorito</th><th>Decisión</th></tr></thead><tbody></tbody></table></div>
   </section>
 
   <section id="rendimiento" data-tab="resultados">
@@ -135,10 +138,10 @@
       <article class="regla" data-regla="NBA">
         <h3>NBA</h3>
         <ol>
-          <li><b>Precio:</b> la cuota de JEL paga al menos 4 % más que el precio justo de Pinnacle (su cuota sin margen).</li>
+          <li><b>Precio:</b> la cuota paga al menos 4 % más que el precio justo de Pinnacle (su cuota sin margen).</li>
           <li><b>El motor está de acuerdo:</b> su probabilidad para ese lado es mayor que la de la referencia.</li>
           <li><b>Cuota razonable:</b> en moneyline, hasta +250.</li>
-          <li><b>Referencia fresca:</b> tomada a menos de 45 minutos de las cuotas de JEL.</li>
+          <li><b>Referencia fresca:</b> tomada a menos de 45 minutos de las cuotas evaluadas.</li>
           <li><b>Datos completos:</b> plantillas oficiales, reporte de lesiones de los dos equipos y ningún jugador clave en duda.</li>
         </ol>
         <p class="nota">Vigente desde el 14 de noviembre de 2026. Antes: probabilidad de 55 % o más y valor esperado entre 2 % y 12 %.</p>
@@ -147,17 +150,17 @@
         <h3>LVBP</h3>
         <ol>
           <li><b>Confianza:</b> el motor le da 56 % o más a ese lado.</li>
-          <li><b>Valor:</b> valor esperado de 2 % o más, usando la probabilidad combinada del motor y de JEL.</li>
+          <li><b>Valor:</b> valor esperado de 2 % o más, usando la probabilidad combinada del motor y del mercado.</li>
           <li><b>Abridores conocidos:</b> los dos anunciados y con historial suficiente. Sin abridor no hay pick.</li>
           <li><b>Antes del juego:</b> una vez iniciado, nada cuenta.</li>
         </ol>
         <p class="nota">La LVBP no tiene casa de referencia, así que hoy el motor está en seguimiento: sus señales se registran como simuladas, sin dinero, hasta demostrar ventaja.</p>
       </article>
       <article class="regla" data-regla="Precios">
-        <h3>Precios (vigilante: Grecia, Eredivisie, LaLiga 2, 2. Bundesliga y NCAAB)</h3>
+        <h3>Precios (vigilante: Champions, Premier, LaLiga, Bundesliga, Serie A, Ligue 1, Grecia, Eredivisie, LaLiga 2, 2. Bundesliga, NCAAB, NHL y NFL)</h3>
         <ol>
           <li><b>Pronóstico:</b> la probabilidad justa de Pinnacle, sin margen.</li>
-          <li><b>Valor:</b> una casa blanda paga al menos 4 % más que ese precio justo. En JEL vale lo mismo: apuesta solo si paga la cuota mínima o más.</li>
+          <li><b>Valor:</b> una casa blanda paga al menos 4 % más que ese precio justo. En cualquier casa vale lo mismo: apuesta solo si paga la cuota mínima o más.</li>
           <li><b>Probabilidad:</b> 45 % o más para el lado elegido. Con menos, queda como valor sin confianza y no se apuesta.</li>
         </ol>
         <p class="nota">Basado en el estudio de 38 ligas: cuando una casa blanda pagó 4 % o más sobre Pinnacle, esas apuestas le ganaron al cierre en promedio. El historial del vigilante mide si se repite.</p>
@@ -165,9 +168,9 @@
       <article class="regla" data-regla="Fútbol">
         <h3>Fútbol</h3>
         <ol>
-          <li><b>Valor:</b> valor esperado de 2 % o más contra la cuota de JEL.</li>
+          <li><b>Valor:</b> valor esperado de 2 % o más contra la cuota evaluada.</li>
           <li><b>Probabilidad:</b> 45 % o más para el resultado elegido.</li>
-          <li><b>Referencia fresca:</b> cuotas de otras casas tomadas al mismo momento que las de JEL.</li>
+          <li><b>Referencia fresca:</b> cuotas de otras casas tomadas al mismo momento que las evaluadas.</li>
         </ol>
         <p class="nota">Champions y ligas de clubes. En partidos de selecciones el motor solo opina si hay referencia.</p>
       </article>
@@ -190,7 +193,7 @@
 <footer class="pie">
   <div class="ancho">
     <p id="pie-fecha">—</p>
-    <p>Esto es un registro de modelos estadísticos, no una recomendación de apuesta. Las cuotas son de JEL al momento de la captura y pueden haber cambiado. Solo para mayores de 18 años: apuesta solo lo que puedas perder.</p>
+    <p>Esto es un registro de modelos estadísticos, no una recomendación de apuesta. Las cuotas son las del momento en que se tomaron y pueden haber cambiado. Solo para mayores de 18 años: apuesta solo lo que puedas perder.</p>
   </div>
 </footer>
 <script src="app.js"></script>

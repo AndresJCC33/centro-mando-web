@@ -177,3 +177,6 @@ body[data-dep="NCAAB"] { --acento: #4f8cff; --cancha-a: #2b4c8c; --cancha-b: #1d
 .como-motor h2 { font-size: 1.25rem; }
 .pasos { margin: 0; padding-left: 1.3rem; display: grid; gap: 0.45rem; color: var(--tinta-suave); font-size: 0.92rem; }
 .pasos b { color: var(--tinta); }
+body[data-dep="NHL"] { --acento: #5fb3d9; --cancha-a: #3d6f8a; --cancha-b: #24485c; }
+body[data-dep="NFL"] { --acento: #c9a227; --cancha-a: #3f6b2e; --cancha-b: #2c4d20; }
+body[data-dep="MLB"] { --acento: #d94a4a; --cancha-a: #9a3b2c; --cancha-b: #2e6b45; }

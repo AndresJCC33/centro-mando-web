@@ -81,8 +81,19 @@
     const liq = deDep(T.picks).filter((p) => p.tipo === 'PICK' && LIQ.has(p.resultado));
     const u = liq.reduce((s, p) => s + (p.unidades || 0), 0);
     $('#bajada').textContent = `${delDia.length} juego${delDia.length === 1 ? '' : 's'} evaluado${delDia.length === 1 ? '' : 's'} por el motor.` + (liq.length ? ` En la temporada, los picks reales${nombre} llevan ${F.u(u)} unidades en ${liq.length} apuestas.` : ` Todavía no hay picks reales${nombre} liquidados.`);
+    if (dep === 'MLB') {
+      $('#titular').textContent = 'MLB en stand-by hasta 2027';
+      $('#bajada').textContent = 'No hay juegos hasta la próxima temporada. Aquí queda el historial de 2026: en Resultados, Ligas y Rendimiento.';
+    } else if (SOLO_PRECIO.has(dep)) {
+      const vp = (PR && PR.picks ? PR.picks : []).filter((x) => x.deporte === dep && String(x.inicio || '').slice(0, 10) === dia);
+      const c = vp.filter((x) => x.tipo === 'PICK CONFIABLE').length;
+      const jj = ligasPrecio().reduce((s, l) => s + l.partidos.filter((p) => String(p.inicio || '').slice(0, 10) === dia).length, 0);
+      $('#titular').textContent = c ? `Hoy: ${c} pick${c === 1 ? '' : 's'} confiable${c === 1 ? '' : 's'} de ${dep}` : jj ? `Hoy no hay pick confiable de ${dep}` : `Hoy no hay juegos de ${dep} con cuotas`;
+      $('#bajada').textContent = `${jj} juego${jj === 1 ? '' : 's'} vigilado${jj === 1 ? '' : 's'} hoy contra el precio justo de Pinnacle. Detalle en la pestaña Precios.`;
+    }
     return dia;
   };
+  const SOLO_PRECIO = new Set(['NCAAB', 'NHL', 'NFL']);
 
   // ---------- Hoy ----------
   const pintarHoy = (dia) => {
@@ -122,7 +133,7 @@
       a.append(el('span', 'partido', r.partido));
       a.append(el('span', 'gana', r.favorito === 'Empate' ? `Empate ${F.pct(r.p_fav)}` : `${corto(r, r.favorito)} ${F.pct(r.p_fav)}`));
       const det = [];
-      if (r.cuota_fav_am != null) a.append(el('span', 'cuota', `JEL ${F.am(r.cuota_fav_am)}`));
+      if (r.cuota_fav_am != null) a.append(el('span', 'cuota', `Cuota ${F.am(r.cuota_fav_am)}`));
       if (r.p_mer_fav != null) det.push(`la casa le da ${F.pct(r.p_mer_fav)}`);
       if (r.total_pred != null) det.push(`total ${nf(1).format(r.total_pred)}${r.linea_total != null ? `, línea ${nf(1).format(r.linea_total)}` : ''}`);
       if (det.length) a.append(el('span', 'detalle', det.join('; ')));
@@ -344,7 +355,7 @@
       c.append(el('div', 'partido', p.partido));
       const t = el('table', 'mini');
       const th = el('tr');
-      for (const h of ['', 'JEL', 'Prob.', 'Justa', 'Ventaja']) th.append(el('th', h ? 'n' : '', h));
+      for (const h of ['', 'Cuota', 'Prob.', 'Justa', 'Ventaja']) th.append(el('th', h ? 'n' : '', h));
       const thd = el('thead');
       thd.append(th);
       t.append(thd);
@@ -416,7 +427,7 @@
       const t = el('table', 'mini');
       const thd = el('thead');
       const th = el('tr');
-      for (const h of ['', 'Prob.', 'Justa', 'Mín. JEL', 'Casa']) th.append(el('th', h ? 'n' : '', h));
+      for (const h of ['', 'Prob.', 'Justa', 'Cuota mín.', 'Casa']) th.append(el('th', h ? 'n' : '', h));
       thd.append(th);
       t.append(thd);
       const tb = el('tbody');
@@ -425,7 +436,7 @@
         tr.append(el('td', '', l.nombre));
         tr.append(el('td', 'n', F.pct(l.p)));
         tr.append(el('td', 'n', F.am(l.justa)));
-        tr.append(el('td', 'n cuota', F.am(l.minima_jel)));
+        tr.append(el('td', 'n cuota', F.am(l.minima ?? l.minima_jel)));
         tr.append(el('td', 'n ' + (l.tipo ? 'pos' : ''), l.mejor == null ? '—' : F.am(l.mejor)));
         tb.append(tr);
       }
@@ -466,7 +477,7 @@
       const c = el('article', 'pick');
       c.append(el('div', 'liga', `${l.liga} · ${hora(l.p_.inicio)}`));
       c.append(el('div', 'partido', `${l.p_.local} vs ${l.p_.visita}`));
-      c.append(el('div', 'detalle pos', `${l.nombre}: en JEL tómalo solo a ${F.am(l.minima_jel)} o mejor (prob. ${F.pct(l.p)}; ${l.casa} paga ${F.am(l.mejor)}).`));
+      c.append(el('div', 'detalle pos', `${l.nombre}: tómalo solo a ${F.am(l.minima ?? l.minima_jel)} o mejor (prob. ${F.pct(l.p)}; ${l.casa} paga ${F.am(l.mejor)}).`));
       caja.append(c);
     }
   };
@@ -490,7 +501,7 @@
       ['Plantillas del día', 'Revisa quién juega: alineaciones, abridores y reporte de lesiones.'],
       ['Simulación', 'Juega cada partido miles de veces y de ahí saca la probabilidad de cada resultado, de los totales y de los marcadores.'],
       ['Precio', 'Compara esa probabilidad con la cuota y con el precio justo de Pinnacle. Solo marca pick confiable cuando la cuota paga más de lo que vale y pasa todos los filtros.']],
-      n: 'Toca NBA, LVBP, Fútbol o NCAAB arriba para ver cómo trabaja el motor de cada deporte.' },
+      n: 'Toca un deporte arriba para ver cómo trabaja su motor.' },
     NBA: { t: 'Cómo trabaja el motor de la NBA', p: [
       ['Jugada por jugada', 'Baja el play-by-play oficial de nba.com de toda la temporada y arma, posesión por posesión, el ritmo y la eficiencia de cada equipo y de cada quinteto.'],
       ['Plantillas y lesiones', 'Usa las plantillas oficiales del día y el reporte de lesiones de la NBA: si falta un jugador clave, el equipo se recalcula sin él.'],
@@ -508,10 +519,29 @@
       ['Precio', 'Mezcla su probabilidad con el mercado y la compara con Pinnacle. Pick confiable: valor de 2 % o más y probabilidad de 45 % o más.']] },
     NCAAB: { t: 'Cómo se pronostica la NCAAB', p: [
       ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
-      ['Casas blandas', 'Compara con más de 20 casas (William Hill, Unibet, 888, Betsson…) dos veces al día.'],
+      ['Casas blandas', 'Compara con más de 20 casas (William Hill, Unibet, 888, Betsson…) una vez al día.'],
       ['Valor', 'Marca pick cuando una casa paga al menos 4 % sobre el precio justo y la probabilidad es de 45 % o más.'],
       ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
       n: 'Para la NCAAB todavía no hay motor de simulación: en nuestro estudio, ningún modelo con estadísticas públicas mejoró el cierre de Pinnacle.' },
+    NHL: { t: 'Cómo se pronostica la NHL', p: [
+      ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
+      ['Casas blandas', 'Compara con más de 20 casas una vez al día.'],
+      ['Valor', 'Marca pick cuando una casa paga al menos 4 % sobre el precio justo y la probabilidad es de 45 % o más.'],
+      ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
+      n: 'Para la NHL todavía no hay motor de simulación: solo el vigilante de precios.' },
+    NFL: { t: 'Cómo se pronostica la NFL', p: [
+      ['Precio justo', 'Toma las cuotas de Pinnacle, la casa más precisa, y les quita el margen: esa es la probabilidad de cada equipo.'],
+      ['Casas blandas', 'Compara con más de 20 casas una vez al día.'],
+      ['Valor', 'Marca pick cuando una casa paga al menos 4 % sobre el precio justo y la probabilidad es de 45 % o más.'],
+      ['Seguimiento', 'Guarda cada pick, mide si le ganó al cierre (CLV) y lo califica con el marcador.']],
+      n: 'Para la NFL todavía no hay motor de simulación: solo el vigilante de precios.' },
+    MLB: { t: 'Cómo trabaja el motor de MLB', p: [
+      ['Statcast', 'Baja cada lanzamiento de la temporada: velocidad de bate, ángulo y velocidad de salida, giro de la bola. Con eso mide la calidad real del contacto (xwOBA), la tendencia al jonrón y al ponche de cada bateador y lanzador.'],
+      ['Duelos', 'Cruza cada bateador con cada lanzador con un Log5 jerárquico (liga, equipo, jugador) y ajusta por estadio y clima.'],
+      ['Bullpen y salida del abridor', 'Estima en qué entrada sale el abridor y quién del bullpen entra, relevista por relevista.'],
+      ['Simulación', 'Juega cada juego más de 10 000 veces y saca la probabilidad de ganar, del total de carreras y del run line.'],
+      ['Filtros', 'Pick confiable solo con valor esperado positivo y confianza suficiente. El V3 quedó como motor principal; el PRO V5 y el V5 base quedan como referencia.']],
+      n: 'En stand-by hasta la temporada 2027. Aquí queda el historial de 2026.' },
   };
   const pintarComoMotor = () => {
     const m = MOTOR[dep] || MOTOR.Todos;

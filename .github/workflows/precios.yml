@@ -7,7 +7,7 @@ on:
         description: "vacío = corrida normal; sondeo = ver créditos y casas"
         default: ""
   schedule:
-    - cron: "40 12,21 * * *"   # 8:40 am y 5:40 pm de Caracas (5 créditos por corrida)
+    - cron: "40 13 * * *"   # 9:40 am de Caracas, una vez al día (13 ligas ≈ 13 créditos + marcadores)
 permissions:
   contents: write
 concurrency:
