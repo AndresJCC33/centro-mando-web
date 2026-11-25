@@ -548,6 +548,8 @@
     const dig = d === 'NHL' ? 1 : 0;
     a.append(el('span', 'detalle', `Marcador proyectado: ${j.local} ${nf(dig).format(j.pts_local)} – ${nf(dig).format(j.pts_visita)} ${j.visita} (${UNIDAD[d]}).`));
     a.append(el('span', 'detalle', `${j.local}: motor ${F.pct(j.p_motor)}, mercado ${j.p_mercado == null ? '—' : F.pct(j.p_mercado)}${ME.mezcla[d] ? `, combinado ${F.pct(j.p_final)}` : ''}.`));
+    if (d === 'NHL' && j.portero_local) a.append(el('span', 'detalle', `Porteros probables: ${j.portero_local} (${nf(3).format(j.sv_local)} de atajadas) y ${j.portero_visita} (${nf(3).format(j.sv_visita)}). Tiros esperados: ${nf(1).format(j.tiros_local)} – ${nf(1).format(j.tiros_visita)}.`));
+    if (d === 'NFL' && j.qb_local) a.append(el('span', 'detalle', `Mariscales: ${j.qb_local}${j.ajuste_qb_local ? ` (${j.ajuste_qb_local > 0 ? '+' : ''}${nf(1).format(j.ajuste_qb_local)} pts frente a su promedio reciente)` : ''} y ${j.qb_visita}${j.ajuste_qb_visita ? ` (${j.ajuste_qb_visita > 0 ? '+' : ''}${nf(1).format(j.ajuste_qb_visita)} pts)` : ''}.`));
     if (d === 'NHL') a.append(el('span', 'detalle', `Prórroga ${F.pct(j.p_prorroga)}. Gana por 2 o más (−1.5): ${j.local} ${F.pct(j.p_local_m15)}, ${j.visita} ${F.pct(j.p_visita_m15)}. Marcadores más repetidos: ${j.marcadores}.`));
     if (j.pj_local != null && (j.pj_local < 5 || j.pj_visita < 5)) a.append(el('span', 'detalle neg', 'Pocos juegos esta temporada: el motor todavía se apoya mucho en la temporada pasada.'));
     for (const l of conValor) {
@@ -732,17 +734,18 @@
       ['Mezcla con el mercado', 'En el backtest 2016-2021 el motor quedó muy cerca del cierre (error medio del margen 8,7 contra 8,6 con 15 juegos o más) y mezclado al 10 % lo iguala o lo mejora apenas. Por eso la probabilidad final es 90 % Pinnacle y 10 % motor, y solo cuando los dos equipos llevan 4 juegos o más.']],
       n: 'Con pocos juegos el motor se equivoca más que el mercado: diferencias grandes al inicio de la temporada no son valor.' },
     NHL: { t: 'Cómo trabaja el motor de la NHL', p: [
-      ['Goles', 'Con todos los juegos de esta temporada y la anterior mide el ataque y la defensa de cada equipo (los juegos recientes pesan más) y saca los goles esperados de cada uno.'],
+      ['Tiros y goles', 'Con esta temporada y la anterior mide cuántos tiros a puerta genera y permite cada equipo, y cuántos goles, ajustado por rival (los juegos recientes pesan más).'],
+      ['Porteros', 'Toma el portero probable de cada equipo (el que más juegos empezó últimamente; en el segundo de dos días seguidos, el suplente) y su % de atajadas, ajustado a la media de la liga. Goles esperados = tiros esperados x (1 − atajadas del portero rival).'],
       ['Simulación', 'Juega el partido 20 000 veces: tiempo regular y, si empatan, prórroga 3 contra 3 y shootout. De ahí salen la probabilidad de ganar, de la prórroga, de ganar por 2 o más (−1.5) y los marcadores más repetidos.'],
       ['Precio', 'Compara con Pinnacle sin margen y con más de 20 casas: pick confiable con 4 % o más de ventaja y 45 % o más de probabilidad; valor probado con 3 % o más entre 25 % y 45 %.'],
-      ['En prueba', 'En el backtest 2015-2023 el motor quedó un poco por detrás del cierre (log-loss 0,673 contra 0,667), así que hoy decide el precio y el motor se mide aparte hasta demostrar que suma.']],
-      n: 'Siguiente paso: tiros, goles esperados y porteros titulares.' },
+      ['En prueba', 'Con tiros y porteros el motor mejoró en el backtest 2016-2023 (log-loss de 0,671 a 0,667), pero el cierre sigue un poco mejor (0,662): decide el precio y el motor se mide aparte hasta demostrar que suma.']] },
     NFL: { t: 'Cómo trabaja el motor de la NFL', p: [
       ['EPA', 'Con cada jugada de nflverse mide cuántos puntos esperados gana o pierde cada ataque y cada defensa por jugada, ajustado por rival, sin los minutos de la basura.'],
       ['Puntos', 'Suma los puntos a favor y en contra ajustados por rival y la ventaja de local.'],
+      ['Mariscal', 'Mide a cada QB por EPA por jugada de pase (los que tienen poco historial parten como suplentes). Si el titular del juego es mejor o peor que quien venía lanzando, ajusta el margen.'],
       ['Simulación', 'El margen y el total salen de miles de juegos reales con un margen esperado parecido, así respeta los números clave (3, 7, 10).'],
-      ['En prueba', 'En el backtest 2014-2026 su error medio fue 10,3 puntos contra 9,9 del cierre: todavía no sabe de lesiones de mariscales, así que decide el precio y el motor se mide aparte.']],
-      n: 'Siguiente paso: mariscal titular y lesiones.' },
+      ['En prueba', 'En el backtest 2014-2026 su error medio fue 10,28 puntos (10,33 sin el ajuste del mariscal) contra 9,92 del cierre: decide el precio y el motor se mide aparte.']],
+      n: 'El titular sale del calendario de nflverse; lesiones del resto del equipo todavía no entran.' },
     MLB: { t: 'Cómo trabaja el motor de MLB', p: [
       ['Statcast', 'Baja cada lanzamiento de la temporada: velocidad de bate, ángulo y velocidad de salida, giro de la bola. Con eso mide la calidad real del contacto (xwOBA), la tendencia al jonrón y al ponche de cada bateador y lanzador.'],
       ['Duelos', 'Cruza cada bateador con cada lanzador con un Log5 jerárquico (liga, equipo, jugador) y ajusta por estadio y clima.'],

@@ -25,7 +25,7 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(__file__))
 TMP = os.environ.setdefault("EEUU_DATOS", "/tmp/eeuu_datos")
 from actualizar import bajar, CARACAS, DATOS  # noqa: E402
-from eeuu import ncaab_datos, ncaab_motor, nhl_motor, nfl_motor, nombres  # noqa: E402
+from eeuu import ncaab_datos, ncaab_motor, nhl_motor, nhl2, nfl_motor, nfl_qb, nombres  # noqa: E402
 
 SALIDA = os.path.join(DATOS, "motores_eeuu.json")
 HIST = os.path.join(DATOS, "motores_eeuu_historial.json")
@@ -35,7 +35,9 @@ NFLV = "https://github.com/nflverse/nflverse-data/releases/download"
 MEZCLA = {"NCAAB": 0.1, "NHL": 0.0, "NFL": 0.0}
 PJ_MEZCLA = 4  # con menos juegos de un equipo esta temporada, el motor no entra en la mezcla
 SD_NCAAB = (11.3, 17.0)  # desviación del margen y del total (residuos del backtest con 6+ juegos)
-NFL_B = (16.364, 0.704, 0.701, 0.058)  # margen = b0*epa_dif + b1*pts_dif + b2*local + b3 (temporadas 2012-2025)
+NFL_B = (16.686, 0.713, 0.637, 1.167, 0.123)  # margen = b0*epa_dif + b1*pts_dif + b2*local + b3*qb_dif + b4 (2012-2025)
+NHL_ALFA = 0.6           # peso de tiros + portero frente al motor de goles (backtest 2016-2023)
+NHL_CAL = (-0.065, 1.501)  # recalibración del motor NHL: logit' = a + b*logit (estaba demasiado cauto)
 NFL_BT = (0.658, 15.502)               # total = a*pts_tot + c
 AVISOS = []
 
@@ -106,35 +108,63 @@ def motor_ncaab(partidos, hoy):
 
 
 # ---------------------------------------------------------------- NHL
+def portero_probable(gb, equipo, fecha):
+    """Titular probable: el que más juegos empezó en los últimos 5 del equipo (si ayer jugó, el otro)."""
+    s = gb[(gb.team_abbrev == equipo) & (gb.starter == True) & (gb.fecha < fecha)].sort_values("fecha")  # noqa: E712
+    if s.empty:
+        return None, None
+    ult = s.tail(5)
+    pid = ult.player_id.value_counts().idxmax()
+    if (fecha - s.fecha.iloc[-1]).days <= 1 and s.player_id.iloc[-1] == pid:  # segundo juego seguido: suele ir el suplente
+        otros = s[s.player_id != pid].tail(10)
+        if len(otros):
+            pid = otros.player_id.value_counts().idxmax()
+    return pid, s[s.player_id == pid].player_name.iloc[-1]
+
+
 def motor_nhl(partidos, hoy):
     t = temporada_actual(hoy)
-    gs = []
     for y in (t - 1, t):
-        d = pd.read_parquet(_bajar(f"{SDV}/nhl_schedules/nhl_schedule_{y}.parquet", f"nhl_sched_{y}.parquet"))
-        d = d[(d.game_type == "R") & d.home_score.notna() & d.game_state.isin(["OFF", "FINAL"])]
-        gs.append(pd.DataFrame({"temporada": y, "fecha": pd.to_datetime(d.game_date), "local": d.home_team_abbr,
-                                "visita": d.away_team_abbr, "gl": d.home_score.astype(int), "gv": d.away_score.astype(int)}))
-    g = pd.concat(gs)
-    G0, G1 = g[g.temporada == t - 1], g[g.temporada == t]
-    previo = nhl_motor.ajustar(G0, G0.fecha.max() + pd.Timedelta(days=1)) if len(G0) else None
-    R = nhl_motor.ajustar(G1, pd.Timestamp(hoy), previo) or previo
+        _bajar(f"{SDV}/nhl_team_boxscores/team_box_{y}.parquet", f"nhl_tbox_{y}.parquet")
+        _bajar(f"{SDV}/nhl_goalie_boxscores/goalie_box_{y}.parquet", f"nhl_gbox_{y}.parquet")
+    j, gb = nhl2.cargar([t - 1, t])
+    d = pd.Timestamp(hoy)
+    J0, J1 = j[j.temporada == t - 1], j[j.temporada == t]
+    tiros = lambda x: x.rename(columns={"gl": "x1", "gv": "x2"}).rename(columns={"sl": "gl", "sv": "gv"})  # noqa: E731
+    pg = nhl_motor.ajustar(J0, J0.fecha.max() + pd.Timedelta(days=1)) if len(J0) else None
+    ps = nhl_motor.ajustar(tiros(J0), J0.fecha.max() + pd.Timedelta(days=1)) if len(J0) else None
+    Rg = nhl_motor.ajustar(J1, d, pg) or pg
+    Rs = nhl_motor.ajustar(tiros(J1), d, ps) or ps
+    port, sv_lg = nhl2.Porteros(gb).tabla(d)
+    fin = nhl2.tiro_equipos(j, d)
     sal, sin = [], []
     for p in partidos:
         al, av = nombres.NHL.get(p["local"]), nombres.NHL.get(p["visita"])
         if not al or not av:
             sin.append(p["local"] if not al else p["visita"])
             continue
-        lh, la = nhl_motor.esperados(R, al, av)
+        fecha = pd.Timestamp(p["inicio"][:10])
+        pl_id, pl_n = portero_probable(gb, al, fecha)
+        pv_id, pv_n = portero_probable(gb, av, fecha)
+        lg_, vg_ = nhl_motor.esperados(Rg, al, av)
+        ls_, vs_ = nhl_motor.esperados(Rs, al, av)
+        lx = ls_ * (1 - port.get(pv_id, sv_lg)) * fin.get(al, 1.0)
+        vx = vs_ * (1 - port.get(pl_id, sv_lg)) * fin.get(av, 1.0)
+        lh, la = NHL_ALFA * lx + (1 - NHL_ALFA) * lg_, NHL_ALFA * vx + (1 - NHL_ALFA) * vg_
         r = nhl_motor.probabilidades(lh, la)
+        pc = 1 / (1 + math.exp(-(NHL_CAL[0] + NHL_CAL[1] * _logit(r["p_local"]))))
         L, V = nhl_motor.simular(lh, la, 20000)
         top = pd.Series([f"{a}-{b}" for a, b in zip(L, V)]).value_counts(normalize=True).head(4)
-        sal.append(dict(p_local=r["p_local"], pts_local=lh, pts_visita=la, p_prorroga=r["p_prorroga"],
+        sal.append(dict(p_local=pc, pts_local=lh, pts_visita=la, p_prorroga=r["p_prorroga"],
                         p_local_m15=r["p_local_m15"], p_visita_m15=r["p_visita_m15"],
+                        tiros_local=round(ls_, 1), tiros_visita=round(vs_, 1),
+                        portero_local=pl_n, portero_visita=pv_n,
+                        sv_local=round(port.get(pl_id, sv_lg), 3), sv_visita=round(port.get(pv_id, sv_lg), 3),
                         marcadores=", ".join(f"{k} {v * 100:.0f} %" for k, v in top.items()),
-                        pj_local=int(R["pj"].get(al, 0)), pj_visita=int(R["pj"].get(av, 0)), _p=p, id_local=al, id_visita=av))
+                        pj_local=int(Rg["pj"].get(al, 0)), pj_visita=int(Rg["pj"].get(av, 0)), _p=p, id_local=al, id_visita=av))
     if sin:
         AVISOS.append("NHL sin equipo: " + ", ".join(sorted(set(sin))))
-    res = {(r.local, r.visita, r.fecha.strftime("%Y-%m-%d")): (int(r.gl), int(r.gv)) for r in G1.itertuples()}
+    res = {(r.local, r.visita, r.fecha.strftime("%Y-%m-%d")): (int(r.gl), int(r.gv)) for r in J1.itertuples()}
     return sal, res
 
 
@@ -142,8 +172,9 @@ def motor_nhl(partidos, hoy):
 def motor_nfl(partidos, hoy):
     t = hoy.year if hoy.month >= 8 else hoy.year - 1
     _bajar(f"{NFLV}/schedules/games.csv", "nfl_games.csv")
-    for y in (t - 1, t):
+    for y in (t - 2, t - 1, t):
         _bajar(f"{NFLV}/pbp/play_by_play_{y}.parquet", f"nfl_pbp_{y}.parquet")
+    qr, qbase = nfl_qb.QB(nfl_qb.dropbacks()).ratings(pd.Timestamp(hoy))
     g = nfl_motor.juegos()
     G0, G1 = g[g.season == t - 1], g[g.season == t]
     previo = nfl_motor.ajustar(G0, G0[G0.result.notna()].fecha.max() + pd.Timedelta(days=1))
@@ -155,13 +186,20 @@ def motor_nfl(partidos, hoy):
         if not al or not av:
             sin.append(p["local"] if not al else p["visita"])
             continue
-        fila = G1[(G1.home_team == al) & (G1.away_team == av)]
+        fila = G1[(G1.home_team == al) & (G1.away_team == av) & G1.result.isna()]
         neu = bool(fila.neutral.iloc[0]) if len(fila) else False
         f = nfl_motor.rasgos(R, al, av, neu)
-        mu = NFL_B[0] * f["epa_dif"] + NFL_B[1] * f["pts_dif"] + NFL_B[2] * f["loc"] + NFL_B[3]
+        qb_l = fila.home_qb_id.iloc[0] if len(fila) else None
+        qb_v = fila.away_qb_id.iloc[0] if len(fila) else None
+        aj_l = nfl_qb.QB.ajuste(qr, qbase, al, qb_l)
+        aj_v = nfl_qb.QB.ajuste(qr, qbase, av, qb_v)
+        mu = (NFL_B[0] * f["epa_dif"] + NFL_B[1] * f["pts_dif"] + NFL_B[2] * f["loc"] + NFL_B[3] * (aj_l - aj_v) + NFL_B[4])
         tot = NFL_BT[0] * f["pts_tot"] + NFL_BT[1]
         r = sim.probabilidades(mu, tot)
         sal.append(dict(p_local=r["p_local"], pts_local=(tot + mu) / 2, pts_visita=(tot - mu) / 2, _p=p,
+                        qb_local=fila.home_qb_name.iloc[0] if len(fila) else None,
+                        qb_visita=fila.away_qb_name.iloc[0] if len(fila) else None,
+                        ajuste_qb_local=round(aj_l, 1), ajuste_qb_visita=round(aj_v, 1),
                         id_local=al, id_visita=av, pj_local=None, pj_visita=None))
     if sin:
         AVISOS.append("NFL sin equipo: " + ", ".join(sorted(set(sin))))
