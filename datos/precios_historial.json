@@ -23,7 +23,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Draw",
@@ -47,7 +47,8 @@
 "clv": 0.0691,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Monza",
@@ -71,7 +72,8 @@
 "clv": 0.2462,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "523fa336e1cf685100957e5e6359fc4c|FC Zwolle",
@@ -96,7 +98,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "69fc06d019491be2aa1bf69b8f8041e3|Deportivo La Coruña",
@@ -116,11 +118,12 @@
 "ventaja": 0.2622,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.1098,
-"clv": 0.2622,
+"p_cierre": 0.1072,
+"clv": 0.2323,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "09bb0ba9a9025d64fed410375c0c8f80|Draw",
@@ -141,10 +144,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.2852,
-"clv": 0.0465,
+"clv": 0.0464,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "3c54622721e80cdfbb954b810a125a04|Draw",
@@ -169,7 +173,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "f45e9062c2f755b977c98d496c22697b|Draw",
@@ -190,10 +194,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.2625,
-"clv": 0.0659,
+"clv": 0.066,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "c99772cba1418e72f2eded26e4afeb59|Alavés",
@@ -217,7 +222,8 @@
 "clv": 0.0747,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "f96c1137c9d3f7e2e691275a2988fa1d|Draw",
@@ -238,10 +244,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.2719,
-"clv": 0.0603,
+"clv": 0.0604,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "12002f6f804a122db48271ff05be03c0|Lorient",
@@ -265,7 +272,8 @@
 "clv": 0.1357,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "8031222f3f3e8384a69c0ca5e1166458|Go Ahead Eagles",
@@ -290,7 +298,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "5d838190a8f5932d7fcfbcc26bacdd9c|Eintracht Frankfurt",
@@ -314,7 +322,8 @@
 "clv": 0.0458,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "365e1a00908ab1cd5a51a53ede2b86b2|Union Berlin",
@@ -335,10 +344,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.1577,
-"clv": 0.0647,
+"clv": 0.0646,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "af3432ca724da03d38f0ff4e62045e4c|Parma",
@@ -362,7 +372,8 @@
 "clv": 0.0421,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "c81520b9a9794749cfdab57f89bdeb16|Rayo Vallecano",
@@ -383,10 +394,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.1842,
-"clv": 0.1053,
+"clv": 0.1054,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "40d95e660c301c2d8a5a7a6317017b65|Draw",
@@ -407,10 +419,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.283,
-"clv": 0.0558,
+"clv": 0.0559,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "02ff879cf54f6d1fec2664efee0431db|Draw",
@@ -431,10 +444,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.2835,
-"clv": 0.046,
+"clv": 0.0461,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "7aa2e13c09deb4fbd70e62312e82a514|Willem II",
@@ -459,7 +473,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "87fec8c093d5b8f825bc61121105cc27|Stanford Cardinal",
@@ -484,7 +498,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "958410c2d9ff2a33dac7eef047ddb857|Bellarmine Knights",
@@ -509,7 +523,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "836e49363e2e574ede8873b9e53cb5f7|South Carolina Gamecocks",
@@ -534,7 +548,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T13:37-04:00"
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "14007bc0605bce3bd164b132254ba24c|Draw",
@@ -558,7 +572,8 @@
 "clv": 0.0431,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "b1af6789fe6db7aab18a2945ce56f035|Viking FK",
@@ -582,7 +597,8 @@
 "clv": 0.0932,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "0ee2cfddf20153779cd2cc3e1f1f879f|Lille",
@@ -606,7 +622,8 @@
 "clv": 0.1235,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "0ee2cfddf20153779cd2cc3e1f1f879f|Draw",
@@ -630,7 +647,8 @@
 "clv": 0.0564,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
 "id": "e7e64568f6af00d395a3fdfc27de8ae3|VfB Stuttgart",
@@ -652,6 +670,31 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.1501,
 "clv": 0.0509,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
+},
+{
+"id": "d7e124b82ed9910d5aa3077d19c6ada1|Abilene Christian Wildcats",
+"evento": "d7e124b82ed9910d5aa3077d19c6ada1",
+"deporte_api": "basketball_ncaab",
+"liga": "NCAAB",
+"deporte": "NCAAB",
+"fecha": "2026-11-25",
+"inicio": "2026-11-25T15:00-04:00",
+"partido": "South Dakota St Jackrabbits vs Abilene Christian Wildcats",
+"seleccion": "Abilene Christian Wildcats",
+"clave": "Abilene Christian Wildcats",
+"cuota": 270,
+"cuota_dec": 3.7,
+"casa": "Unibet (SE)",
+"p_justa": 0.2815,
+"ventaja": 0.0416,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-25T13:40-04:00",
+"p_cierre": 0.2815,
+"clv": 0.0416,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null
@@ -676,6 +719,31 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.0719,
 "clv": 0.2222,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null,
+"foto_cierre": "2026-11-25T13:40-04:00"
+},
+{
+"id": "e6fa007f93e0cef004be920f96ee95ba|Sabah FK",
+"evento": "e6fa007f93e0cef004be920f96ee95ba",
+"deporte_api": "soccer_uefa_champs_league",
+"liga": "Champions League",
+"deporte": "Fútbol",
+"fecha": "2026-11-25",
+"inicio": "2026-11-25T13:45-04:00",
+"partido": "Sabah FK vs Barcelona",
+"seleccion": "Sabah FK",
+"clave": "Sabah FK",
+"cuota": 3500,
+"cuota_dec": 36.014,
+"casa": "Nordic Bet",
+"p_justa": 0.0294,
+"ventaja": 0.0588,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-25T13:40-04:00",
+"p_cierre": 0.0294,
+"clv": 0.0588,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null
