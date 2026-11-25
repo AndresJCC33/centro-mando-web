@@ -29,7 +29,10 @@ LIGAS = {
     "basketball_ncaab": ("NCAAB", "NCAAB", "h2h"),
 }
 SHARP = "pinnacle"
-REGIONES = "eu,uk"
+REGIONES = "eu"
+NO_BLANDAS = {"pinnacle", "betfair_ex_eu", "betfair_ex_uk", "betfair_ex_au", "smarkets", "matchbook", "betonlineag", "lowvig"}
+PROB_MIN = 0.45
+HORAS = 48
 HIST = os.path.join(DATOS, "precios_historial.json")
 SALIDA = os.path.join(DATOS, "precios.json")
 
@@ -77,6 +80,145 @@ def sondeo():
           "casas:", sorted({b["key"] for e in datos for b in e["bookmakers"]}), info)
 
 
+def am(dec):
+    if dec is None or dec <= 1:
+        return None
+    return round((dec - 1) * 100) if dec >= 2 else round(-100 / (dec - 1))
+
+
+def leer(path, defecto):
+    try:
+        with open(path, encoding="utf-8") as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return defecto
+
+
+def analizar_evento(e, ahora):
+    pin = next((b for b in e["bookmakers"] if b["key"] == SHARP), None)
+    if pin is None:
+        return None
+    mk = next((m for m in pin["markets"] if m["key"] == "h2h"), None)
+    if mk is None or len(mk["outcomes"]) < 2:
+        return None
+    inv = {o["name"]: 1 / o["price"] for o in mk["outcomes"] if o.get("price", 0) > 1}
+    tot = sum(inv.values())
+    justa = {k: v / tot for k, v in inv.items()}
+    blandas = {}
+    for b in e["bookmakers"]:
+        if b["key"] in NO_BLANDAS:
+            continue
+        m = next((m for m in b["markets"] if m["key"] == "h2h"), None)
+        if not m:
+            continue
+        for o in m["outcomes"]:
+            blandas.setdefault(o["name"], []).append((o["price"], b["title"]))
+    orden = [e["home_team"]] + (["Draw"] if "Draw" in justa else []) + [e["away_team"]]
+    lados = []
+    for nombre in orden:
+        p = justa.get(nombre)
+        if p is None:
+            continue
+        ofertas = sorted(blandas.get(nombre, []), reverse=True)
+        mejor, casa = (ofertas[0] if ofertas else (None, None))
+        ventaja = mejor * p - 1 if mejor else None
+        n_valor = sum(1 for c, _ in ofertas if c * p - 1 >= VENTAJA)
+        tipo = ""
+        if ventaja is not None and ventaja >= VENTAJA:
+            tipo = "PICK CONFIABLE" if p >= PROB_MIN else "VALOR SIN CONFIANZA"
+        lados.append(dict(nombre="Empate" if nombre == "Draw" else nombre, clave=nombre, p=round(p, 4),
+                          justa=am(1 / p), minima_jel=am((1 / p) * (1 + VENTAJA)),
+                          mejor=am(mejor) if mejor else None, casa=casa, ventaja=round(ventaja, 4) if ventaja is not None else None,
+                          casas_con_valor=n_valor, casas=len(ofertas), tipo=tipo))
+    inicio = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
+    return dict(id=e["id"], inicio=inicio.astimezone(CARACAS).isoformat(timespec="minutes"), local=e["home_team"],
+                visita=e["away_team"], lados=lados, empezado=inicio <= ahora)
+
+
+def ganador(ev):
+    sc = {s["name"]: float(s["score"]) for s in (ev.get("scores") or []) if s.get("score") not in (None, "")}
+    if len(sc) < 2 or not ev.get("completed"):
+        return None, None
+    a, b = ev["home_team"], ev["away_team"]
+    marcador = f"{int(sc.get(a, 0))}-{int(sc.get(b, 0))}"
+    if sc.get(a) == sc.get(b):
+        return "Draw", marcador
+    return (a if sc.get(a, 0) > sc.get(b, 0) else b), marcador
+
+
+def correr():
+    clave = clave_odds()
+    ahora = datetime.now(timezone.utc)
+    hist = leer(HIST, {"picks": []})
+    picks = {p["id"]: p for p in hist["picks"]}
+    ligas, creditos, avisos = [], None, []
+    for k, (nombre, deporte, mercados) in LIGAS.items():
+        try:
+            datos, info = api(f"/sports/{k}/odds", clave, regions=REGIONES, markets=mercados, oddsFormat="decimal")
+            creditos = info.get("x-requests-remaining")
+        except Exception as ex:  # noqa: BLE001
+            avisos.append(f"{nombre}: {ex}")
+            continue
+        partidos = []
+        for e in datos:
+            inicio = datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
+            a = analizar_evento(e, ahora)
+            if a is None:
+                continue
+            # foto de cierre para los picks guardados de este partido (la última antes de empezar)
+            if inicio > ahora:
+                for l in a["lados"]:
+                    pid = f"{e['id']}|{l['clave']}"
+                    if pid in picks and picks[pid]["resultado"] == "PENDIENTE":
+                        picks[pid]["p_cierre"] = l["p"]
+                        picks[pid]["foto_cierre"] = ahora.astimezone(CARACAS).isoformat(timespec="minutes")
+                        picks[pid]["clv"] = round(picks[pid]["cuota_dec"] * l["p"] - 1, 4)
+            if inicio > ahora + timedelta(hours=HORAS) or inicio <= ahora:
+                continue
+            partidos.append(a)
+            for l in a["lados"]:
+                pid = f"{e['id']}|{l['clave']}"
+                if l["tipo"] and pid not in picks:
+                    dec = (1 + l["ventaja"]) / l["p"]
+                    picks[pid] = dict(id=pid, evento=e["id"], deporte_api=k, liga=nombre, deporte=deporte,
+                                      fecha=a["inicio"][:10], inicio=a["inicio"], partido=f"{a['local']} vs {a['visita']}",
+                                      seleccion=l["nombre"], clave=l["clave"], cuota=l["mejor"], cuota_dec=round(dec, 3),
+                                      casa=l["casa"], p_justa=l["p"], ventaja=l["ventaja"], tipo=l["tipo"],
+                                      detectado=ahora.astimezone(CARACAS).isoformat(timespec="minutes"),
+                                      p_cierre=l["p"], clv=round(dec * l["p"] - 1, 4), resultado="PENDIENTE",
+                                      marcador="", unidades=None)
+        partidos.sort(key=lambda x: x["inicio"])
+        ligas.append(dict(clave=k, nombre=nombre, deporte=deporte, partidos=partidos))
+    # Calificar con marcadores (solo deportes con picks ya jugados hace más de 3 horas)
+    por_calificar = {p["deporte_api"] for p in picks.values() if p["resultado"] == "PENDIENTE"
+                     and datetime.fromisoformat(p["inicio"]) < ahora - timedelta(hours=3)}
+    for k in sorted(por_calificar):
+        try:
+            evs, info = api(f"/sports/{k}/scores", clave, daysFrom=3)
+            creditos = info.get("x-requests-remaining")
+        except Exception as ex:  # noqa: BLE001
+            avisos.append(f"marcadores {k}: {ex}")
+            continue
+        res = {ev["id"]: ganador(ev) for ev in evs}
+        for p in picks.values():
+            if p["deporte_api"] == k and p["resultado"] == "PENDIENTE" and res.get(p["evento"], (None, None))[0]:
+                g, marc = res[p["evento"]]
+                p["marcador"] = marc
+                p["resultado"] = "GANADO" if g == p["clave"] else "PERDIDO"
+                p["unidades"] = round(p["cuota_dec"] - 1, 3) if p["resultado"] == "GANADO" else -1.0
+    lista = sorted(picks.values(), key=lambda p: p["inicio"], reverse=True)
+    with open(HIST, "w", encoding="utf-8") as f:
+        json.dump({"picks": lista}, f, ensure_ascii=False, indent=0)
+    doc = dict(generado=ahora.astimezone(CARACAS).isoformat(timespec="minutes"), ventaja=VENTAJA, prob_min=PROB_MIN,
+               creditos_restantes=creditos, avisos=avisos, ligas=ligas, picks=lista[:400])
+    with open(SALIDA, "w", encoding="utf-8") as f:
+        json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
+    print("créditos restantes:", creditos, "| ligas:", [(l["nombre"], len(l["partidos"])) for l in ligas],
+          "| picks guardados:", len(lista), "| avisos:", avisos)
+
+
 if __name__ == "__main__":
     if sys.argv[1:] == ["sondeo"]:
         sondeo()
+    else:
+        correr()

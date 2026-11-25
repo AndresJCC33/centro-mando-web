@@ -6,6 +6,8 @@ on:
       modo:
         description: "vacío = corrida normal; sondeo = ver créditos y casas"
         default: ""
+  schedule:
+    - cron: "40 12,21 * * *"   # 8:40 am y 5:40 pm de Caracas (5 créditos por corrida)
 permissions:
   contents: write
 concurrency:
