@@ -83,7 +83,7 @@
     $('#bajada').textContent = `${delDia.length} juego${delDia.length === 1 ? '' : 's'} evaluado${delDia.length === 1 ? '' : 's'} por el motor.` + (liq.length ? ` En la temporada, los picks reales${nombre} llevan ${F.u(u)} unidades en ${liq.length} apuestas.` : ` Todavía no hay picks reales${nombre} liquidados.`);
     if (dep === 'MLB') {
       $('#titular').textContent = 'MLB en stand-by hasta 2027';
-      $('#bajada').textContent = 'No hay juegos hasta la próxima temporada. Aquí queda el historial de 2026: en Resultados, Ligas y Rendimiento.';
+      $('#bajada').textContent = 'No hay juegos hasta la próxima temporada. El historial de 2026 está en la pestaña Historial.';
     } else if (SOLO_PRECIO.has(dep)) {
       const vp = (PR && PR.picks ? PR.picks : []).filter((x) => x.deporte === dep && String(x.inicio || '').slice(0, 10) === dia);
       const c = vp.filter((x) => x.tipo === 'PICK CONFIABLE').length;
@@ -481,6 +481,52 @@
   const analisisDe = (deporte, local, visita) => (deporte === 'Fútbol' ? analisisFutbol(local, visita) : deporte === 'NBA' ? analisisNBA(local, visita) : deporte === 'LVBP' ? analisisLVBP(local, visita) : null);
 
 
+  // ---------------------------------------------------------------- Historial
+  let hisTopeP = 50;
+  let hisTopeJ = 50;
+  const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+  const nomMes = (m) => `${MESES[Number(m.slice(5, 7)) - 1]} ${m.slice(0, 4)}`;
+  const pintarHistorial = () => {
+    const soloPrecio = SOLO_PRECIO.has(dep);
+    $('#his-titulo').textContent = dep === 'Todos' ? 'Historial de todos los deportes' : `Historial de ${dep}`;
+    // picks del hub y, para los deportes solo de precio, los del vigilante
+    let todos = deDep(T.picks).map((p) => ({ fecha: String(p.fecha).slice(0, 10), partido: p.partido, sel: `${p.mercado === 'Moneyline' ? '' : p.mercado + ' '}${p.seleccion}`, cuota: p.cuota_am, resultado: p.resultado, u: p.unidades, real: p.tipo === 'PICK', motor: p.motor }));
+    const vig = (PR && PR.picks ? PR.picks : []).filter((x) => dep === 'Todos' || x.deporte === dep)
+      .map((x) => ({ fecha: String(x.inicio || x.fecha).slice(0, 10), partido: x.partido, sel: x.seleccion, cuota: x.cuota, resultado: x.resultado, u: x.unidades, real: x.tipo === 'PICK CONFIABLE', motor: `Vigilante de precios · ${x.liga}` }));
+    todos = todos.concat(vig).sort((a, b) => b.fecha.localeCompare(a.fecha));
+    const sel = $('#his-mes');
+    const meses = [...new Set(todos.map((p) => p.fecha.slice(0, 7)))].sort().reverse();
+    const previo = sel.value;
+    sel.replaceChildren(el('option', '', 'Todos'));
+    sel.firstChild.value = 'todos';
+    for (const m of meses) { const o = el('option', '', nomMes(m)); o.value = m; sel.append(o); }
+    sel.value = meses.includes(previo) ? previo : 'todos';
+    const tipo = $('#his-tipo').value;
+    const xs = todos.filter((p) => (tipo === 'todos' || (tipo === 'real') === p.real) && (sel.value === 'todos' || p.fecha.startsWith(sel.value)));
+    const liq = (ys) => ys.filter((p) => LIQ.has(p.resultado));
+    const rec = (ys) => { const l = liq(ys); const u = l.reduce((s, p) => s + (p.u || 0), 0); return { n: l.length, g: l.filter((p) => p.resultado === 'GANADO').length, p: l.filter((p) => p.resultado === 'PERDIDO').length, pu: l.filter((p) => p.resultado === 'PUSH').length, u }; };
+    const k = $('#his-kpis');
+    k.replaceChildren();
+    for (const [nom, ys] of [['reales', xs.filter((p) => p.real)], ['simulados', xs.filter((p) => !p.real)]]) {
+      const r = rec(ys);
+      const d = el('div');
+      d.append(el('b', signo(r.u), r.n ? F.u(r.u) : '—'), el('span', '', `u en ${r.n} ${nom} (${r.g}-${r.p}-${r.pu})`));
+      k.append(d);
+    }
+    const pend = xs.filter((p) => p.resultado === 'PENDIENTE').length;
+    const d = el('div'); d.append(el('b', '', String(pend)), el('span', '', 'pendientes')); k.append(d);
+    const por = new Map();
+    for (const p of xs) { const a = por.get(p.motor) || []; a.push(p); por.set(p.motor, a); }
+    llenar('#his-motores', [...por.entries()].map(([m, ys]) => { const r = rec(ys); return { celdas: [m, { t: String(ys.length), c: 'n' }, { t: `${r.g}-${r.p}-${r.pu}`, c: 'n' }, { t: r.n ? F.u(r.u) : '—', c: 'n ' + signo(r.u) }, { t: r.n ? F.pcts(r.u / r.n) : '—', c: 'n ' + signo(r.u) }] }; }), 'Sin picks guardados para este deporte.');
+    llenar('#his-picks', xs.slice(0, hisTopeP).map((p) => ({ celdas: [F.dia(p.fecha), p.partido, p.sel, { t: F.am(p.cuota), c: 'n' }, { t: p.resultado.charAt(0) + p.resultado.slice(1).toLowerCase(), c: p.resultado === 'GANADO' ? 'pos' : p.resultado === 'PERDIDO' ? 'neg' : 'tenue' }, { t: F.u(p.u), c: 'n ' + signo(p.u) }, p.real ? 'Real' : 'Simulado'] })), 'Sin picks con ese filtro.');
+    $('#his-mas-p').hidden = xs.length <= hisTopeP;
+    const js = deDep(T.juegos).filter((j) => j.origen === 'real' && (sel.value === 'todos' || String(j.fecha).startsWith(sel.value))).sort((a, b) => String(b.fecha).localeCompare(a.fecha));
+    const ok = js.filter((j) => j.fav_ok === 1).length;
+    $('#his-jres').textContent = js.length ? `${js.length} juegos terminados; el favorito del motor acertó ${ok} (${F.pct(ok / js.length)}).` : '';
+    llenar('#his-juegos', js.slice(0, hisTopeJ).map((j) => ({ celdas: [F.dia(j.fecha), j.partido, j.marcador || '—', { t: F.pct(j.p_mod), c: 'n' }, { t: j.fav_ok === 1 ? 'Acertó' : 'Falló', c: j.fav_ok === 1 ? 'pos' : 'neg' }] })), soloPrecio ? 'Este deporte no tiene motor de simulación: solo el historial de precios de arriba.' : 'Sin juegos terminados con ese filtro.');
+    $('#his-mas-j').hidden = js.length <= hisTopeJ;
+  };
+
   // ---------------------------------------------------------------- Precios (vigilante)
   let PR = null;
   let preLiga = 'Todas';
@@ -585,9 +631,17 @@
   };
 
   // ---------------------------------------------------------------- Pestañas
-  const PESTANAS = ['hoy', 'precios', 'futbol', 'resultados', 'ligas', 'mas'];
+  const PESTANAS = ['hoy', 'precios', 'futbol', 'resultados', 'historial', 'ligas', 'mas'];
+  // Fútbol solo con Todos o Fútbol; Posiciones solo donde hay tabla de posiciones
+  const tabVisible = (tab) => (tab === 'precios' ? dep !== 'MLB' : tab === 'futbol' ? dep === 'Todos' || dep === 'Fútbol' : tab === 'ligas' ? ['Todos', 'NBA', 'LVBP', 'Fútbol'].includes(dep) : true);
+  let tabActual = 'hoy';
+  const ajustarTabs = () => {
+    document.querySelectorAll('.pestanas button').forEach((b) => { b.hidden = !tabVisible(b.dataset.tab); });
+    if (!tabVisible(tabActual)) mostrar('hoy');
+  };
   const mostrar = (tab) => {
-    if (!PESTANAS.includes(tab)) tab = 'hoy';
+    if (!PESTANAS.includes(tab) || !tabVisible(tab)) tab = 'hoy';
+    tabActual = tab;
     document.querySelectorAll('main > section[data-tab]').forEach((s) => s.classList.toggle('fuera', s.dataset.tab !== tab));
     document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
     if (location.hash.slice(1) !== tab) history.replaceState(null, '', '#' + tab);
@@ -661,6 +715,7 @@
 
   const pintar = () => {
     document.body.dataset.dep = dep;
+    ajustarTabs();
     document.querySelectorAll('.deportes button').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.dep === dep)));
     pintarComoMotor();
     const dia = pintarCabecera();
@@ -669,6 +724,7 @@
     pintarPrecios();
     pintarVigilanteHoy();
     pintarResultados();
+    pintarHistorial();
     pintarLigas();
     pintarRendimiento();
     pintarMotor();
@@ -677,6 +733,10 @@
 
   document.querySelectorAll('.deportes button').forEach((b) => b.addEventListener('click', () => { dep = b.dataset.dep; pintar(); }));
   $('#res-dia').addEventListener('change', () => pintarResultados());
+  $('#his-tipo').addEventListener('change', () => { hisTopeP = 50; hisTopeJ = 50; pintarHistorial(); });
+  $('#his-mes').addEventListener('change', () => { hisTopeP = 50; hisTopeJ = 50; pintarHistorial(); });
+  $('#his-mas-p').addEventListener('click', () => { hisTopeP += 50; pintarHistorial(); });
+  $('#his-mas-j').addEventListener('click', () => { hisTopeJ += 50; pintarHistorial(); });
   $('#pre-mas').addEventListener('click', () => { preTope += 20; pintarPrecios(); });
   $('#lig-sel').addEventListener('change', () => pintarLigas());
   let ancho = window.innerWidth;
