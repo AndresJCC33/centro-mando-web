@@ -1,10 +1,10 @@
-name: Motores NCAAB, NHL y NFL
+name: Motores EE. UU. y análisis por juego
 # Vuelve a simular con los resultados nuevos (sin gastar créditos: usa las cuotas que ya bajó el vigilante)
 # y califica los pronósticos de los juegos que terminaron.
 on:
   workflow_dispatch:
   schedule:
-    - cron: "17 17,23 * * *"   # 1:17 pm y 7:17 pm de Caracas
+    - cron: "47 13-23,0-2 * * *"   # cada hora de 9:47 am a 10:47 pm de Caracas (la NBA entra cuando corre su motor)
 permissions:
   contents: write
 concurrency:
@@ -20,8 +20,15 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install curl_cffi numpy pandas scipy pyarrow
-      - name: Simular
+      - name: Simular NCAAB, NHL y NFL
+        continue-on-error: true
         run: python herramientas/motores_eeuu.py
+      - name: Análisis a fondo por juego (NFL, NBA, fútbol)
+        env:
+          GDRIVE_CLIENT_ID: ${{ secrets.GDRIVE_CLIENT_ID }}
+          GDRIVE_CLIENT_SECRET: ${{ secrets.GDRIVE_CLIENT_SECRET }}
+          GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
+        run: python herramientas/analisis_juego.py
       - name: Publicar si cambió
         run: |
           git config user.name "centro-mando-bot"

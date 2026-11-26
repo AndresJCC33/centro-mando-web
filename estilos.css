@@ -195,3 +195,47 @@ details.analisis p { margin: 0.35rem 0; }
 .juego table.mini.an th:first-child, .juego table.mini.an td:first-child { width: 40%; }
 /* El hielo es claro: un poco más de sombra para que el texto se lea */
 body[data-dep="NHL"] .cancha-fondo::after { background: linear-gradient(90deg, rgba(10, 18, 36, 0.9) 0%, rgba(10, 18, 36, 0.72) 55%, rgba(10, 18, 36, 0.55) 100%) !important; }
+
+/* ---------- Análisis a fondo por juego ---------- */
+.an-cabeza { margin: 0.5rem 0 1rem; }
+.an-card { background: var(--panel); border: 1px solid var(--linea); border-radius: 12px; padding: 1.1rem 1.2rem 1rem; margin: 0 0 1.4rem; }
+.an-liga { margin: 0; color: var(--tinta-suave); font-size: 0.85rem; }
+.an-partido { margin: 0.1rem 0 0.2rem; font: 800 clamp(1.35rem, 3.5vw, 1.8rem)/1.15 "Big Shoulders Display", "Public Sans", sans-serif; letter-spacing: 0.01em; }
+.an-sub { margin: 0 0 0.7rem; color: var(--tinta); font-size: 0.98rem; }
+.an-veredicto { margin: 0 0 1rem; padding: 0.6rem 0.8rem; border-radius: 8px; font-weight: 700; font-size: 1rem; }
+.an-veredicto.si { background: rgba(47, 199, 164, 0.16); color: var(--gana); border: 1px solid rgba(47, 199, 164, 0.45); }
+.an-veredicto.no { background: var(--panel-2); color: var(--tinta); }
+.an-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.1rem 1.6rem; }
+@media (max-width: 760px) { .an-grid { grid-template-columns: 1fr; } }
+.an-bloque h4 { margin: 0 0 0.55rem; font-size: 1rem; }
+.an-fila { display: grid; grid-template-columns: 8.5rem minmax(0, 1fr); align-items: center; gap: 0.6rem; margin-bottom: 0.4rem; }
+.an-fila.final .an-et { font-weight: 800; color: var(--tinta); }
+.an-et { font-size: 0.85rem; color: var(--tinta-suave); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.an-apilada { display: flex; width: 100%; border-radius: 6px; overflow: hidden; }
+.an-apilada span { display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 0.82rem; white-space: nowrap; overflow: hidden; }
+.an-ley { margin: 0.4rem 0 0; font-size: 0.82rem; color: var(--tinta-suave); }
+.an-leyenda { list-style: none; padding: 0; margin: 0.55rem 0 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.25rem 0.8rem; font-size: 0.85rem; }
+.an-leyenda li::before { content: ""; display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 2px; background: var(--c); margin-right: 0.4rem; vertical-align: -0.1rem; }
+.an-hist { width: 100%; height: auto; display: block; }
+.an-eje { fill: var(--tinta-suave); font-size: 10px; }
+.an-ou { display: flex; justify-content: space-between; margin: 0.3rem 0 0; font-size: 1rem; }
+.an-ou .u { color: #f0a0aa; } .an-ou .o { color: #8fb0e8; }
+.an-ev { display: grid; grid-template-columns: minmax(0, 11rem) minmax(0, 1fr) 3.6rem; align-items: center; gap: 0.5rem; margin-bottom: 0.3rem; }
+.an-ev b { text-align: right; font-size: 0.88rem; }
+.an-ev b.pos { color: var(--gana); } .an-ev b.neg { color: var(--pierde); }
+.an-pista { position: relative; height: 14px; background: linear-gradient(90deg, transparent calc(50% - 1px), var(--tinta-suave) calc(50% - 1px), var(--tinta-suave) calc(50% + 1px), transparent calc(50% + 1px)); }
+.an-pista span { position: absolute; top: 1px; height: 12px; border-radius: 3px; }
+.an-pista span.si { background: var(--gana); } .an-pista span.casi { background: #f9ab00; } .an-pista span.no { background: var(--pierde); }
+.an-pista .meta { position: absolute; top: -3px; bottom: -3px; border-left: 2px dashed var(--gana); }
+.an-resumen { margin-top: 1rem; padding: 0.7rem 0.9rem; background: var(--papel); border-radius: 8px; }
+.an-resumen h4 { margin: 0 0 0.3rem; }
+.an-pocas { margin: 0; padding-left: 1.1rem; }
+.an-pocas li { margin: 0.15rem 0; }
+.an-card details.analisis h5 { margin: 0.8rem 0 0.35rem; font-size: 0.92rem; }
+@media (max-width: 560px) {
+  .an-card { padding: 0.9rem 0.8rem; }
+  .an-fila { grid-template-columns: 5.6rem minmax(0, 1fr); gap: 0.4rem; }
+  .an-ev { grid-template-columns: minmax(0, 1fr) 3.4rem; row-gap: 0.1rem; }
+  .an-ev .an-et { grid-column: 1 / -1; }
+  .an-leyenda { grid-template-columns: 1fr; }
+}

@@ -572,6 +572,188 @@
     return n;
   };
 
+  // ---------------------------------------------------------------- Análisis a fondo por juego
+  let JA = null;
+  let anDia = null;
+  const C_LOC = '#3b74d6', C_VIS = '#e0485a', C_EMP = '#6f7689';
+  const NS = 'http://www.w3.org/2000/svg';
+  const svgEl = (tag, at) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); return e; };
+  const pct0 = (p) => `${Math.round(p * 100)} %`;
+  const barraApilada = (partes, alto = 34) => {
+    const b = el('div', 'an-apilada');
+    b.style.height = alto + 'px';
+    for (const [p, color, txt] of partes) {
+      if (p <= 0) continue;
+      const s = el('span', '', p >= 0.3 ? (txt || pct0(p)) : p >= 0.1 ? pct0(p) : '');
+      s.style.width = (p * 100) + '%';
+      s.style.background = color;
+      b.append(s);
+    }
+    return b;
+  };
+  const histograma = (hist, linea, unidad) => {
+    const W = 320, H = 120, M = 18;
+    const xs = hist.map((h) => h[0]);
+    const min = Math.min(...xs), max = Math.max(...xs) + (xs[1] - xs[0] || 1);
+    const pmax = Math.max(...hist.map((h) => h[1]));
+    const ancho = (W - 8) / ((max - min) / (xs[1] - xs[0] || 1));
+    const sx = (x) => 4 + ((x - min) / (max - min)) * (W - 8);
+    const s = svgEl('svg', { viewBox: `0 0 ${W} ${H + M}`, class: 'an-hist', role: 'img', 'aria-label': `Distribución del total de ${unidad}` });
+    for (const [x, p] of hist) {
+      const h = (p / pmax) * (H - 6);
+      s.append(svgEl('rect', { x: sx(x) + 0.5, y: H - h, width: Math.max(1, ancho - 1), height: h, fill: linea != null && x + (xs[1] - xs[0] || 1) / 2 > linea ? C_LOC : C_VIS, opacity: 0.88 }));
+    }
+    if (linea != null) s.append(svgEl('line', { x1: sx(linea), x2: sx(linea), y1: 0, y2: H, stroke: '#f2f4f8', 'stroke-dasharray': '4 3', 'stroke-width': 1.5 }));
+    for (let k = 0; k <= 4; k += 1) {
+      const x = min + ((max - min) * k) / 4;
+      const t = svgEl('text', { x: sx(x), y: H + 14, 'text-anchor': 'middle', class: 'an-eje' });
+      t.textContent = Math.round(x);
+      s.append(t);
+    }
+    return s;
+  };
+  const tablaDatos = (d) => {
+    const t = el('table', 'mini an');
+    const th = el('thead'); const tr = el('tr');
+    d.cab.forEach((h, i) => tr.append(el('th', i ? 'n' : '', h)));
+    th.append(tr); t.append(th);
+    const tb = el('tbody');
+    for (const f of d.filas) { const r = el('tr'); f.forEach((v, i) => r.append(el('td', i ? 'n' : '', v == null ? '—' : String(v)))); tb.append(r); }
+    t.append(tb);
+    const caja = el('div', 'caja'); caja.append(t);
+    return [el('h5', '', d.t), caja];
+  };
+  const tarjetaAnalisis = (g) => {
+    const a = el('article', 'an-card');
+    const hora = g.sin_hora ? 'hora por confirmar' : hora_(g.inicio);
+    a.append(el('p', 'an-liga', `${g.liga} · ${hora}`));
+    a.append(el('h3', 'an-partido', `${g.visita} @ ${g.local}`));
+    const sub = g.tres ? `Favorito: ${g.favorito} ${pct0(g.p_fav)} · ${g.sub}` : `Favorito: ${g.favorito} ${pct0(g.p_fav)} · Marcador medio ${g.cod[0]} ${Math.round(g.marcador[0])} – ${Math.round(g.marcador[1])} ${g.cod[1]} · Total esperado ${nf(1).format(g.total_esp)}`;
+    a.append(el('p', 'an-sub', sub));
+    const m = g.mejor;
+    if (m) {
+      const v = el('p', 'an-veredicto ' + (g.apostar ? 'si' : 'no'), g.apostar
+        ? `Apuesta con valor: ${m.apuesta} en ${m.casa} a ${m.cuota.toFixed(2)} (valor ${F.pcts(m.ev)})`
+        : `Mejor valor esperado: ${m.apuesta} en ${m.casa} a ${m.cuota.toFixed(2)} (${F.pcts(m.ev)})`);
+      a.append(v);
+    }
+    const grid = el('div', 'an-grid');
+    // 1. quién gana
+    const q = el('section', 'an-bloque');
+    q.append(el('h4', '', '¿Quién gana?'));
+    for (const f of g.fuentes) {
+      const fila = el('div', 'an-fila' + (f.n === 'FINAL' ? ' final' : ''));
+      fila.append(el('span', 'an-et', f.n));
+      const partes = f.p.length === 3
+        ? [[f.p[0], C_LOC, `${pct0(f.p[0])}`], [f.p[1], C_EMP, `E ${pct0(f.p[1])}`], [f.p[2], C_VIS, `${pct0(f.p[2])}`]]
+        : [[f.p[0], C_LOC, `${g.cod ? g.cod[0] : ''} ${pct0(f.p[0])}`], [1 - f.p[0], C_VIS, `${g.cod ? g.cod[1] : ''} ${pct0(1 - f.p[0])}`]];
+      fila.append(barraApilada(partes, f.n === 'FINAL' ? 30 : 24));
+      q.append(fila);
+    }
+    if (g.tres) q.append(el('p', 'an-ley', `Azul ${g.local} · gris empate · rojo ${g.visita}`));
+    grid.append(q);
+    // 2. hándicap (NBA/NFL) o goles (fútbol)
+    const h = el('section', 'an-bloque');
+    if (g.hcp) {
+      h.append(el('h4', '', `Hándicap ${g.cod[0]} ${g.hcp.linea > 0 ? '+' : ''}${g.hcp.linea}: cómo termina el margen`));
+      const col = { v: C_VIS, l: C_LOC, lc: '#8fb0e8', vc: '#f0a0aa', push: C_EMP };
+      h.append(barraApilada(g.hcp.tramos.map((t) => [t.p, col[t.c]]), 40));
+      const ul = el('ul', 'an-leyenda');
+      for (const t of g.hcp.tramos) { const li = el('li', '', `${t.n}: ${pct0(t.p)}`); li.style.setProperty('--c', col[t.c]); ul.append(li); }
+      h.append(ul);
+    } else if (g.tres && g.extras && g.extras.o25 != null) {
+      const x = g.extras;
+      h.append(el('h4', '', 'Goles'));
+      for (const [t, p] of [['Más de 1.5', x.o15], ['Más de 2.5', x.o25], ['Más de 3.5', x.o35], ['Ambos anotan', x.ambos]]) {
+        const fila = el('div', 'an-fila');
+        fila.append(el('span', 'an-et', t));
+        fila.append(barraApilada([[p, C_LOC, `sí ${pct0(p)}`], [1 - p, C_VIS, `no ${pct0(1 - p)}`]], 22));
+        h.append(fila);
+      }
+      h.append(el('p', 'an-ley', 'Marcadores más probables: ' + x.marcadores.map((m2) => `${m2[0]} (${pct0(m2[1])})`).join(' · ')));
+    } else {
+      h.append(el('h4', '', 'Hándicap'));
+      h.append(el('p', 'nota', 'Sin línea de hándicap cargada para este juego.'));
+    }
+    grid.append(h);
+    // 3. total
+    const t = el('section', 'an-bloque');
+    if (g.tres && g.goles) {
+      t.append(el('h4', '', 'Goles totales del partido (motor)'));
+      t.append(histograma(g.goles, 2.5, 'goles'));
+      t.append(el('p', 'an-ley', `Rojo: 2 goles o menos (${pct0(1 - g.extras.o25)}) · azul: 3 o más (${pct0(g.extras.o25)})`));
+    } else if (g.total && g.total.hist) {
+      t.append(el('h4', '', g.total.linea ? `Total de puntos: línea ${g.total.linea}` : 'Total de puntos'));
+      t.append(histograma(g.total.hist, g.total.linea, 'puntos'));
+      if (g.total.linea) {
+        const r = el('p', 'an-ou');
+        r.append(el('b', 'u', `UNDER ${pct0(g.total.under)}`), el('b', 'o', `OVER ${pct0(g.total.over)}`));
+        t.append(r);
+      }
+    }
+    grid.append(t);
+    // 4. valor esperado
+    const ve = el('section', 'an-bloque');
+    ve.append(el('h4', '', 'Valor esperado (línea verde = mínimo 3 % para apostar)'));
+    const lim = Math.max(0.08, ...g.valor.map((x) => Math.abs(x.ev)));
+    for (const x of g.valor) {
+      const fila = el('div', 'an-ev');
+      fila.append(el('span', 'an-et', `${x.apuesta} · ${x.casa} ${x.cuota.toFixed(2)}`));
+      const pista = el('div', 'an-pista');
+      const barra = el('span', x.ev >= 0.03 ? 'si' : x.ev > 0 ? 'casi' : 'no');
+      const w = (Math.abs(x.ev) / lim) * 50;
+      barra.style.width = w + '%';
+      barra.style.left = x.ev >= 0 ? '50%' : (50 - w) + '%';
+      const meta = el('i', 'meta'); meta.style.left = (50 + (0.03 / lim) * 50) + '%';
+      pista.append(barra, meta);
+      fila.append(pista, el('b', x.ev >= 0.03 ? 'pos' : 'neg', F.pcts(x.ev)));
+      ve.append(fila);
+    }
+    if (!g.valor.length) ve.append(el('p', 'nota', 'Sin cuotas cargadas todavía.'));
+    grid.append(ve);
+    a.append(grid);
+    const ul = el('ul', 'an-pocas');
+    for (const l of g.pocas) ul.append(el('li', '', l));
+    const pocas = el('div', 'an-resumen');
+    pocas.append(el('h4', '', 'En pocas palabras'), ul);
+    a.append(pocas);
+    if (g.datos && g.datos.length) {
+      const d = el('details', 'analisis');
+      d.append(el('summary', '', 'Datos de los equipos'));
+      for (const x of g.datos) d.append(...tablaDatos(x));
+      a.append(d);
+    }
+    return a;
+  };
+  const hora_ = (iso) => new Date(iso).toLocaleString('es-VE', { weekday: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
+  const pintarAnalisis = () => {
+    const caja = $('#an-juegos');
+    caja.replaceChildren();
+    const chips = $('#an-dias');
+    chips.replaceChildren();
+    if (!JA || !JA.juegos) { caja.append(el('p', 'vacio', 'Todavía no hay análisis cargados.')); return; }
+    const delDep = JA.juegos.filter((g) => dep === 'Todos' || g.deporte === dep);
+    const dias = [...new Set(JA.juegos.map((g) => String(g.inicio).slice(0, 10)))].sort();
+    if (!anDia || !dias.includes(anDia)) anDia = dias.includes(hoy()) && JA.juegos.some((g) => String(g.inicio).slice(0, 10) === hoy() && new Date(g.inicio) > new Date(Date.now() - 3 * 3600e3)) ? hoy() : dias[dias.length - 1];
+    for (const d of dias) {
+      const n = delDep.filter((g) => String(g.inicio).slice(0, 10) === d).length;
+      const b = el('button', '', `${d === hoy() ? 'Hoy' : F.dia(d)} (${n})`);
+      b.type = 'button';
+      b.setAttribute('aria-pressed', String(d === anDia));
+      b.addEventListener('click', () => { anDia = d; pintarAnalisis(); });
+      chips.append(b);
+    }
+    $('#an-nota').textContent = `Actualizado ${F.dia(JA.generado.slice(0, 10))} ${JA.generado.slice(11, 16)}. Probabilidad final = 80 % mercado (Pinnacle) + 20 % motores. Verde solo si el valor esperado llega a 3 % y los motores están de acuerdo.`;
+    const xs = delDep.filter((g) => String(g.inicio).slice(0, 10) === anDia);
+    if (!xs.length) {
+      caja.append(el('p', 'vacio', ['NBA', 'NFL', 'Fútbol', 'Todos'].includes(dep)
+        ? 'No hay juegos analizados para este día. Los de NBA aparecen cuando el motor corre con la cartelera (desde las 10:30 am).'
+        : 'El análisis a fondo por juego está disponible para NBA, NFL y fútbol de las ligas principales.'));
+      return;
+    }
+    for (const g of xs) caja.append(tarjetaAnalisis(g));
+  };
+
   // ---------------------------------------------------------------- Precios (vigilante)
   let PR = null;
   let preLiga = 'Todas';
@@ -685,16 +867,15 @@
   };
 
   // ---------------------------------------------------------------- Pestañas
-  const PESTANAS = ['hoy', 'precios', 'futbol', 'resultados', 'historial', 'ligas', 'mas'];
-  // Fútbol solo con Todos o Fútbol; Posiciones solo donde hay tabla de posiciones
-  const tabVisible = (tab) => (tab === 'precios' ? !['MLB', 'LVBP'].includes(dep) : tab === 'resultados' ? !SOLO_PRECIO.has(dep) : tab === 'futbol' ? dep === 'Todos' || dep === 'Fútbol' : tab === 'ligas' ? ['Todos', 'NBA', 'LVBP', 'Fútbol'].includes(dep) : true);
-  let tabActual = 'hoy';
+  const PESTANAS = ['analisis', 'precios', 'historial', 'mas'];
+  const tabVisible = (tab) => (tab === 'precios' ? !['MLB', 'LVBP'].includes(dep) : true);
+  let tabActual = 'analisis';
   const ajustarTabs = () => {
     document.querySelectorAll('.pestanas button').forEach((b) => { b.hidden = !tabVisible(b.dataset.tab); });
-    if (!tabVisible(tabActual)) mostrar('hoy');
+    if (!tabVisible(tabActual)) mostrar('analisis');
   };
   const mostrar = (tab) => {
-    if (!PESTANAS.includes(tab) || !tabVisible(tab)) tab = 'hoy';
+    if (!PESTANAS.includes(tab) || !tabVisible(tab)) tab = 'analisis';
     tabActual = tab;
     document.querySelectorAll('main > section[data-tab]').forEach((s) => s.classList.toggle('fuera', s.dataset.tab !== tab));
     document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
@@ -787,6 +968,7 @@
     pintarVigilanteHoy();
     pintarResultados();
     pintarHistorial();
+    pintarAnalisis();
     pintarLigas();
     pintarRendimiento();
     pintarMotor();
@@ -805,8 +987,9 @@
   window.addEventListener('resize', () => { if (D && window.innerWidth !== ancho) { ancho = window.innerWidth; pintarRendimiento(); } });
 
   const leer = (u) => fetch(u, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null), leer('datos/analisis.json').catch(() => null), leer('datos/motores_eeuu.json').catch(() => null)])
-    .then(([doc, pos, fut, pre, an, me]) => {
+  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null), leer('datos/analisis.json').catch(() => null), leer('datos/motores_eeuu.json').catch(() => null), leer('datos/juegos_analisis.json').catch(() => null)])
+    .then(([doc, pos, fut, pre, an, me, ja]) => {
+      JA = ja;
       AN = an;
       ME = me;
       FUT = fut;
