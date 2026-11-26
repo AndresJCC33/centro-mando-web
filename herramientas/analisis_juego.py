@@ -103,9 +103,16 @@ def tramos_hcp(m, linea_local, local, visita):
 
 
 def valor(apuestas):
-    """apuestas: (texto, casa, cuota_decimal, prob). Devuelve lista con valor esperado, ordenada."""
-    out = [{"apuesta": a, "casa": c, "cuota": round(d, 2), "p": round(p, 4), "ev": round(p * d - 1, 4)}
-           for a, c, d, p in apuestas if d and p]
+    """apuestas: (texto, casa, cuota_decimal, prob_final[, prob_motor, prob_mercado]). Ordenadas por valor esperado.
+    «motor_ok»: el motor ve ese lado al menos tan probable como el mercado (si no, el valor sale solo de la cuota)."""
+    out = []
+    for x in apuestas:
+        a, c, d, p = x[:4]
+        if not (d and p):
+            continue
+        pm, pk = (x[4], x[5]) if len(x) >= 6 else (None, None)
+        out.append({"apuesta": a, "casa": c, "cuota": round(d, 2), "p": round(p, 4), "ev": round(p * d - 1, 4),
+                    "motor_ok": bool(pm is not None and pk is not None and pm >= pk)})
     return sorted(out, key=lambda x: -x["ev"])
 
 
@@ -199,12 +206,16 @@ def nfl(partidos, hoy, ahora):
         ovm = float((TOT > x.total_line).mean() / max(1e-9, (TOT != x.total_line).mean()))
         ok = 1 / am_dec(x.over_odds), 1 / am_dec(x.under_odds)
         p_ov = mezcla2(ovm, ok[0] / sum(ok))
-        ap = [(f"{al} moneyline", ll["casa"] if ll else "", dec_de(ll), pfin),
-              (f"{av} moneyline", lv["casa"] if lv else "", dec_de(lv), 1 - pfin),
-              (f"{al} {hcp:+g}", "cierre nflverse", am_dec(x.home_spread_odds), p_hcp),
-              (f"{av} {-hcp:+g}", "cierre nflverse", am_dec(x.away_spread_odds), 1 - p_hcp),
-              (f"Over {x.total_line:g}", "cierre nflverse", am_dec(x.over_odds), p_ov),
-              (f"Under {x.total_line:g}", "cierre nflverse", am_dec(x.under_odds), 1 - p_ov)]
+        hm, om = hk[0] / sum(hk), ok[0] / sum(ok)
+        pk_ = pk if pk is not None else 0.5
+        ml_ok_l = pk is not None and p1 >= pk and p2 >= pk
+        ml_ok_v = pk is not None and p1 <= pk and p2 <= pk
+        ap = [(f"{al} moneyline", ll["casa"] if ll else "", dec_de(ll), pfin, 1.0 if ml_ok_l else 0.0, 0.5),
+              (f"{av} moneyline", lv["casa"] if lv else "", dec_de(lv), 1 - pfin, 1.0 if ml_ok_v else 0.0, 0.5),
+              (f"{al} {hcp:+g}", "cierre nflverse", am_dec(x.home_spread_odds), p_hcp, cub, hm),
+              (f"{av} {-hcp:+g}", "cierre nflverse", am_dec(x.away_spread_odds), 1 - p_hcp, 1 - cub, 1 - hm),
+              (f"Over {x.total_line:g}", "cierre nflverse", am_dec(x.over_odds), p_ov, ovm, om),
+              (f"Under {x.total_line:g}", "cierre nflverse", am_dec(x.under_odds), 1 - p_ov, 1 - ovm, 1 - om)]
         V = valor(ap)
         acuerdo = pk is not None and (p1 - pk) * (p2 - pk) > 0
         datos = []
@@ -275,22 +286,25 @@ def nba(hoy, ahora):
         ap, hcp, lt = [], None, r.get("linea_total")
         if c:
             if c.get("ml_local") and c.get("ml_visitante"):
-                ap += [(f"{L} moneyline", "cuota típica", am_dec(c["ml_local"]), pfin),
-                       (f"{V_} moneyline", "cuota típica", am_dec(c["ml_visitante"]), 1 - pfin)]
+                pkk = pk if pk is not None else 0.5
+                ap += [(f"{L} moneyline", "cuota típica", am_dec(c["ml_local"]), pfin, pm, pkk),
+                       (f"{V_} moneyline", "cuota típica", am_dec(c["ml_visitante"]), 1 - pfin, 1 - pm, 1 - pkk)]
             if c.get("handicap_local") is not None and c.get("cuota_hcp_local") and c.get("cuota_hcp_visitante"):
                 hcp = float(c["handicap_local"])
                 cub = float((M + hcp > 0).mean() / max(1e-9, (M + hcp != 0).mean()))
                 hk = 1 / am_dec(c["cuota_hcp_local"]), 1 / am_dec(c["cuota_hcp_visitante"])
                 ph = mezcla2(cub, hk[0] / sum(hk))
-                ap += [(f"{L} {hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_local"]), ph),
-                       (f"{V_} {-hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_visitante"]), 1 - ph)]
+                hm = hk[0] / sum(hk)
+                ap += [(f"{L} {hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_local"]), ph, cub, hm),
+                       (f"{V_} {-hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_visitante"]), 1 - ph, 1 - cub, 1 - hm)]
             if c.get("total") and c.get("cuota_over") and c.get("cuota_under"):
                 lt = float(c["total"])
                 ovm = float((T > lt).mean() / max(1e-9, (T != lt).mean()))
                 ok = 1 / am_dec(c["cuota_over"]), 1 / am_dec(c["cuota_under"])
                 po = mezcla2(ovm, ok[0] / sum(ok))
-                ap += [(f"Over {lt:g}", "cuota típica", am_dec(c["cuota_over"]), po),
-                       (f"Under {lt:g}", "cuota típica", am_dec(c["cuota_under"]), 1 - po)]
+                om = ok[0] / sum(ok)
+                ap += [(f"Over {lt:g}", "cuota típica", am_dec(c["cuota_over"]), po, ovm, om),
+                       (f"Under {lt:g}", "cuota típica", am_dec(c["cuota_under"]), 1 - po, 1 - ovm, 1 - om)]
         elif r.get("cuota_fav_am"):
             ap.append((f"{r['favorito']} moneyline", "cuota típica", am_dec(r["cuota_fav_am"]), pfin if r["favorito"] == L else 1 - pfin))
         datos = []
@@ -413,9 +427,11 @@ def futbol(partidos, hoy):
                       "xg": [round(lh, 2), round(la, 2)]}
         else:
             goles, extras = None, {}
-        ap = [(f"{p['local']}", ll["casa"] if ll else "", dec_de(ll), pfin[0]),
-              ("Empate", le["casa"] if le else "", dec_de(le), pfin[1]),
-              (f"{p['visita']}", lv["casa"] if lv else "", dec_de(lv), pfin[2])]
+        pmm = mot[3] if mot else [None] * 3
+        pkk = pk if pk is not None else [None] * 3
+        ap = [(f"{p['local']}", ll["casa"] if ll else "", dec_de(ll), pfin[0], pmm[0], pkk[0]),
+              ("Empate", le["casa"] if le else "", dec_de(le), pfin[1], pmm[1], pkk[1]),
+              (f"{p['visita']}", lv["casa"] if lv else "", dec_de(lv), pfin[2], pmm[2], pkk[2])]
         V = valor(ap)
         # en fútbol el «acuerdo» es que el motor y el mercado señalen el mismo lado con más valor
         acuerdo = bool(mot) and pk is not None and int(np.argmax(mot[3] - pk)) == int(np.argmax(pfin - pk))
@@ -436,9 +452,20 @@ def futbol(partidos, hoy):
     return sal
 
 
+def _razon(m, apostar, futbol=False):
+    if not m or apostar or m["ev"] < VALOR_MIN:
+        return ""
+    if futbol and m["p"] < 0.25:
+        return "llega a 3 % pero es un batacazo (menos de 25 %): no se apuesta"
+    if not m["motor_ok"]:
+        return "llega a 3 % solo por la cuota: el motor no respalda ese lado"
+    return ""
+
+
 def _tarjeta_futbol(liga, p, pk, mot, pfin, goles, ex, V, acuerdo, datos):
     mejor = V[0] if V else None
-    apostar = bool(mejor and mejor["ev"] >= VALOR_MIN and mejor["p"] >= 0.25 and acuerdo)
+    apostar = bool(mejor and mejor["ev"] >= VALOR_MIN and mejor["p"] >= 0.25 and mejor["motor_ok"])
+    razon = _razon(mejor, apostar, futbol=True)
     fav_i = int(np.argmax(pfin))
     fav = [p["local"], "Empate", p["visita"]][fav_i]
     fuentes = []
@@ -455,7 +482,7 @@ def _tarjeta_futbol(liga, p, pk, mot, pfin, goles, ex, V, acuerdo, datos):
         pocas.append(("Apuesta con valor: " if apostar else "Mejor valor esperado: ") + f"{mejor['apuesta']} en {mejor['casa']} a {mejor['cuota']:.2f} ({mejor['ev']:+.1%}).")
     return {"id": f"F|{p['local']}|{p['visita']}|{p['inicio'][:10]}", "deporte": "Fútbol", "liga": liga, "inicio": p["inicio"],
             "local": p["local"], "visita": p["visita"], "tres": True, "fuentes": fuentes, "favorito": fav, "p_fav": round(float(pfin[fav_i]), 4),
-            "goles": goles, "extras": ex, "valor": V, "apostar": apostar, "mejor": mejor, "datos": datos, "pocas": pocas,
+            "goles": goles, "extras": ex, "valor": V, "apostar": apostar, "razon": razon, "mejor": mejor, "datos": datos, "pocas": pocas,
             "sub": (f"xG {ex['xg'][0]:.2f} – {ex['xg'][1]:.2f}" if mot else "sin modelo para este partido: solo mercado")}
 
 
@@ -463,7 +490,8 @@ def _tarjeta(dep, liga, p, l, v, pk, motores, pfin, MARG, TOT, hcp, lt, V, acuer
     mejor = V[0] if V else None
     pmot = float(np.mean([x[1] for x in motores]))
     acuerdo_ok = acuerdo and (pk is None or (pmot - pk) * (motores[0][1] - pk) > 0)
-    apostar = bool(mejor and mejor["ev"] >= VALOR_MIN and acuerdo_ok)
+    apostar = bool(mejor and mejor["ev"] >= VALOR_MIN and mejor["motor_ok"])
+    razon = _razon(mejor, apostar)
     fav, pf = (p["local"], pfin) if pfin >= 0.5 else (p["visita"], 1 - pfin)
     fuentes = ([{"n": "Mercado", "p": [round(pk, 4)]}] if pk is not None else []) + \
               [{"n": n, "p": [round(x, 4)]} for n, x in motores] + [{"n": "FINAL", "p": [round(pfin, 4)]}]
@@ -485,7 +513,7 @@ def _tarjeta(dep, liga, p, l, v, pk, motores, pfin, MARG, TOT, hcp, lt, V, acuer
             "local": p["local"], "visita": p["visita"], "cod": [l, v], "tres": False, "fuentes": fuentes,
             "favorito": fav, "p_fav": round(pf, 4), "marcador": [round(pl_, 1), round(pv_, 1)], "total_esp": round(tm, 1),
             "hcp": {"linea": hcp, "tramos": tramos_hcp(MARG, hcp, l, v)} if hcp is not None else None,
-            "total": t, "valor": V, "apostar": apostar, "mejor": mejor, "datos": datos, "pocas": pocas}
+            "total": t, "valor": V, "apostar": apostar, "razon": razon, "mejor": mejor, "datos": datos, "pocas": pocas}
 
 
 def correr():

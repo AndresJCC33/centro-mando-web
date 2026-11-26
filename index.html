@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css?v=20261126a">
+<link rel="stylesheet" href="estilos.css?v=20261126b">
 </head>
 <body data-dep="Todos">
 <header class="cancha" id="inicio">
@@ -156,6 +156,16 @@
 
   <section id="como" data-tab="mas">
     <div class="como-motor">
+      <h2>Cómo se arma el análisis de cada juego</h2>
+      <ol class="pasos">
+        <li><b>Mercado:</b> la probabilidad de Pinnacle sin su margen (la referencia más precisa).</li>
+        <li><b>Motores:</b> NFL con dos motores (ratings EPA + mariscal, y Monte Carlo serie por serie); NBA con el motor NBA del Centro de Mando; fútbol con un modelo de goles de Poisson por equipo (temporada actual y anterior).</li>
+        <li><b>Probabilidad final:</b> 80 % mercado y 20 % motores. En las pruebas con temporadas pasadas ningún motor le ganó al cierre por sí solo, por eso el mercado pesa más.</li>
+        <li><b>Valor esperado:</b> probabilidad final × la mejor cuota de las casas − 1. Verde (apostar) solo si llega a 3 % y el motor respalda ese lado; en fútbol, además, 25 % o más de probabilidad.</li>
+        <li><b>Datos de los equipos:</b> los números que explican el pronóstico (EPA, series, mariscales, tiros, córners, tarjetas, rebotes, jugadores, forma).</li>
+      </ol>
+    </div>
+    <div class="como-motor">
       <h2 id="motor-titulo">Cómo trabaja el motor</h2>
       <ol class="pasos" id="motor-pasos"></ol>
       <p class="nota" id="motor-nota"></p>
@@ -234,6 +244,6 @@
     <p>Esto es un registro de modelos estadísticos, no una recomendación de apuesta. Las cuotas son las del momento en que se tomaron y pueden haber cambiado. Solo para mayores de 18 años: apuesta solo lo que puedas perder.</p>
   </div>
 </footer>
-<script src="app.js?v=20261126a"></script>
+<script src="app.js?v=20261126b"></script>
 </body>
 </html>

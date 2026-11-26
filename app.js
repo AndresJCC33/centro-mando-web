@@ -634,7 +634,7 @@
     if (m) {
       const v = el('p', 'an-veredicto ' + (g.apostar ? 'si' : 'no'), g.apostar
         ? `Apuesta con valor: ${m.apuesta} en ${m.casa} a ${m.cuota.toFixed(2)} (valor ${F.pcts(m.ev)})`
-        : `Mejor valor esperado: ${m.apuesta} en ${m.casa} a ${m.cuota.toFixed(2)} (${F.pcts(m.ev)})`);
+        : `Mejor valor esperado: ${m.apuesta} en ${m.casa} a ${m.cuota.toFixed(2)} (${F.pcts(m.ev)})${g.razon ? ` · ${g.razon}` : ''}`);
       a.append(v);
     }
     const grid = el('div', 'an-grid');
@@ -743,7 +743,7 @@
       b.addEventListener('click', () => { anDia = d; pintarAnalisis(); });
       chips.append(b);
     }
-    $('#an-nota').textContent = `Actualizado ${F.dia(JA.generado.slice(0, 10))} ${JA.generado.slice(11, 16)}. Probabilidad final = 80 % mercado (Pinnacle) + 20 % motores. Verde solo si el valor esperado llega a 3 % y los motores están de acuerdo.`;
+    $('#an-nota').textContent = `Actualizado ${F.dia(JA.generado.slice(0, 10))} ${JA.generado.slice(11, 16)}. Probabilidad final = 80 % mercado (Pinnacle) + 20 % motores. Verde solo si el valor esperado llega a 3 % y el motor respalda ese lado (en fútbol, además, 25 % o más de probabilidad).`;
     const xs = delDep.filter((g) => String(g.inicio).slice(0, 10) === anDia);
     if (!xs.length) {
       caja.append(el('p', 'vacio', ['NBA', 'NFL', 'Fútbol', 'Todos'].includes(dep)
