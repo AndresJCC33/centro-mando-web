@@ -111,8 +111,11 @@ def valor(apuestas):
         if not (d and p):
             continue
         pm, pk = (x[4], x[5]) if len(x) >= 6 else (None, None)
+        # el motor debe ver ese lado al menos tan probable como el mercado, pero sin irse a más de 20 puntos:
+        # diferencias así casi siempre son un dato malo (cancha neutral mal cargada, lesión, pocos juegos)
+        ok = bool(pm is not None and pk is not None and pk <= pm <= pk + 0.20)
         out.append({"apuesta": a, "casa": c, "cuota": round(d, 2), "p": round(p, 4), "ev": round(p * d - 1, 4),
-                    "motor_ok": bool(pm is not None and pk is not None and pm >= pk)})
+                    "motor_ok": ok, "lejos": bool(pm is not None and pk is not None and pm > pk + 0.20)})
     return sorted(out, key=lambda x: -x["ev"])
 
 
@@ -325,6 +328,163 @@ def nba(hoy, ahora):
     return sal
 
 
+# ---------------------------------------------------------------- LVBP
+def _lvbp_k():
+    """Dispersión de las carreras por equipo (binomial negativa) medida en los juegos de la temporada."""
+    try:
+        c = json.load(open(os.path.join(DATOS, "cache", "lvbp_cajas.json"), encoding="utf-8"))
+        r = np.array([x["carreras"] for v in c.values() for x in v["eq"].values() if x.get("carreras") is not None], float)
+        m, v = r.mean(), r.var()
+        return float(m ** 2 / (v - m)) if v > m and len(r) >= 60 else 6.0
+    except (OSError, ValueError, KeyError):
+        return 6.0
+
+
+def _negbin(mu, k, n, rng):
+    return rng.negative_binomial(k, k / (k + mu), n)
+
+
+def lvbp(hoy):
+    try:
+        vit = json.load(open(os.path.join(DATOS, "vitrina.json"), encoding="utf-8"))
+        t = vit["tablas"]["previa"]
+        rows = [dict(zip(t["cols"], r)) for r in t["data"]]
+        an = json.load(open(os.path.join(DATOS, "analisis.json"), encoding="utf-8")).get("lvbp") or {}
+    except (OSError, KeyError, ValueError):
+        return []
+    fechas = {(hoy + timedelta(days=k)).isoformat() for k in (0, 1)}
+    k = _lvbp_k()
+    sal = []
+    for r in rows:
+        if r["deporte"] != "LVBP" or r["fecha"] not in fechas or r.get("marcador") or r.get("p_local") is None or not r.get("total_pred"):
+            continue
+        L, V_ = r["local"], r["visitante"]
+        p_obj, tot = float(r["p_local"]), float(r["total_pred"])
+        rng = np.random.default_rng(zlib.crc32(f"{L}{V_}{r['fecha']}".encode()))
+        # reparto del total entre los dos que reproduce la probabilidad del motor (extra innings: según fuerza)
+        lo_, hi_ = 0.25, 0.75
+        for _ in range(20):
+            sh = (lo_ + hi_) / 2
+            a, b = _negbin(tot * sh, k, 40000, np.random.default_rng(3)), _negbin(tot * (1 - sh), k, 40000, np.random.default_rng(4))
+            pw = (a > b).mean() + (a == b).mean() * sh
+            lo_, hi_ = (sh, hi_) if pw < p_obj else (lo_, sh)
+        A, B = _negbin(tot * sh, k, 200_000, rng), _negbin(tot * (1 - sh), k, 200_000, rng)
+        emp = A == B
+        gana_l = rng.random(len(A)) < sh
+        A = A + (emp & gana_l)
+        B = B + (emp & ~gana_l)
+        M, T = (A - B).astype(float), (A + B).astype(float)
+        fav_l = p_obj >= 0.5
+        hcp = -1.5 if fav_l else 1.5
+        datos = []
+        if L in an and V_ in an:
+            a_, b_ = an[L], an[V_]
+            filas = [[n, f"{a_.get(c):.2f}" if a_.get(c) is not None else "—", f"{b_.get(c):.2f}" if b_.get(c) is not None else "—"]
+                     for c, n in (("carreras", "carreras anotadas"), ("carreras_c", "carreras permitidas"), ("hits", "hits"),
+                                  ("hr", "jonrones"), ("ponches", "ponches (bateando)"), ("boletos", "boletos (bateando)"),
+                                  ("total_prom", "total por juego"))]
+            filas.append(["últimos 5", " ".join(x["r"] for x in a_.get("ultimos", [])), " ".join(x["r"] for x in b_.get("ultimos", []))])
+            datos.append({"t": "Promedios por juego de la temporada", "cab": ["", _corto(L), _corto(V_)], "filas": filas})
+        p = {"local": L, "visita": V_, "inicio": r["fecha"] + "T19:00-04:00", "sin_hora": True}
+        g = _tarjeta("LVBP", "LVBP", p, _corto(L), _corto(V_), None, [("Motor LVBP", p_obj)], p_obj, M, T, hcp,
+                     float(r["linea_total"]) if r.get("linea_total") else None, [], True, datos,
+                     extra=[f"Carreras esperadas: {_corto(L)} {tot * sh:.1f} – {tot * (1 - sh):.1f} {_corto(V_)}"])
+        g["aviso"] = "Sin cuotas: The Odds API no cubre la LVBP. Compara tú: cuota justa del favorito " + \
+                     f"{1 / max(p_obj, 1 - p_obj):.2f} (si tu casa paga más que eso con 3 % de margen, hay valor)."
+        sal.append(g)
+    return sal
+
+
+def _corto(n):
+    return n.split(" de ")[0].split(" del ")[0] if " de" in n else n
+
+
+# ---------------------------------------------------------------- NCAAB
+def ncaab(hoy):
+    try:
+        me = json.load(open(os.path.join(DATOS, "motores_eeuu.json"), encoding="utf-8"))["deportes"]["NCAAB"]["juegos"]
+    except (OSError, KeyError, ValueError):
+        return []
+    dias = {hoy.isoformat(), (hoy + timedelta(days=1)).isoformat()}
+    t = ME.temporada_actual(hoy)
+    caja = os.path.join(ME.TMP, f"mbb_box_{t}.parquet")
+    ff, R = {}, None
+    if os.path.exists(caja):
+        from eeuu import ncaab_datos, ncaab_motor
+        b = pd.read_parquet(caja)
+        b = b[b.game_date < pd.Timestamp(hoy)] if b.game_date.dtype.kind == "M" else b[pd.to_datetime(b.game_date) < pd.Timestamp(hoy)]
+        num = ["field_goals_made", "field_goals_attempted", "three_point_field_goals_made", "three_point_field_goals_attempted",
+               "free_throws_made", "free_throws_attempted", "offensive_rebounds", "defensive_rebounds", "total_turnovers",
+               "team_score", "opponent_team_score", "assists", "steals", "blocks"]
+        for c in num:
+            b[c] = pd.to_numeric(b[c], errors="coerce")
+        b["pos"] = ncaab_datos.posesiones(b)
+        op = b[["game_id", "team_id"] + num + ["pos"]].rename(columns={c: "op_" + c for c in num + ["pos", "team_id"]})
+        x = b.merge(op, on="game_id")
+        x = x[x.team_id != x.op_team_id]
+        gq = x.groupby("team_id").sum(numeric_only=True)
+        n = x.groupby("team_id").size()
+        ff = pd.DataFrame({
+            "juegos": n,
+            "pts/100 pos (ataque)": 100 * gq.team_score / gq.pos, "pts/100 pos (defensa)": 100 * gq.opponent_team_score / gq.op_pos,
+            "ritmo (posesiones)": gq.pos / n,
+            "% tiro efectivo": (gq.field_goals_made + 0.5 * gq.three_point_field_goals_made) / gq.field_goals_attempted,
+            "% tiro efectivo rival": (gq.op_field_goals_made + 0.5 * gq.op_three_point_field_goals_made) / gq.op_field_goals_attempted,
+            "% pérdidas": gq.total_turnovers / gq.pos, "% pérdidas forzadas": gq.op_total_turnovers / gq.op_pos,
+            "% rebote ofensivo": gq.offensive_rebounds / (gq.offensive_rebounds + gq.op_defensive_rebounds),
+            "tiros libres / tiros": gq.free_throws_attempted / gq.field_goals_attempted,
+            "% triples": gq.three_point_field_goals_made / gq.three_point_field_goals_attempted,
+        })
+        try:
+            g = ncaab_datos.juegos([t - 1, t])
+            G0, G1 = g[g.temporada == t - 1], g[g.temporada == t]
+            prev = ncaab_motor.ajustar(G0, G0.fecha.max() + pd.Timedelta(days=1))
+            R = ncaab_motor.ajustar(G1, pd.Timestamp(hoy), prev["r"] if prev else None)
+        except Exception as e:  # noqa: BLE001
+            AVISOS.append(f"NCAAB ratings: {e}")
+    sal = []
+    for j in me:
+        if j["inicio"][:10] not in dias:
+            continue
+        il, iv = j.get("id_local"), j.get("id_visita")
+        mu, tm = j["pts_local"] - j["pts_visita"], j["pts_local"] + j["pts_visita"]
+        rng = np.random.default_rng(zlib.crc32(f"{il}{iv}{j['inicio']}".encode()))
+        M = np.rint(rng.normal(mu, ME.SD_NCAAB[0], 200_000))
+        M = np.where(M == 0, np.where(rng.random(len(M)) < norm.cdf(mu / ME.SD_NCAAB[0]), 1, -1), M)
+        T = np.rint(rng.normal(tm, ME.SD_NCAAB[1], 200_000))
+        pm, pk, pf = j["p_motor"], j.get("p_mercado"), j.get("p_final") or j["p_motor"]
+        ap = []
+        for lado in j.get("lados", []):
+            es_l = lado["nombre"] == j["local"]
+            pp = lado["p_final"]
+            dec = (1 + lado["ventaja_final"]) / pp if pp else None
+            ap.append((f"{lado['nombre']}", "mejor casa", dec, pp, pm if es_l else 1 - pm, (pk if es_l else 1 - pk) if pk is not None else None))
+        V = valor(ap)
+        datos = []
+        if len(ff) and il in ff.index and iv in ff.index:
+            filas = []
+            for c in ff.columns:
+                a_, b_ = ff.loc[il, c], ff.loc[iv, c]
+                fmt = (lambda v: f"{v:.0%}") if c.startswith("%") else (lambda v: f"{v:.2f}" if c == "tiros libres / tiros" else f"{v:.1f}")
+                filas.append([c, fmt(a_), fmt(b_)])
+            datos.append({"t": "Cuatro factores y eficiencia (temporada)", "cab": ["", j["local"], j["visita"]], "filas": filas})
+        if R:
+            orden = sorted(R["r"], key=lambda e: -(R["r"][e][0] + R["r"][e][1]))
+            pos = {e: i + 1 for i, e in enumerate(orden)}
+            filas = [[n, f"{R['r'].get(e, (0, 0, 0))[0]:+.1f} / {R['r'].get(e, (0, 0, 0))[1]:+.1f}", str(pos.get(e, '—'))]
+                     for n, e in ((j["local"], il), (j["visita"], iv))]
+            datos.append({"t": "Rating ajustado por rival (ataque / defensa, pts por 100 posesiones sobre la media)", "cab": ["", "ataque / defensa", f"puesto de {len(orden)}"], "filas": filas})
+        p = {"local": j["local"], "visita": j["visita"], "inicio": j["inicio"]}
+        sal.append(_tarjeta("NCAAB", "NCAAB", p, _sigla(j["local"]), _sigla(j["visita"]), pk, [("Motor NCAAB", pm)], pf, M, T, None, None, V, True, datos,
+                            extra=[f"Posesiones esperadas: {j.get('posesiones', 0):.0f}" + (" · cancha neutral" if j.get("neutral") else ""),
+                                   "Pocos juegos esta temporada: el motor se apoya en la anterior." if (j.get("pj_local") or 0) < 5 or (j.get("pj_visita") or 0) < 5 else ""]))
+    return sal
+
+
+def _sigla(n):
+    w = n.split()
+    return " ".join(w[:-1]) if len(w) > 1 else n
+
 # ---------------------------------------------------------------- Fútbol
 def _poisson_ratings(g, fecha, vida=240.0, ancla=8.0):
     from scipy.optimize import minimize
@@ -457,6 +617,8 @@ def _razon(m, apostar, futbol=False):
         return ""
     if futbol and m["p"] < 0.25:
         return "llega a 3 % pero es un batacazo (menos de 25 %): no se apuesta"
+    if m.get("lejos"):
+        return "el motor se separa más de 20 puntos del mercado: dato dudoso, no se apuesta"
     if not m["motor_ok"]:
         return "llega a 3 % solo por la cuota: el motor no respalda ese lado"
     return ""
@@ -498,7 +660,8 @@ def _tarjeta(dep, liga, p, l, v, pk, motores, pfin, MARG, TOT, hcp, lt, V, acuer
     ml, tm = float(np.mean(MARG)), float(np.mean(TOT))
     pl_, pv_ = (tm + ml) / 2, (tm - ml) / 2
     t = {"linea": lt, "over": round(float((TOT > lt).mean()), 4), "under": round(float((TOT < lt).mean()), 4)} if lt else {}
-    t["hist"] = hist(TOT, 3 if dep == "NFL" else 4, (12, 84) if dep == "NFL" else (170, 280))
+    rango = {"NFL": (3, (12, 84)), "NBA": (4, (170, 280)), "NCAAB": (3, (100, 190)), "LVBP": (1, (0, 30))}[dep]
+    t["hist"] = hist(TOT, rango[0], rango[1])
     pocas = [f"Gana {fav} con {pf:.0%}" + (f" (mercado {max(pk, 1 - pk):.0%}, motores {max(pmot, 1 - pmot):.0%})." if pk is not None else ".")]
     if hcp is not None:
         L = -hcp
@@ -533,7 +696,7 @@ def correr():
                 sel["Fútbol"].append(dict(p, _clave=l["clave"], _liga=l["nombre"]))
     juegos = []
     for nombre, fn in (("NFL", lambda: nfl(sel["NFL"], hoy, ahora)), ("NBA", lambda: nba(hoy, ahora)),
-                       ("Fútbol", lambda: futbol(sel["Fútbol"], hoy))):
+                       ("Fútbol", lambda: futbol(sel["Fútbol"], hoy)), ("LVBP", lambda: lvbp(hoy)), ("NCAAB", lambda: ncaab(hoy))):
         try:
             juegos += fn()
         except Exception as e:  # noqa: BLE001
@@ -544,7 +707,7 @@ def correr():
     doc = {"generado": datetime.now(CARACAS).isoformat(timespec="minutes"), "dias": sorted(dias), "juegos": juegos, "avisos": AVISOS}
     with open(SALIDA, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
-    print("análisis por juego:", {d: sum(j["deporte"] == d for j in juegos) for d in ("NFL", "NBA", "Fútbol")}, "| avisos:", AVISOS)
+    print("análisis por juego:", {d: sum(j["deporte"] == d for j in juegos) for d in ("NFL", "NBA", "Fútbol", "LVBP", "NCAAB")}, "| avisos:", AVISOS)
 
 
 if __name__ == "__main__":

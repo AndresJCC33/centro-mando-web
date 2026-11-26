@@ -253,7 +253,7 @@ def correr():
                      p_mercado=None if pk is None else round(pk, 4), p_final=round(pf, 4) if pf is not None else None,
                      pts_local=round(s["pts_local"], 1), pts_visita=round(s["pts_visita"], 1), lados=lados,
                      **{k: (round(v, 4) if isinstance(v, float) else v) for k, v in s.items()
-                        if k not in ("p_local", "pts_local", "pts_visita", "id_local", "id_visita")})
+                        if k not in ("p_local", "pts_local", "pts_visita")})
             juegos.append(j)
             # historial: el pronóstico que vale es el último antes de empezar
             fecha_loc = p["inicio"][:10]

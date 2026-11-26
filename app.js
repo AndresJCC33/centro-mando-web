@@ -593,6 +593,8 @@
   };
   const histograma = (hist, linea, unidad) => {
     const W = 320, H = 120, M = 18;
+    const paso0 = hist.length > 1 ? hist[1][0] - hist[0][0] : 1;
+    if (paso0 === 1) hist = hist.map(([x, p]) => [x - 0.5, p]);   // valores enteros: la barra queda centrada en su número
     const xs = hist.map((h) => h[0]);
     const min = Math.min(...xs), max = Math.max(...xs) + (xs[1] - xs[0] || 1);
     const pmax = Math.max(...hist.map((h) => h[1]));
@@ -604,8 +606,8 @@
       s.append(svgEl('rect', { x: sx(x) + 0.5, y: H - h, width: Math.max(1, ancho - 1), height: h, fill: linea != null && x + (xs[1] - xs[0] || 1) / 2 > linea ? C_LOC : C_VIS, opacity: 0.88 }));
     }
     if (linea != null) s.append(svgEl('line', { x1: sx(linea), x2: sx(linea), y1: 0, y2: H, stroke: '#f2f4f8', 'stroke-dasharray': '4 3', 'stroke-width': 1.5 }));
-    for (let k = 0; k <= 4; k += 1) {
-      const x = min + ((max - min) * k) / 4;
+    const marcas = paso0 === 1 && hist.length <= 31 ? hist.map((h) => h[0] + 0.5) : [0, 1, 2, 3, 4].map((k) => min + ((max - min) * k) / 4);
+    for (const x of marcas) {
       const t = svgEl('text', { x: sx(x), y: H + 14, 'text-anchor': 'middle', class: 'an-eje' });
       t.textContent = Math.round(x);
       s.append(t);
@@ -626,8 +628,6 @@
   const tarjetaAnalisis = (g) => {
     const a = el('article', 'an-card');
     const hora = g.sin_hora ? 'hora por confirmar' : hora_(g.inicio);
-    a.append(el('p', 'an-liga', `${g.liga} · ${hora}`));
-    a.append(el('h3', 'an-partido', `${g.visita} @ ${g.local}`));
     const sub = g.tres ? `Favorito: ${g.favorito} ${pct0(g.p_fav)} · ${g.sub}` : `Favorito: ${g.favorito} ${pct0(g.p_fav)} · Marcador medio ${g.cod[0]} ${Math.round(g.marcador[0])} – ${Math.round(g.marcador[1])} ${g.cod[1]} · Total esperado ${nf(1).format(g.total_esp)}`;
     a.append(el('p', 'an-sub', sub));
     const m = g.mejor;
@@ -637,6 +637,7 @@
         : `Mejor valor esperado: ${m.apuesta} en ${m.casa} a ${m.cuota.toFixed(2)} (${F.pcts(m.ev)})${g.razon ? ` · ${g.razon}` : ''}`);
       a.append(v);
     }
+    if (!m && g.aviso) a.append(el('p', 'an-veredicto no', g.aviso));
     const grid = el('div', 'an-grid');
     // 1. quién gana
     const q = el('section', 'an-bloque');
@@ -706,7 +707,7 @@
       barra.style.left = x.ev >= 0 ? '50%' : (50 - w) + '%';
       const meta = el('i', 'meta'); meta.style.left = (50 + (0.03 / lim) * 50) + '%';
       pista.append(barra, meta);
-      fila.append(pista, el('b', x.ev >= 0.03 ? 'pos' : 'neg', F.pcts(x.ev)));
+      fila.append(pista, el('b', x.ev >= 0.03 ? 'pos' : x.ev > 0 ? 'casi' : 'neg', F.pcts(x.ev)));
       ve.append(fila);
     }
     if (!g.valor.length) ve.append(el('p', 'nota', 'Sin cuotas cargadas todavía.'));
@@ -726,6 +727,24 @@
     return a;
   };
   const hora_ = (iso) => new Date(iso).toLocaleString('es-VE', { weekday: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
+  const BANDERA = { 'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'España': '🇪🇸', 'Alemania': '🇩🇪', 'Italia': '🇮🇹', 'Francia': '🇫🇷', 'Países Bajos': '🇳🇱',
+    'Champions League': '🇪🇺', NFL: '🇺🇸', NBA: '🇺🇸', NCAAB: '🇺🇸', NCAAF: '🇺🇸', LVBP: '🇻🇪' };
+  const bandera = (liga) => BANDERA[liga.split(' · ')[0]] || BANDERA[liga] || '';
+  const filaJuego = (g) => {
+    const d = el('details', 'an-juego' + (g.apostar ? ' verde' : ''));
+    const s = el('summary', 'an-row');
+    s.append(el('span', 'an-hora', g.sin_hora ? '—' : new Date(g.inicio).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Caracas' })));
+    const eq = el('span', 'an-equipos');
+    eq.append(el('span', g.favorito === g.local ? 'fav' : '', g.local), el('span', g.favorito === g.visita ? 'fav' : '', g.visita));
+    s.append(eq);
+    s.append(el('span', 'an-pfav', `${g.favorito === 'Empate' ? 'E ' : ''}${pct0(g.p_fav)}`));
+    s.append(el('span', 'an-chip ' + (g.apostar ? 'si' : g.mejor ? '' : 'nada'), g.apostar ? `Apostar · ${F.pcts(g.mejor.ev)}` : g.mejor ? `Valor ${F.pcts(g.mejor.ev)}` : 'Sin cuotas'));
+    d.append(s);
+    d.addEventListener('toggle', () => {
+      if (d.open && d.childElementCount === 1) d.append(tarjetaAnalisis(g));
+    });
+    return d;
+  };
   const pintarAnalisis = () => {
     const caja = $('#an-juegos');
     caja.replaceChildren();
@@ -737,21 +756,37 @@
     if (!anDia || !dias.includes(anDia)) anDia = dias.includes(hoy()) && JA.juegos.some((g) => String(g.inicio).slice(0, 10) === hoy() && new Date(g.inicio) > new Date(Date.now() - 3 * 3600e3)) ? hoy() : dias[dias.length - 1];
     for (const d of dias) {
       const n = delDep.filter((g) => String(g.inicio).slice(0, 10) === d).length;
-      const b = el('button', '', `${d === hoy() ? 'Hoy' : F.dia(d)} (${n})`);
+      const b = el('button', '', `${d === hoy() ? 'Hoy' : F.dia(d)} · ${n}`);
       b.type = 'button';
       b.setAttribute('aria-pressed', String(d === anDia));
       b.addEventListener('click', () => { anDia = d; pintarAnalisis(); });
       chips.append(b);
     }
-    $('#an-nota').textContent = `Actualizado ${F.dia(JA.generado.slice(0, 10))} ${JA.generado.slice(11, 16)}. Probabilidad final = 80 % mercado (Pinnacle) + 20 % motores. Verde solo si el valor esperado llega a 3 % y el motor respalda ese lado (en fútbol, además, 25 % o más de probabilidad).`;
+    $('#an-nota').textContent = `Actualizado ${JA.generado.slice(11, 16)}. Toca un juego para ver su análisis. «Apostar» solo cuando el valor esperado llega a 3 % y el motor respalda ese lado.`;
     const xs = delDep.filter((g) => String(g.inicio).slice(0, 10) === anDia);
     if (!xs.length) {
-      caja.append(el('p', 'vacio', ['NBA', 'NFL', 'Fútbol', 'Todos'].includes(dep)
-        ? 'No hay juegos analizados para este día. Los de NBA aparecen cuando el motor corre con la cartelera (desde las 10:30 am).'
-        : 'El análisis a fondo por juego está disponible para NBA, NFL y fútbol de las ligas principales.'));
+      caja.append(el('p', 'vacio', ['NBA', 'NFL', 'Fútbol', 'LVBP', 'NCAAB', 'Todos'].includes(dep)
+        ? 'No hay juegos analizados para este día. Los de NBA y LVBP aparecen cuando corren sus motores con la cartelera (desde las 10:30 am).'
+        : 'El análisis por juego está disponible para NBA, NFL, NCAAB, LVBP y fútbol de las ligas principales.'));
       return;
     }
-    for (const g of xs) caja.append(tarjetaAnalisis(g));
+    const ligas = new Map();
+    for (const g of xs) { if (!ligas.has(g.liga)) ligas.set(g.liga, []); ligas.get(g.liga).push(g); }
+    const orden = [...ligas.keys()].sort((a, b) => (ligas.get(b).some((g) => g.apostar) - ligas.get(a).some((g) => g.apostar)) || a.localeCompare(b, 'es'));
+    for (const liga of orden) {
+      const grupo = el('section', 'an-grupo');
+      const cab = el('h3', 'an-grupo-cab');
+      cab.append(el('span', 'an-bandera', bandera(liga)), el('span', '', liga), el('span', 'an-n', String(ligas.get(liga).length)));
+      grupo.append(cab);
+      for (const g of ligas.get(liga)) grupo.append(filaJuego(g));
+      caja.append(grupo);
+    }
+    const verdes = xs.filter((g) => g.apostar);
+    {
+      $('#titular').textContent = `${xs.length} juego${xs.length === 1 ? '' : 's'} analizado${xs.length === 1 ? '' : 's'}${anDia === hoy() ? ' hoy' : ''}`;
+      $('#bajada').textContent = verdes.length ? `${verdes.length} con valor para apostar: ${verdes.map((g) => g.mejor.apuesta).join(', ')}.` : 'Ninguno llega todavía a 3 % de valor con el respaldo del motor.';
+    }
+    if (verdes.length === 1) caja.querySelector('.an-juego.verde').open = true;
   };
 
   // ---------------------------------------------------------------- Precios (vigilante)
