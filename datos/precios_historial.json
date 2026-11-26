@@ -1,6 +1,30 @@
 {
 "picks": [
 {
+"id": "ca8aa566e27e1d05b47e8151b2066f9a|Draw",
+"evento": "ca8aa566e27e1d05b47e8151b2066f9a",
+"deporte_api": "soccer_france_ligue_one",
+"liga": "Francia · Ligue 1",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T15:45-04:00",
+"partido": "Lyon vs AS Monaco",
+"seleccion": "Empate",
+"clave": "Draw",
+"cuota": 265,
+"cuota_dec": 3.65,
+"casa": "Unibet (SE)",
+"p_justa": 0.2892,
+"ventaja": 0.0557,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-26T10:41-04:00",
+"p_cierre": 0.2892,
+"clv": 0.0557,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+},
+{
 "id": "8a69387c946c63418a130afe0ebf7e7f|Aris Thessaloniki",
 "evento": "8a69387c946c63418a130afe0ebf7e7f",
 "deporte_api": "soccer_greece_super_league",
@@ -23,7 +47,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Draw",
@@ -48,7 +72,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Monza",
@@ -68,12 +92,12 @@
 "ventaja": 0.2462,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.0731,
-"clv": 0.0962,
+"p_cierre": 0.073,
+"clv": 0.0947,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "523fa336e1cf685100957e5e6359fc4c|FC Zwolle",
@@ -93,12 +117,12 @@
 "ventaja": 0.1616,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.1776,
-"clv": 0.1098,
+"p_cierre": 0.1731,
+"clv": 0.0817,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "69fc06d019491be2aa1bf69b8f8041e3|Deportivo La Coruña",
@@ -118,12 +142,36 @@
 "ventaja": 0.2622,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.09,
-"clv": 0.0345,
+"p_cierre": 0.0776,
+"clv": -0.108,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
+},
+{
+"id": "f745c0453880329819da1ecfde118f1c|Draw",
+"evento": "f745c0453880329819da1ecfde118f1c",
+"deporte_api": "soccer_spain_segunda_division",
+"liga": "España · LaLiga 2",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T11:15-04:00",
+"partido": "Mallorca vs CD Castellón",
+"seleccion": "Empate",
+"clave": "Draw",
+"cuota": 250,
+"cuota_dec": 3.499,
+"casa": "Unibet (SE)",
+"p_justa": 0.2951,
+"ventaja": 0.0327,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-26T10:41-04:00",
+"p_cierre": 0.2951,
+"clv": 0.0327,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
 },
 {
 "id": "09bb0ba9a9025d64fed410375c0c8f80|Draw",
@@ -143,12 +191,12 @@
 "ventaja": 0.0405,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2835,
-"clv": 0.0402,
+"p_cierre": 0.2824,
+"clv": 0.0364,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "3c54622721e80cdfbb954b810a125a04|Draw",
@@ -173,7 +221,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "f45e9062c2f755b977c98d496c22697b|Draw",
@@ -193,12 +241,12 @@
 "ventaja": 0.0553,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2599,
-"clv": 0.0555,
+"p_cierre": 0.2495,
+"clv": 0.013,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "d77c244bd9dd91534c40b863e44cf905|ADO Den Haag",
@@ -218,11 +266,12 @@
 "ventaja": 0.0363,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.3598,
-"clv": 0.0363,
+"p_cierre": 0.3545,
+"clv": 0.021,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "c99772cba1418e72f2eded26e4afeb59|Alavés",
@@ -242,12 +291,12 @@
 "ventaja": 0.0747,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.0423,
-"clv": -0.1121,
+"p_cierre": 0.0397,
+"clv": -0.1667,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "708641646f92ec14288beaaf1154e996|SC Cambuur",
@@ -267,11 +316,12 @@
 "ventaja": 0.0369,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.447,
-"clv": 0.0369,
+"p_cierre": 0.4468,
+"clv": 0.0366,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "f96c1137c9d3f7e2e691275a2988fa1d|Draw",
@@ -291,12 +341,12 @@
 "ventaja": 0.0536,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2701,
-"clv": 0.0534,
+"p_cierre": 0.2695,
+"clv": 0.0513,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "12002f6f804a122db48271ff05be03c0|Lorient",
@@ -316,12 +366,12 @@
 "ventaja": 0.1357,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.0712,
-"clv": -0.0029,
+"p_cierre": 0.0675,
+"clv": -0.0547,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "aaa86a483888836242da663a46957894|Draw",
@@ -341,11 +391,12 @@
 "ventaja": 0.0307,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.2824,
-"clv": 0.0307,
+"p_cierre": 0.2821,
+"clv": 0.0297,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "8031222f3f3e8384a69c0ca5e1166458|Go Ahead Eagles",
@@ -365,12 +416,12 @@
 "ventaja": 0.261,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.0962,
-"clv": 0.1058,
+"p_cierre": 0.0859,
+"clv": -0.0126,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "5d838190a8f5932d7fcfbcc26bacdd9c|Eintracht Frankfurt",
@@ -395,7 +446,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "365e1a00908ab1cd5a51a53ede2b86b2|Union Berlin",
@@ -420,7 +471,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "af3432ca724da03d38f0ff4e62045e4c|Parma",
@@ -440,12 +491,12 @@
 "ventaja": 0.0421,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.165,
-"clv": 0.0067,
+"p_cierre": 0.168,
+"clv": 0.025,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "c81520b9a9794749cfdab57f89bdeb16|Rayo Vallecano",
@@ -465,12 +516,12 @@
 "ventaja": 0.1053,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.179,
-"clv": 0.0742,
+"p_cierre": 0.1787,
+"clv": 0.0724,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "40d95e660c301c2d8a5a7a6317017b65|Draw",
@@ -490,12 +541,12 @@
 "ventaja": 0.0508,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2817,
-"clv": 0.051,
+"p_cierre": 0.2856,
+"clv": 0.0653,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "02ff879cf54f6d1fec2664efee0431db|Draw",
@@ -515,12 +566,12 @@
 "ventaja": 0.0402,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2819,
-"clv": 0.0402,
+"p_cierre": 0.2831,
+"clv": 0.0446,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "e9a663f13e7503c0ac20a54804338b60|Draw",
@@ -540,11 +591,12 @@
 "ventaja": 0.032,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.2883,
-"clv": 0.032,
+"p_cierre": 0.2964,
+"clv": 0.0611,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "7aa2e13c09deb4fbd70e62312e82a514|Willem II",
@@ -564,12 +616,12 @@
 "ventaja": 0.1175,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.1388,
-"clv": 0.041,
+"p_cierre": 0.1398,
+"clv": 0.0485,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-25T14:05-04:00"
+"foto_cierre": "2026-11-26T10:41-04:00"
 },
 {
 "id": "87fec8c093d5b8f825bc61121105cc27|Stanford Cardinal",
@@ -591,9 +643,9 @@
 "detectado": "2026-11-25T12:58-04:00",
 "p_cierre": 0.4042,
 "clv": 0.0913,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "PERDIDO",
+"marcador": "64-66",
+"unidades": -1.0,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -616,9 +668,9 @@
 "detectado": "2026-11-25T13:01-04:00",
 "p_cierre": 0.2576,
 "clv": -0.0082,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "GANADO",
+"marcador": "52-66",
+"unidades": 2.85,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -641,9 +693,9 @@
 "detectado": "2026-11-25T12:58-04:00",
 "p_cierre": 0.1658,
 "clv": -0.0548,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "PERDIDO",
+"marcador": "71-69",
+"unidades": -1.0,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -666,9 +718,9 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.202,
 "clv": 0.0264,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "GANADO",
+"marcador": "2-2",
+"unidades": 4.081,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -691,9 +743,9 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.0349,
 "clv": -0.0916,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "PERDIDO",
+"marcador": "2-0",
+"unidades": -1.0,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -716,9 +768,9 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.1645,
 "clv": 0.0696,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "GANADO",
+"marcador": "2-1",
+"unidades": 5.502,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -741,9 +793,9 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.2271,
 "clv": -0.0008,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "PERDIDO",
+"marcador": "2-1",
+"unidades": -1.0,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -766,9 +818,9 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.1428,
 "clv": -0.0003,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "PERDIDO",
+"marcador": "2-0",
+"unidades": -1.0,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -791,9 +843,9 @@
 "detectado": "2026-11-25T14:05-04:00",
 "p_cierre": 0.3703,
 "clv": 0.0368,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null
+"resultado": "PERDIDO",
+"marcador": "0-1",
+"unidades": -1.0
 },
 {
 "id": "d7e124b82ed9910d5aa3077d19c6ada1|Abilene Christian Wildcats",
@@ -815,9 +867,9 @@
 "detectado": "2026-11-25T13:40-04:00",
 "p_cierre": 0.2628,
 "clv": -0.0276,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "GANADO",
+"marcador": "95-101",
+"unidades": 2.7,
 "foto_cierre": "2026-11-25T14:05-04:00"
 },
 {
@@ -840,9 +892,9 @@
 "detectado": "2026-11-25T13:37-04:00",
 "p_cierre": 0.0719,
 "clv": 0.2222,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null,
+"resultado": "PERDIDO",
+"marcador": "1-4",
+"unidades": -1.0,
 "foto_cierre": "2026-11-25T13:40-04:00"
 },
 {
@@ -865,9 +917,9 @@
 "detectado": "2026-11-25T13:40-04:00",
 "p_cierre": 0.0294,
 "clv": 0.0588,
-"resultado": "PENDIENTE",
-"marcador": "",
-"unidades": null
+"resultado": "PERDIDO",
+"marcador": "1-4",
+"unidades": -1.0
 }
 ]
 }
