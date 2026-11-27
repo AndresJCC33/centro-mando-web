@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;800&family=Public+Sans:wght@400;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="estilos.css?v=20261126g">
+<link rel="stylesheet" href="estilos.css?v=20261126h">
 </head>
 <body data-dep="Todos">
 <header class="cancha" id="inicio">
@@ -34,6 +34,7 @@
 <nav class="indice" aria-label="Secciones">
   <div class="ancho pestanas" role="tablist">
     <button type="button" role="tab" data-tab="picks">Picks</button>
+    <button type="button" role="tab" data-tab="mercado">Mercado</button>
     <button type="button" role="tab" data-tab="analisis">Análisis</button>
     <button type="button" role="tab" data-tab="precios">Precios</button>
     <button type="button" role="tab" data-tab="historial">Historial</button>
@@ -51,6 +52,11 @@
     <h3 class="pk-tit">Resultados de los picks</h3>
     <p class="pk-record" id="pk-record"></p>
     <div class="pk-lista" id="pk-hist"></div>
+  </section>
+
+  <section id="mercado" data-tab="mercado">
+    <div class="an-cabeza"><p class="nota" id="mk-nota"></p></div>
+    <div id="mk-cuerpo"></div>
   </section>
 
   <section id="analisis" data-tab="analisis">
@@ -255,6 +261,6 @@
     <p>Esto es un registro de modelos estadísticos, no una recomendación de apuesta. Las cuotas son las del momento en que se tomaron y pueden haber cambiado. Solo para mayores de 18 años: apuesta solo lo que puedas perder.</p>
   </div>
 </footer>
-<script src="app.js?v=20261126g"></script>
+<script src="app.js?v=20261126h"></script>
 </body>
 </html>

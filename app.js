@@ -578,6 +578,78 @@
   const C_LOC = '#3b74d6', C_VIS = '#e0485a', C_EMP = '#6f7689';
   const NS = 'http://www.w3.org/2000/svg';
   const svgEl = (tag, at) => { const e = document.createElementNS(NS, tag); for (const k in at) e.setAttribute(k, at[k]); return e; };
+
+  // ---------------------------------------------------------------- Mercado (ESPN / DraftKings, gratis)
+  let MK = null;
+  const mercadoDe = (local, visita) => {
+    if (!MK || !MK.juegos) return null;
+    return MK.juegos.find((j) => (j.n_local === local && j.n_visita === visita) || (j.local === local && j.visita === visita)) || null;
+  };
+  const nomLado = (j, k) => (k === 'l' ? (j.n_local || j.local) : k === 'v' ? (j.n_visita || j.visita) : 'el empate');
+  const signoN = (x) => (x > 0 ? '+' : x < 0 ? '−' : '') + nf(1).format(Math.abs(x)).replace(',0', '');
+  const hcpTxt = (h) => (h == null ? '—' : h === 0 ? 'pick' : signoN(h));
+  const titularMercado = (j) => {
+    if (j.hacia && j.dp >= 0.015) return `El mercado se fue con ${nomLado(j, j.hacia)} (+${Math.round(j.dp * 100)} pts desde la apertura)`;
+    if (j.hacia && j.dhcp) return `El mercado se fue con ${nomLado(j, j.hacia)}`;
+    if (j.p0) return 'Mercado quieto: casi no se ha movido desde la apertura';
+    return 'Sin apertura fiable: se mide desde nuestras fotos';
+  };
+  const chispa = (serie) => {
+    if (!serie || serie.length < 3) return null;
+    const W = 120, H = 28, lo = Math.min(...serie), hi = Math.max(...serie), r = Math.max(hi - lo, 0.02);
+    const pts = serie.map((v, i) => `${(i / (serie.length - 1)) * W},${H - 2 - ((v - lo) / r) * (H - 4)}`).join(' ');
+    const sv = svgEl('svg', { viewBox: `0 0 ${W} ${H}`, class: 'mk-chispa', role: 'img', 'aria-label': 'Probabilidad del local en cada foto' });
+    sv.append(svgEl('polyline', { points: pts, fill: 'none', stroke: 'currentColor', 'stroke-width': 1.6 }));
+    return sv;
+  };
+  // ¿el mercado va con el pick? (lado del pick: l, v o e) → 'a favor' | 'en contra' | null
+  const mercadoConPick = (g, j) => {
+    const m = g.mejor && g.mejor.meta;
+    if (!m || !j || !j.hacia || (j.dp < 0.015 && !j.dhcp)) return null;
+    if (m.m === 'tot') return j.total ? ((j.total === 'sube') === (m.lado === 'o') ? 'a favor' : 'en contra') : null;
+    return j.hacia === m.lado ? 'a favor' : 'en contra';
+  };
+  const bloqueMercado = (j, g) => {
+    const b = el('div', 'mk-bloque');
+    const cab = el('div', 'mk-cab');
+    cab.append(el('b', '', titularMercado(j)));
+    const ch = chispa(j.serie);
+    if (ch) cab.append(ch);
+    b.append(cab);
+    const ul = el('ul', 'mk-lista');
+    if (j.p) {
+      for (const k of Object.keys(j.p)) {
+        const li = el('li');
+        const d = j.p0 ? j.p[k] - j.p0[k] : null;
+        li.append(el('span', '', nomLado(j, k) === 'el empate' ? 'Empate' : nomLado(j, k)),
+          el('span', 'n', j.p0 ? `${pct0(j.p0[k])} → ${pct0(j.p[k])}` : pct0(j.p[k])),
+          el('span', 'n ' + (d == null ? '' : d >= 0.015 ? 'sube' : d <= -0.015 ? 'baja' : ''), d == null ? '' : d >= 0.015 ? '↑' : d <= -0.015 ? '↓' : '='));
+        ul.append(li);
+      }
+    }
+    if (j.hcp != null) {
+      const li = el('li');
+      li.append(el('span', '', `Hándicap ${nomLado(j, 'l')}`), el('span', 'n', j.hcp0 != null ? `${hcpTxt(j.hcp0)} → ${hcpTxt(j.hcp)}` : hcpTxt(j.hcp)), el('span', 'n', ''));
+      ul.append(li);
+    }
+    if (j.tot != null) {
+      const li = el('li');
+      li.append(el('span', '', 'Total'), el('span', 'n', j.tot0 != null && j.tot0 !== j.tot ? `${j.tot0} → ${j.tot}` : String(j.tot)),
+        el('span', 'n ' + (j.total || ''), j.total === 'sube' ? '↑' : j.total === 'baja' ? '↓' : '='));
+      ul.append(li);
+    }
+    b.append(ul);
+    const notas = [];
+    if (j.volteo) notas.push('Cambió el favorito desde la apertura.');
+    if (j.reciente) notas.push(`En las últimas 3 horas se movió ${Math.round(Math.abs(j.d3h) * 100)} pts hacia ${j.d3h > 0 ? nomLado(j, 'l') : nomLado(j, 'v')}.`);
+    if (g) {
+      const c = mercadoConPick(g, j);
+      if (c) notas.push(c === 'a favor' ? `El mercado va a favor del pick (${g.mejor.apuesta}): buena señal.` : `Ojo: el mercado va en contra del pick (${g.mejor.apuesta}).`);
+    }
+    for (const n of notas) b.append(el('p', 'mk-nota', n));
+    b.append(el('p', 'an-ley', `Líneas de ${j.casa || 'DraftKings'} vía ESPN. Una línea se mueve por dinero fuerte o por noticias (lesiones, alineaciones).`));
+    return b;
+  };
   const pct0 = (p) => `${Math.round(p * 100)} %`;
   const barraApilada = (partes, alto = 34) => {
     const b = el('div', 'an-apilada');
@@ -652,9 +724,16 @@
       q.append(fila);
     }
     if (g.tres) q.append(el('p', 'an-ley', `Azul ${g.local} · gris empate · rojo ${g.visita}`));
-    const mv = movimientoTxt(g.local, g.visita);
-    if (mv) q.append(el('p', 'an-mov ' + mv.c, mv.t));
     grid.append(q);
+    const mk = mercadoDe(g.local, g.visita);
+    const mv = movimientoTxt(g.local, g.visita);
+    if (mk || mv) {
+      const sm = el('section', 'an-bloque mk-sec');
+      sm.append(el('h4', '', '¿A dónde va el mercado?'));
+      if (mk) sm.append(bloqueMercado(mk, g));
+      if (mv) sm.append(el('p', 'an-mov ' + mv.c, 'Pinnacle: ' + mv.t));
+      grid.append(sm);
+    }
     // 2. hándicap (NBA/NFL) o goles (fútbol)
     const h = el('section', 'an-bloque');
     if (g.hcp) {
@@ -815,6 +894,59 @@
     d.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
+  // ---------------------------------------------------------------- Pestaña Mercado
+  const UMBRAL_TOT = { NBA: 3, NCAAB: 3, NFL: 2, NCAAF: 2.5, NHL: 0.5, 'Fútbol': 0.5 };
+  const filaMercado = (j, detalle) => {
+    const f = el('details', 'mk-fila');
+    const s = el('summary', 'mk-row');
+    const g = (JA && JA.juegos || []).find((x) => x.local === (j.n_local || j.local) && x.visita === (j.n_visita || j.visita));
+    s.append(el('span', 'an-hora', new Date(j.inicio).toLocaleString('es-VE', { weekday: 'short', hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Caracas' })));
+    const cen = el('span', 'mk-cen');
+    cen.append(el('span', 'mk-partido', `${bandera(j.liga)} ${j.n_visita || j.visita} @ ${j.n_local || j.local}`), el('span', 'mk-det', detalle));
+    s.append(cen);
+    const etq = [];
+    if (j.volteo) etq.push(['Cambió el favorito', 'alerta']);
+    if (j.reciente) etq.push(['Se mueve ahora', 'ahora']);
+    if (g && g.apostar) {
+      const cm = mercadoConPick(g, j);
+      etq.push([cm === 'en contra' ? 'Pick en contra' : cm === 'a favor' ? 'Pick a favor' : 'Hay pick', cm === 'en contra' ? 'neg' : 'pos']);
+    }
+    const ch = el('span', 'mk-etqs');
+    for (const [t, c] of etq) ch.append(el('span', 'mk-etq ' + c, t));
+    s.append(ch);
+    f.append(s);
+    f.addEventListener('toggle', () => { if (f.open && f.childElementCount === 1) f.append(bloqueMercado(j, g && g.apostar ? g : null)); });
+    return f;
+  };
+  const pintarMercado = () => {
+    const caja = $('#mk-cuerpo');
+    caja.replaceChildren();
+    if (!MK || !MK.juegos) { caja.append(el('p', 'vacio', 'Todavía no hay datos del mercado.')); return; }
+    const ahora = new Date();
+    const xs = MK.juegos.filter((j) => (dep === 'Todos' || j.deporte === dep) && new Date(j.inicio) > ahora);
+    $('#mk-nota').textContent = `Actualizado ${MK.generado.slice(11, 16)} · se revisa cada media hora. Líneas de DraftKings (vía ESPN): apertura contra ahora, y nuestras fotos para lo que se mueve en las últimas 3 horas.`;
+    const seccion = (titulo, nota, lista, detalle) => {
+      if (!lista.length) return;
+      caja.append(el('h3', 'pk-tit', `${titulo} · ${lista.length}`));
+      if (nota) caja.append(el('p', 'nota', nota));
+      const g = el('div', 'an-grupo');
+      for (const j of lista) g.append(filaMercado(j, detalle(j)));
+      caja.append(g);
+    };
+    const conDir = (j) => `Se fue con ${nomLado(j, j.hacia)}${j.p0 ? `: ${pct0(j.p0[j.hacia])} → ${pct0(j.p[j.hacia])}` : ''}${j.dhcp ? ` · hándicap ${hcpTxt(j.hcp0)} → ${hcpTxt(j.hcp)}` : ''}`;
+    const fuertes = xs.filter((j) => j.fuerte && j.hacia).sort((a, b) => (b.dp || 0) - (a.dp || 0));
+    seccion('Movimientos fuertes', 'Donde más se movió la línea desde que abrió: cambió el favorito, 4 puntos o más de probabilidad o un salto grande del hándicap. Es la mejor pista gratis de dónde entró el dinero fuerte (o una noticia).', fuertes, conDir);
+    const ahoraMov = xs.filter((j) => j.reciente).sort((a, b) => Math.abs(b.d3h) - Math.abs(a.d3h));
+    seccion('Se está moviendo ahora', 'Cambios de 2 puntos o más en las últimas 3 horas, según nuestras fotos de cada media hora.', ahoraMov,
+      (j) => `${Math.round(Math.abs(j.d3h) * 100)} pts hacia ${j.d3h > 0 ? nomLado(j, 'l') : nomLado(j, 'v')} en 3 horas`);
+    const tots = xs.filter((j) => j.dtot && Math.abs(j.dtot) >= (UMBRAL_TOT[j.deporte] || 99)).sort((a, b) => Math.abs(b.dtot) - Math.abs(a.dtot));
+    seccion('Totales que se movieron', 'El total sube cuando el mercado espera más puntos o goles (y baja con lesiones de anotadores, clima o ritmo lento).', tots,
+      (j) => `Total ${j.tot0} → ${j.tot} (${j.dtot > 0 ? 'sube' : 'baja'} ${Math.abs(j.dtot)})`);
+    if (!fuertes.length && !ahoraMov.length && !tots.length) caja.append(el('p', 'vacio', 'Nada se ha movido con fuerza en los juegos de hoy y mañana de este deporte.'));
+    const resto = xs.filter((j) => !j.fuerte && !j.reciente);
+    if (resto.length) caja.append(el('p', 'nota', `${resto.length} juegos más sin movimientos fuertes (su detalle está en la tarjeta de Análisis de cada juego).`));
+  };
+
   // ---------------------------------------------------------------- Picks
   const cuotaTxt = (d) => `${d.toFixed(2)} (${F.am(decAm(d))})`;
   const pintarPicks = () => {
@@ -843,6 +975,11 @@
       par('Valor', F.pcts(m.ev), 'pos');
       c.append(cifras);
       if (g.razon) c.append(el('p', 'pk-razon', g.razon));
+      const mk = mercadoDe(g.local, g.visita);
+      const cm = mercadoConPick(g, mk);
+      if (cm) c.append(el('p', 'pk-mercado ' + (cm === 'a favor' ? 'pos' : 'neg'), cm === 'a favor'
+        ? `Mercado a favor: se fue con ${nomLado(mk, mk.hacia)} desde la apertura.`
+        : `Mercado en contra: se fue con ${nomLado(mk, mk.hacia)} desde la apertura.`));
       const b = el('button', 'pk-ver', 'Ver el análisis del juego');
       b.type = 'button';
       b.addEventListener('click', () => abrirJuego(g.id));
@@ -1013,7 +1150,7 @@
   };
 
   // ---------------------------------------------------------------- Pestañas
-  const PESTANAS = ['picks', 'analisis', 'precios', 'historial', 'mas'];
+  const PESTANAS = ['picks', 'mercado', 'analisis', 'precios', 'historial', 'mas'];
   const tabVisible = (tab) => (tab === 'precios' ? !['MLB', 'LVBP'].includes(dep) : true);
   let tabActual = 'picks';
   const ajustarTabs = () => {
@@ -1119,6 +1256,7 @@
     pintarHistorial();
     pintarAnalisis();
     pintarPicks();
+    pintarMercado();
     pintarLigas();
     pintarRendimiento();
     pintarMotor();
@@ -1137,9 +1275,10 @@
   window.addEventListener('resize', () => { if (D && window.innerWidth !== ancho) { ancho = window.innerWidth; pintarRendimiento(); } });
 
   const leer = (u) => fetch(u, { cache: 'no-store' }).then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
-  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null), leer('datos/analisis.json').catch(() => null), leer('datos/motores_eeuu.json').catch(() => null), leer('datos/juegos_analisis.json').catch(() => null)])
-    .then(([doc, pos, fut, pre, an, me, ja]) => {
+  Promise.all([leer('datos/vitrina.json'), leer('datos/posiciones.json').catch(() => ({ ligas: [] })), leer('datos/futbol_dia.json').catch(() => null), leer('datos/precios.json').catch(() => null), leer('datos/analisis.json').catch(() => null), leer('datos/motores_eeuu.json').catch(() => null), leer('datos/juegos_analisis.json').catch(() => null), leer('datos/mercado.json').catch(() => null)])
+    .then(([doc, pos, fut, pre, an, me, ja, mk]) => {
       JA = ja;
+      MK = mk;
       AN = an;
       ME = me;
       FUT = fut;
