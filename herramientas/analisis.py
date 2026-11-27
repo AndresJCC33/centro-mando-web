@@ -68,6 +68,12 @@ ALIAS = {
     "Olympiakos Piraeus": "Olympiakos", "Olympiacos": "Olympiakos", "PAOK Thessaloniki": "PAOK",
     "Panathinaikos": "Panathinaikos", "AEK Athens": "AEK", "Celtic": "Celtic", "Rangers": "Rangers",
     "Club Brugge": "Club Brugge", "Galatasaray": "Galatasaray", "Fenerbahce": "Fenerbahce",
+    "Atletico Mineiro": "Atletico-MG", "Atlético Mineiro": "Atletico-MG", "Atletico Paranaense": "Athletico-PR",
+    "Athletico Paranaense": "Athletico-PR", "Austria Lustenau": "A. Lustenau", "Guadalajara": "Guadalajara Chivas",
+    "CD Guadalajara": "Guadalajara Chivas", "Leuven": "Oud-Heverlee Leuven", "OH Leuven": "Oud-Heverlee Leuven",
+    "Union Saint-Gilloise": "St. Gilloise", "Union St. Gilloise": "St. Gilloise", "Tokyo Verdy": "Verdy",
+    "Urawa Red Diamonds": "Urawa Reds", "West Bromwich Albion": "West Brom", "Sporting Gijón": "Sp Gijon",
+    "Sporting Gijon": "Sp Gijon", "Volos FC": "Volos NFC",
 }
 QUITAR = {"fc", "cf", "afc", "ac", "sc", "ssc", "as", "ud", "cd", "rc", "sv", "vfb", "vfl", "tsg", "bsc", "fsv",
           "club", "de", "the", "1", "calcio", "sk", "fk", "cp", "sad", "and", "hotspur"}
