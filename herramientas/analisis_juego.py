@@ -444,8 +444,9 @@ def ncaab(hoy):
         except Exception as e:  # noqa: BLE001
             AVISOS.append(f"NCAAB ratings: {e}")
     sal = []
+    ahora = datetime.now(timezone.utc)
     for j in me:
-        if j["inicio"][:10] not in dias:
+        if j["inicio"][:10] not in dias or datetime.fromisoformat(j["inicio"]) < ahora - timedelta(hours=3):
             continue
         il, iv = j.get("id_local"), j.get("id_visita")
         mu, tm = j["pts_local"] - j["pts_visita"], j["pts_local"] + j["pts_visita"]
@@ -459,7 +460,7 @@ def ncaab(hoy):
             es_l = lado["nombre"] == j["local"]
             pp = lado["p_final"]
             dec = (1 + lado["ventaja_final"]) / pp if pp else None
-            ap.append((f"{lado['nombre']}", "mejor casa", dec, pp, pm if es_l else 1 - pm, (pk if es_l else 1 - pk) if pk is not None else None))
+            ap.append((f"{lado['nombre']}", lado.get("casa") or "mejor casa", dec, pp, pm if es_l else 1 - pm, (pk if es_l else 1 - pk) if pk is not None else None))
         V = valor(ap)
         datos = []
         if len(ff) and il in ff.index and iv in ff.index:

@@ -248,7 +248,7 @@ def correr():
                     continue
                 dec = lado["mejor"] / 100 + 1 if lado["mejor"] > 0 else 100 / -lado["mejor"] + 1
                 lados.append({"nombre": lado["nombre"], "p_final": round(pp, 4), "ventaja_final": round(dec * pp - 1, 4),
-                              "tipo_precio": lado.get("tipo") or ""})
+                              "tipo_precio": lado.get("tipo") or "", "casa": lado.get("casa") or ""})
             j = dict(local=p["local"], visita=p["visita"], inicio=p["inicio"], p_motor=round(s["p_local"], 4),
                      p_mercado=None if pk is None else round(pk, 4), p_final=round(pf, 4) if pf is not None else None,
                      pts_local=round(s["pts_local"], 1), pts_visita=round(s["pts_visita"], 1), lados=lados,
