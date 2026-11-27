@@ -177,6 +177,25 @@ def nuestros_juegos():
     return xs
 
 
+def invertir(j):
+    """La página tiene local y visita al revés (cancha neutral): se voltea todo lo de este juego."""
+    sw = {"l": "v", "v": "l", "e": "e"}
+    j["local"], j["visita"], j["sl"], j["sv"] = j["visita"], j["local"], j["sv"], j["sl"]
+    for k in ("p0", "p"):
+        if j.get(k):
+            j[k] = {sw[x]: v for x, v in j[k].items()}
+    for k in ("hcp0", "hcp", "dhcp"):
+        if j.get(k) is not None:
+            j[k] = -j[k]
+    if j.get("hacia"):
+        j["hacia"] = sw[j["hacia"]]
+    if j.get("serie"):
+        j["serie"] = [round(1 - x, 4) for x in j["serie"]]
+    if j.get("d3h") is not None:
+        j["d3h"] = -j["d3h"]
+    j["invertido"] = True
+
+
 def unir(j, nuestros):
     ini = datetime.fromisoformat(j["inicio"].replace("Z", "+00:00"))
     mejor, puntos = None, 0.0
@@ -188,14 +207,32 @@ def unir(j, nuestros):
                 continue
         except ValueError:
             continue
-        s = min(_parecido(j["local"], l), _parecido(j["visita"], v))
-        if s > puntos:
-            mejor, puntos = (l, v), s
+        for inv, (a, b) in ((False, (l, v)), (True, (v, l))):
+            s = min(_parecido(j["local"], a), _parecido(j["visita"], b)) - (0.01 if inv else 0)
+            if s > puntos:
+                mejor, puntos = (l, v, inv), s
     return mejor if puntos >= 0.72 else None
 
 
 # ---------------------------------------------------------------- lectura del movimiento
+def _coherente(p, h):
+    if not p or h is None:
+        return True
+    return not ((p["l"] > 0.55 and h > 0.5) or (p["l"] < 0.45 and h < -0.5))
+
+
 def lectura(j):
+    # La apertura de ESPN a veces viene con local y visita cruzados entre el ganador y el hándicap.
+    # Si el favorito según el ganador no es el que da puntos en el hándicap, esa apertura no se usa.
+    if j["deporte"] != "Fútbol":
+        if not _coherente(j["p0"], j["hcp0"]):
+            j.update(p0=None, hcp0=None, tot0=None, apertura_dudosa=True)
+        if not _coherente(j["p"], j["hcp"]):
+            j["hcp"] = None
+    if j["hcp0"] is not None and j["hcp"] is not None and j["p0"] and j["p"]:
+        dl, dh = j["p"]["l"] - j["p0"]["l"], j["hcp"] - j["hcp0"]
+        if abs(dh) >= 3 and dl * -dh < 0:   # hándicap y ganador se movieron en sentidos opuestos: dato dudoso
+            j.update(hcp0=None, apertura_dudosa=True)
     nombres = {"l": j["local"], "v": j["visita"], "e": "el empate"}
     out = {"hacia": None, "dp": 0.0, "fuerte": False, "texto": "", "total": None}
     if j["p0"] and j["p"]:
@@ -214,6 +251,12 @@ def lectura(j):
     if j["tot0"] is not None and j["tot"] is not None and j["tot"] != j["tot0"]:
         out["total"] = "sube" if j["tot"] > j["tot0"] else "baja"
         out["dtot"] = round(j["tot"] - j["tot0"], 2)
+    if j["p0"] and j["p"]:  # quién era favorito y quién lo es ahora, según el ganador (más fiable que la marca de ESPN)
+        f0 = max(("l", "v"), key=lambda k: j["p0"][k])
+        f1 = max(("l", "v"), key=lambda k: j["p"][k])
+        j["volteo"] = f0 != f1 and abs(j["p"]["l"] - j["p"]["v"]) > 0.02
+    else:
+        j["volteo"] = False   # sin apertura fiable no se sabe quién era favorito
     if j["volteo"]:
         out["fuerte"] = True
     return out
@@ -267,7 +310,9 @@ def correr():
                 j["reciente"] = bool(j.get("d3h") is not None and abs(j["d3h"]) >= RECIENTE_P)
                 n = unir(j, nuestros)
                 if n:
-                    j["n_local"], j["n_visita"] = n
+                    if n[2]:
+                        invertir(j)
+                    j["n_local"], j["n_visita"] = n[0], n[1]
                 juegos.append(j)
     # fotos de juegos viejos fuera
     fotos = {k: v for k, v in fotos.items()
