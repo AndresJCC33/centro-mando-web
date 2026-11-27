@@ -1,11 +1,14 @@
 name: Mercado (hacia dónde se mueven las líneas)
-# Gratis: líneas de apertura y actuales del marcador público de ESPN, con una foto propia cada hora.
+# Gratis y sin créditos: líneas de apertura y actuales del marcador público de ESPN (DraftKings),
+# con una foto propia cada media hora para ver el movimiento reciente.
 on:
   workflow_dispatch:
     inputs:
       modo:
         description: "vacío = corrida normal; sondeo = ver qué trae la fuente"
         default: ""
+  schedule:
+    - cron: "20,50 * * * *"
 permissions:
   contents: write
 concurrency:
@@ -23,3 +26,13 @@ jobs:
       - run: pip install curl_cffi
       - name: Mercado
         run: python herramientas/mercado.py ${{ inputs.modo }}
+      - name: Publicar si cambió
+        if: ${{ inputs.modo != 'sondeo' }}
+        run: |
+          git config user.name "centro-mando-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add datos
+          if ! git diff --cached --quiet; then
+            git commit -q -m "Mercado al $(TZ=America/Caracas date '+%d-%b %H:%M')"
+            OK=0; for i in 1 2 3 4; do git pull -q --rebase --autostash origin main && git push -q && OK=1 && break; sleep $((i * 5)); done; [ $OK = 1 ]
+          fi
