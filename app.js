@@ -652,6 +652,8 @@
       q.append(fila);
     }
     if (g.tres) q.append(el('p', 'an-ley', `Azul ${g.local} · gris empate · rojo ${g.visita}`));
+    const mv = movimientoTxt(g.local, g.visita);
+    if (mv) q.append(el('p', 'an-mov ' + mv.c, mv.t));
     grid.append(q);
     // 2. hándicap (NBA/NFL) o goles (fútbol)
     const h = el('section', 'an-bloque');
@@ -725,6 +727,24 @@
       a.append(d);
     }
     return a;
+  };
+  // Movimiento de Pinnacle desde la primera foto (el dinero fuerte mueve esa línea)
+  const movimientoDe = (local, visita) => {
+    for (const l of (PR && PR.ligas) || []) {
+      const p = l.partidos.find((x) => x.local === local && x.visita === visita);
+      if (p) return p;
+    }
+    return null;
+  };
+  const movimientoTxt = (local, visita) => {
+    const p = movimientoDe(local, visita);
+    if (!p) return null;
+    const ls = p.lados.filter((l) => l.mov != null);
+    if (!ls.length) return null;
+    const desde = new Date(p.desde).toLocaleString('es-VE', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
+    const top = [...ls].sort((a, b) => b.mov - a.mov)[0];
+    if (top.mov < 0.015) return { t: `Mercado estable: Pinnacle casi no ha movido la línea (desde el ${desde})`, c: '' };
+    return { t: `El dinero fuerte va con ${top.nombre}: Pinnacle lo subió de ${pct0(top.p_apertura)} a ${pct0(top.p)} (desde el ${desde})`, c: 'sube' };
   };
   const hora_ = (iso) => new Date(iso).toLocaleString('es-VE', { weekday: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
   const BANDERA = { 'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'España': '🇪🇸', 'Alemania': '🇩🇪', 'Italia': '🇮🇹', 'Francia': '🇫🇷', 'Países Bajos': '🇳🇱',
@@ -946,6 +966,8 @@
       c.append(t);
       const fav = [...p.lados].sort((a, b) => b.p - a.p)[0];
       if (fav) c.append(el('div', 'detalle', `Pronóstico: ${fav.nombre === 'Empate' ? 'empate' : 'gana ' + fav.nombre} (${F.pct(fav.p)}).`));
+      const mv = movimientoTxt(p.local, p.visita);
+      if (mv) c.append(el('div', 'detalle an-mov ' + mv.c, mv.t));
       for (const l of p.lados.filter((x) => x.tipo)) c.append(el('div', 'detalle ' + (APOSTABLE.has(l.tipo) ? 'pos' : 'neg'), `${TIPO_PRE[l.tipo]}: ${l.nombre} ${F.am(l.mejor)} en ${l.casa}, ventaja ${F.pcts(l.ventaja)}${APOSTABLE.has(l.tipo) ? `; tómalo a ${F.am(minimaDe(l))} o mejor` : ' (batacazo: no se apuesta)'}.`));
       const an = p.dep_ === 'Fútbol' ? analisisFutbol(p.local, p.visita) : null;
       if (an) c.append(an);

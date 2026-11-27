@@ -363,3 +363,6 @@ h2.pk-tit { font: 800 1.6rem/1 "Big Shoulders Display", sans-serif; }
 .pk-de { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pk-de > div:first-child { font-weight: 700; }
 .pk-lista .vacio { padding: 0.75rem 0.9rem; margin: 0; }
+.an-mov { margin: 0.4rem 0 0; font-size: 0.85rem; color: var(--tinta-suave); }
+.an-mov.sube { color: #f9ab00; }
+.an-mov.sube::before { content: "↗ "; }

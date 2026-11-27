@@ -66,6 +66,10 @@ NO_BLANDAS = {"pinnacle", "everygame", "gtbets", "betfair_ex_eu", "betfair_ex_uk
 PROB_MIN = 0.45
 HORAS = 96
 HIST = os.path.join(DATOS, "precios_historial.json")
+# Movimiento del mercado: la primera probabilidad de Pinnacle que vimos de cada partido contra la de ahora.
+# Pinnacle mueve su línea cuando entra dinero fuerte (apostadores profesionales), así que el movimiento
+# es la mejor pista gratuita de hacia dónde va ese dinero.
+MOV = os.path.join(DATOS, "movimientos.json")
 SALIDA = os.path.join(DATOS, "precios.json")
 
 
@@ -209,6 +213,8 @@ def correr():
     ahora = datetime.now(timezone.utc)
     hist = leer(HIST, {"picks": []})
     picks = {p["id"]: p for p in hist["picks"]}
+    mov = leer(MOV, {})
+    mov = {k: v for k, v in mov.items() if datetime.fromisoformat(v["inicio"]) > ahora - timedelta(days=3)}
     ligas, creditos, avisos = [], None, []
     for k, (nombre, deporte, mercados) in LIGAS.items():
         try:
@@ -251,6 +257,15 @@ def correr():
                         picks[pid]["clv"] = round(picks[pid]["cuota_dec"] * l["p"] - 1, 4)
             if inicio > ahora + timedelta(hours=HORAS) or inicio <= ahora:
                 continue
+            m = mov.setdefault(e["id"], {"inicio": e["commence_time"], "t0": ahora.isoformat(timespec="minutes"),
+                                         "p0": {l["clave"]: l["p"] for l in a["lados"]}})
+            m["t"] = ahora.isoformat(timespec="minutes")
+            for l in a["lados"]:
+                p0 = m["p0"].get(l["clave"])
+                if p0 is not None and m["t0"] != m["t"]:
+                    l["p_apertura"] = p0
+                    l["mov"] = round(l["p"] - p0, 4)
+            a["desde"] = datetime.fromisoformat(m["t0"]).astimezone(CARACAS).isoformat(timespec="minutes")
             partidos.append(a)
             for l in a["lados"]:
                 pid = f"{e['id']}|{l['clave']}"
@@ -289,6 +304,8 @@ def correr():
                 p["marcador"] = marc
                 p["resultado"] = "GANADO" if g == p["clave"] else "PERDIDO"
                 p["unidades"] = round(p["cuota_dec"] - 1, 3) if p["resultado"] == "GANADO" else -1.0
+    with open(MOV, "w", encoding="utf-8") as f:
+        json.dump(mov, f, ensure_ascii=False, separators=(",", ":"))
     lista = sorted(picks.values(), key=lambda p: p["inicio"], reverse=True)
     with open(HIST, "w", encoding="utf-8") as f:
         json.dump({"picks": lista}, f, ensure_ascii=False, indent=0)
