@@ -1,6 +1,296 @@
 {
 "picks": [
 {
+"id": "F|SC Cambuur|Sparta Rotterdam|2026-11-28|SC Cambuur",
+"juego": "F|SC Cambuur|Sparta Rotterdam|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Países Bajos · Eredivisie",
+"inicio": "2026-11-28T16:00-04:00",
+"sin_hora": false,
+"partido": "Sparta Rotterdam @ SC Cambuur",
+"apuesta": "SC Cambuur",
+"casa": "1xBet",
+"cuota": 2.23,
+"p": 0.4715,
+"ev": 0.0514,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Cambuur",
+"Sparta Rotterdam",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Ipswich Town|Aston Villa|2026-11-28|Ipswich Town",
+"juego": "F|Ipswich Town|Aston Villa|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Inglaterra · Premier League",
+"inicio": "2026-11-28T13:30-04:00",
+"sin_hora": false,
+"partido": "Aston Villa @ Ipswich Town",
+"apuesta": "Ipswich Town",
+"casa": "Tipico",
+"cuota": 3.7,
+"p": 0.2865,
+"ev": 0.0601,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Ipswich",
+"Aston Villa",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Excelsior|SC Telstar|2026-11-28|SC Telstar",
+"juego": "F|Excelsior|SC Telstar|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Países Bajos · Eredivisie",
+"inicio": "2026-11-28T11:30-04:00",
+"sin_hora": false,
+"partido": "SC Telstar @ Excelsior",
+"apuesta": "SC Telstar",
+"casa": "Unibet (NL)",
+"cuota": 3.65,
+"p": 0.2841,
+"ev": 0.0369,
+"meta": {
+"m": "1x2",
+"lado": "v"
+},
+"res": [
+"F",
+"Excelsior",
+"Telstar",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Swindon Town|Chesterfield FC|2026-11-28|Swindon Town",
+"juego": "F|Swindon Town|Chesterfield FC|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Inglaterra · League Two",
+"inicio": "2026-11-28T11:00-04:00",
+"sin_hora": false,
+"partido": "Chesterfield FC @ Swindon Town",
+"apuesta": "Swindon Town",
+"casa": "Tipico",
+"cuota": 4.0,
+"p": 0.2578,
+"ev": 0.0311,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Swindon",
+"Chesterfield",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Colchester United|York City|2026-11-28|Colchester United",
+"juego": "F|Colchester United|York City|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Inglaterra · League Two",
+"inicio": "2026-11-28T11:00-04:00",
+"sin_hora": false,
+"partido": "York City @ Colchester United",
+"apuesta": "Colchester United",
+"casa": "Unibet (SE)",
+"cuota": 3.15,
+"p": 0.3394,
+"ev": 0.0691,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Colchester",
+"York",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|SC Paderborn|FC Schalke 04|2026-11-28|Empate",
+"juego": "F|SC Paderborn|FC Schalke 04|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Alemania · Bundesliga",
+"inicio": "2026-11-28T10:30-04:00",
+"sin_hora": false,
+"partido": "FC Schalke 04 @ SC Paderborn",
+"apuesta": "Empate",
+"casa": "1xBet",
+"cuota": 3.7,
+"p": 0.2866,
+"ev": 0.0603,
+"meta": {
+"m": "1x2",
+"lado": "e"
+},
+"res": [
+"F",
+"Paderborn",
+"Schalke 04",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Las Palmas|Andorra CF|2026-11-28|Las Palmas",
+"juego": "F|Las Palmas|Andorra CF|2026-11-28",
+"deporte": "Fútbol",
+"liga": "España · LaLiga 2",
+"inicio": "2026-11-28T09:00-04:00",
+"sin_hora": false,
+"partido": "Andorra CF @ Las Palmas",
+"apuesta": "Las Palmas",
+"casa": "Unibet (SE)",
+"cuota": 2.16,
+"p": 0.4811,
+"ev": 0.0391,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Las Palmas",
+"Andorra",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Holstein Kiel|1. FC Kaiserslautern|2026-11-28|Empate",
+"juego": "F|Holstein Kiel|1. FC Kaiserslautern|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Alemania · 2. Bundesliga",
+"inicio": "2026-11-28T08:00-04:00",
+"sin_hora": false,
+"partido": "1. FC Kaiserslautern @ Holstein Kiel",
+"apuesta": "Empate",
+"casa": "Unibet (SE)",
+"cuota": 3.65,
+"p": 0.2825,
+"ev": 0.0312,
+"meta": {
+"m": "1x2",
+"lado": "e"
+},
+"res": [
+"F",
+"Holstein Kiel",
+"Kaiserslautern",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Dynamo Dresden|FC St. Pauli|2026-11-28|Dynamo Dresden",
+"juego": "F|Dynamo Dresden|FC St. Pauli|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Alemania · 2. Bundesliga",
+"inicio": "2026-11-28T08:00-04:00",
+"sin_hora": false,
+"partido": "FC St. Pauli @ Dynamo Dresden",
+"apuesta": "Dynamo Dresden",
+"casa": "Tipico",
+"cuota": 2.8,
+"p": 0.3715,
+"ev": 0.0401,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Dresden",
+"St Pauli",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "NCAAB|UC Davis|Pacific|2026-11-27|UC Davis Aggies",
+"juego": "NCAAB|UC Davis|Pacific|2026-11-27",
+"deporte": "NCAAB",
+"liga": "NCAAB",
+"inicio": "2026-11-27T21:00-04:00",
+"sin_hora": false,
+"partido": "Pacific Tigers @ UC Davis Aggies",
+"apuesta": "UC Davis Aggies",
+"casa": "Unibet (SE)",
+"cuota": 3.6,
+"p": 0.3002,
+"ev": 0.0807,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NCAAB",
+"302",
+"279",
+"2026-11-27"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
 "id": "NFL|PIT|DEN|2026-11-27|PIT moneyline",
 "juego": "NFL|PIT|DEN|2026-11-27",
 "deporte": "NFL",
@@ -57,6 +347,93 @@
 "marcador": null,
 "guardado": "2026-11-27T01:03+00:00",
 "actualizado": "2026-11-27T03:44+00:00"
+},
+{
+"id": "F|Venezia|Bologna|2026-11-27|Bologna",
+"juego": "F|Venezia|Bologna|2026-11-27",
+"deporte": "Fútbol",
+"liga": "Italia · Serie A",
+"inicio": "2026-11-27T15:45-04:00",
+"sin_hora": false,
+"partido": "Bologna @ Venezia",
+"apuesta": "Bologna",
+"casa": "Coolbet",
+"cuota": 2.5,
+"p": 0.4154,
+"ev": 0.0384,
+"meta": {
+"m": "1x2",
+"lado": "v"
+},
+"res": [
+"F",
+"Venezia",
+"Bologna",
+"2026-11-27"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "F|Brest|Paris FC|2026-11-27|Brest",
+"juego": "F|Brest|Paris FC|2026-11-27",
+"deporte": "Fútbol",
+"liga": "Francia · Ligue 1",
+"inicio": "2026-11-27T15:45-04:00",
+"sin_hora": false,
+"partido": "Paris FC @ Brest",
+"apuesta": "Brest",
+"casa": "Coolbet",
+"cuota": 3.66,
+"p": 0.2888,
+"ev": 0.0572,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Brest",
+"Paris FC",
+"2026-11-27"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
+},
+{
+"id": "NCAAB|Merrimack|Vermont|2026-11-27|Vermont Catamounts",
+"juego": "NCAAB|Merrimack|Vermont|2026-11-27",
+"deporte": "NCAAB",
+"liga": "NCAAB",
+"inicio": "2026-11-27T14:00-04:00",
+"sin_hora": false,
+"partido": "Vermont Catamounts @ Merrimack Warriors",
+"apuesta": "Vermont Catamounts",
+"casa": "1xBet",
+"cuota": 1.69,
+"p": 0.6163,
+"ev": 0.0414,
+"meta": {
+"m": "ml",
+"lado": "v"
+},
+"res": [
+"NCAAB",
+"2771",
+"261",
+"2026-11-27"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T14:41+00:00",
+"actualizado": "2026-11-27T14:41+00:00"
 },
 {
 "id": "NCAAB|Louisville|St. John's Red|2026-11-26|Louisville Cardinals",
