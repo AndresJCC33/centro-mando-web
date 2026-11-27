@@ -642,7 +642,7 @@
     const notas = [];
     if (j.volteo) notas.push('Cambió el favorito desde la apertura.');
     if (j.reciente) notas.push(`En las últimas 3 horas se movió ${Math.round(Math.abs(j.d3h) * 100)} pts hacia ${j.d3h > 0 ? nomLado(j, 'l') : nomLado(j, 'v')}.`);
-    if (g) {
+    if (g && g.apostar) {
       const c = mercadoConPick(g, j);
       if (c) notas.push(c === 'a favor' ? `El mercado va a favor del pick (${g.mejor.apuesta}): buena señal.` : `Ojo: el mercado va en contra del pick (${g.mejor.apuesta}).`);
     }

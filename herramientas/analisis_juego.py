@@ -637,7 +637,7 @@ def _razon(m, apostar, futbol=False):
     if futbol and m["p"] < 0.25:
         return "llega a 3 % pero es un batacazo (menos de 25 %): no se apuesta"
     if m.get("lejos"):
-        return "el motor se separa más de 20 puntos del mercado: dato dudoso, no se apuesta"
+        return "el motor se separa demasiado del mercado (casi siempre una lesión o noticia que no ve): no se apuesta"
     if not m["motor_ok"]:
         return "llega a 3 % solo por la cuota: el motor no respalda ese lado"
     return ""
@@ -679,7 +679,7 @@ def _tarjeta(dep, liga, p, l, v, pk, motores, pfin, MARG, TOT, hcp, lt, V, acuer
     ml, tm = float(np.mean(MARG)), float(np.mean(TOT))
     pl_, pv_ = (tm + ml) / 2, (tm - ml) / 2
     t = {"linea": lt, "over": round(float((TOT > lt).mean()), 4), "under": round(float((TOT < lt).mean()), 4)} if lt else {}
-    rango = {"NFL": (3, (12, 84)), "NCAAF": (3, (10, 100)), "NBA": (4, (170, 280)), "NCAAB": (3, (100, 190)), "LVBP": (1, (0, 30))}[dep]
+    rango = {"NFL": (3, (12, 84)), "NCAAF": (3, (12, 90)), "NBA": (4, (170, 280)), "NCAAB": (3, (100, 190)), "LVBP": (1, (0, 30))}[dep]
     t["hist"] = hist(TOT, rango[0], rango[1])
     pocas = [f"Gana {fav} con {pf:.0%}" + (f" (mercado {max(pk, 1 - pk):.0%}, motores {max(pmot, 1 - pmot):.0%})." if pk is not None else ".")]
     if hcp is not None:
