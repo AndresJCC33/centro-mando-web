@@ -17,6 +17,14 @@ from actualizar import bajar, CARACAS, DATOS  # noqa: E402
 ESPN = "https://site.api.espn.com/apis/site/v2/sports"
 
 
+def _limpio(x):
+    if isinstance(x, dict):
+        return {k: _limpio(v) for k, v in x.items() if k not in ("link", "logos", "team", "tracking", "links")}
+    if isinstance(x, list):
+        return [_limpio(v) for v in x]
+    return x
+
+
 def sondeo():
     hoy = datetime.now(CARACAS)
     for ruta in ("basketball/nba", "football/nfl", "football/college-football", "basketball/mens-college-basketball",
@@ -31,8 +39,8 @@ def sondeo():
             evs = d.get("events", [])
             con = [e for e in evs if e["competitions"][0].get("odds")]
             print(ruta, f, len(evs), "juegos,", len(con), "con cuotas")
-            if con and k == 1 or (con and ruta in ("soccer/eng.2",)):
-                print(json.dumps(con[0]["competitions"][0]["odds"][0], ensure_ascii=False)[:1500])
+            if con and (k == 1 or ruta.startswith("soccer")):
+                print(json.dumps(_limpio(con[0]["competitions"][0]["odds"]), ensure_ascii=False)[:2500])
 
 
 if __name__ == "__main__":
