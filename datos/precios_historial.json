@@ -19,7 +19,56 @@
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-26T10:41-04:00",
 "p_cierre": 0.2892,
-"clv": 0.0557,
+"clv": 0.0556,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null,
+"foto_cierre": "2026-11-26T21:01-04:00"
+},
+{
+"id": "d0b3104f6b235f9a40a98879fffefb93|Coritiba",
+"evento": "d0b3104f6b235f9a40a98879fffefb93",
+"deporte_api": "soccer_brazil_campeonato",
+"liga": "Brasil · Serie A",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T15:00-04:00",
+"partido": "Coritiba vs Flamengo",
+"seleccion": "Coritiba",
+"clave": "Coritiba",
+"cuota": 364,
+"cuota_dec": 4.639,
+"casa": "1xBet",
+"p_justa": 0.2265,
+"ventaja": 0.0508,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-26T21:01-04:00",
+"p_cierre": 0.2265,
+"clv": 0.0508,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+},
+{
+"id": "630736ab8e87597d5ac6e58133d7f7d0|Standard Liege",
+"evento": "630736ab8e87597d5ac6e58133d7f7d0",
+"deporte_api": "soccer_belgium_first_div",
+"liga": "Bélgica · Pro League",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T13:30-04:00",
+"partido": "Standard Liege vs Club Brugge",
+"seleccion": "Standard Liege",
+"clave": "Standard Liege",
+"cuota": 480,
+"cuota_dec": 5.8,
+"casa": "Unibet (SE)",
+"p_justa": 0.1801,
+"ventaja": 0.0446,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-26T21:01-04:00",
+"p_cierre": 0.1801,
+"clv": 0.0446,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null
@@ -47,7 +96,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Draw",
@@ -67,12 +116,12 @@
 "ventaja": 0.0691,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.1184,
-"clv": -0.0292,
+"p_cierre": 0.1181,
+"clv": -0.0317,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Monza",
@@ -92,12 +141,12 @@
 "ventaja": 0.2462,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.073,
-"clv": 0.0947,
+"p_cierre": 0.0731,
+"clv": 0.0962,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "523fa336e1cf685100957e5e6359fc4c|FC Zwolle",
@@ -122,7 +171,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "69fc06d019491be2aa1bf69b8f8041e3|Deportivo La Coruña",
@@ -147,7 +196,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "f745c0453880329819da1ecfde118f1c|Draw",
@@ -168,10 +217,11 @@
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-26T10:41-04:00",
 "p_cierre": 0.2951,
-"clv": 0.0327,
+"clv": 0.0326,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "09bb0ba9a9025d64fed410375c0c8f80|Draw",
@@ -191,12 +241,12 @@
 "ventaja": 0.0405,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2824,
-"clv": 0.0364,
+"p_cierre": 0.2818,
+"clv": 0.0342,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "3c54622721e80cdfbb954b810a125a04|Draw",
@@ -216,12 +266,12 @@
 "ventaja": 0.0352,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.2724,
-"clv": 0.0351,
+"p_cierre": 0.272,
+"clv": 0.0336,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "f45e9062c2f755b977c98d496c22697b|Draw",
@@ -241,12 +291,36 @@
 "ventaja": 0.0553,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2495,
-"clv": 0.013,
+"p_cierre": 0.2513,
+"clv": 0.0203,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
+},
+{
+"id": "bcf1bfc44adf70bf134bd132c4a5ba87|Cardiff City",
+"evento": "bcf1bfc44adf70bf134bd132c4a5ba87",
+"deporte_api": "soccer_efl_champ",
+"liga": "Inglaterra · Championship",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T08:00-04:00",
+"partido": "Swansea City vs Cardiff City",
+"seleccion": "Cardiff City",
+"clave": "Cardiff City",
+"cuota": 255,
+"cuota_dec": 3.55,
+"casa": "LeoVegas (SE)",
+"p_justa": 0.2998,
+"ventaja": 0.0644,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-26T21:01-04:00",
+"p_cierre": 0.2998,
+"clv": 0.0644,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
 },
 {
 "id": "d77c244bd9dd91534c40b863e44cf905|ADO Den Haag",
@@ -266,12 +340,12 @@
 "ventaja": 0.0363,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.3545,
-"clv": 0.021,
+"p_cierre": 0.3597,
+"clv": 0.0359,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "c99772cba1418e72f2eded26e4afeb59|Alavés",
@@ -296,7 +370,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "708641646f92ec14288beaaf1154e996|SC Cambuur",
@@ -316,12 +390,12 @@
 "ventaja": 0.0369,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.4468,
-"clv": 0.0366,
+"p_cierre": 0.4559,
+"clv": 0.0577,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "f96c1137c9d3f7e2e691275a2988fa1d|Draw",
@@ -346,7 +420,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "12002f6f804a122db48271ff05be03c0|Lorient",
@@ -371,7 +445,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "aaa86a483888836242da663a46957894|Draw",
@@ -396,7 +470,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "8031222f3f3e8384a69c0ca5e1166458|Go Ahead Eagles",
@@ -416,12 +490,12 @@
 "ventaja": 0.261,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.0859,
-"clv": -0.0126,
+"p_cierre": 0.0884,
+"clv": 0.0162,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "5d838190a8f5932d7fcfbcc26bacdd9c|Eintracht Frankfurt",
@@ -441,12 +515,12 @@
 "ventaja": 0.0458,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2484,
-"clv": 0.0333,
+"p_cierre": 0.2483,
+"clv": 0.0329,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "365e1a00908ab1cd5a51a53ede2b86b2|Union Berlin",
@@ -471,7 +545,31 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
+},
+{
+"id": "f84a9da7eedd0ca11a28a1a7a8edddc7|FC Schalke 04",
+"evento": "f84a9da7eedd0ca11a28a1a7a8edddc7",
+"deporte_api": "soccer_germany_bundesliga",
+"liga": "Alemania · Bundesliga",
+"deporte": "Fútbol",
+"fecha": "2026-11-28",
+"inicio": "2026-11-28T10:30-04:00",
+"partido": "SC Paderborn vs FC Schalke 04",
+"seleccion": "FC Schalke 04",
+"clave": "FC Schalke 04",
+"cuota": 195,
+"cuota_dec": 2.95,
+"casa": "Unibet (SE)",
+"p_justa": 0.3535,
+"ventaja": 0.0427,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-26T21:01-04:00",
+"p_cierre": 0.3535,
+"clv": 0.0427,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
 },
 {
 "id": "af3432ca724da03d38f0ff4e62045e4c|Parma",
@@ -496,7 +594,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "c81520b9a9794749cfdab57f89bdeb16|Rayo Vallecano",
@@ -521,7 +619,79 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
+},
+{
+"id": "a1d96ec37a8b7022ef39a7755a655243|Charlton Athletic",
+"evento": "a1d96ec37a8b7022ef39a7755a655243",
+"deporte_api": "soccer_efl_champ",
+"liga": "Inglaterra · Championship",
+"deporte": "Fútbol",
+"fecha": "2026-11-28",
+"inicio": "2026-11-28T08:30-04:00",
+"partido": "Blackburn Rovers vs Charlton Athletic",
+"seleccion": "Charlton Athletic",
+"clave": "Charlton Athletic",
+"cuota": 310,
+"cuota_dec": 4.099,
+"casa": "LeoVegas (SE)",
+"p_justa": 0.2628,
+"ventaja": 0.0773,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-26T21:01-04:00",
+"p_cierre": 0.2628,
+"clv": 0.0773,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+},
+{
+"id": "d2bc2d3b4a81177cb6b86f4add6ff81f|Wolverhampton Wanderers",
+"evento": "d2bc2d3b4a81177cb6b86f4add6ff81f",
+"deporte_api": "soccer_efl_champ",
+"liga": "Inglaterra · Championship",
+"deporte": "Fútbol",
+"fecha": "2026-11-28",
+"inicio": "2026-11-28T08:30-04:00",
+"partido": "Lincoln City vs Wolverhampton Wanderers",
+"seleccion": "Wolverhampton Wanderers",
+"clave": "Wolverhampton Wanderers",
+"cuota": -152,
+"cuota_dec": 1.66,
+"casa": "LeoVegas (SE)",
+"p_justa": 0.6285,
+"ventaja": 0.0434,
+"tipo": "PICK CONFIABLE",
+"detectado": "2026-11-26T21:01-04:00",
+"p_cierre": 0.6285,
+"clv": 0.0434,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+},
+{
+"id": "7172e7dc52a9e11f4db549b97e0694a5|JEF United Chiba",
+"evento": "7172e7dc52a9e11f4db549b97e0694a5",
+"deporte_api": "soccer_japan_j_league",
+"liga": "Japón · J1 League",
+"deporte": "Fútbol",
+"fecha": "2026-11-28",
+"inicio": "2026-11-28T02:00-04:00",
+"partido": "Vissel Kobe vs JEF United Chiba",
+"seleccion": "JEF United Chiba",
+"clave": "JEF United Chiba",
+"cuota": 480,
+"cuota_dec": 5.801,
+"casa": "Unibet (SE)",
+"p_justa": 0.1828,
+"ventaja": 0.0604,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-26T21:01-04:00",
+"p_cierre": 0.1828,
+"clv": 0.0604,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
 },
 {
 "id": "40d95e660c301c2d8a5a7a6317017b65|Draw",
@@ -541,12 +711,12 @@
 "ventaja": 0.0508,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2856,
-"clv": 0.0653,
+"p_cierre": 0.2862,
+"clv": 0.0675,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "02ff879cf54f6d1fec2664efee0431db|Draw",
@@ -571,7 +741,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "e9a663f13e7503c0ac20a54804338b60|Draw",
@@ -591,12 +761,12 @@
 "ventaja": 0.032,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.2964,
-"clv": 0.0611,
+"p_cierre": 0.2956,
+"clv": 0.0582,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "7aa2e13c09deb4fbd70e62312e82a514|Willem II",
@@ -616,12 +786,12 @@
 "ventaja": 0.1175,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.1398,
-"clv": 0.0485,
+"p_cierre": 0.1333,
+"clv": -0.0002,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T10:41-04:00"
+"foto_cierre": "2026-11-26T21:01-04:00"
 },
 {
 "id": "87fec8c093d5b8f825bc61121105cc27|Stanford Cardinal",
