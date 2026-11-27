@@ -326,3 +326,38 @@ body[data-dep="Todos"] .cancha-fondo, body[data-dep="Fútbol"] .cancha-fondo { b
 .an-ev b { white-space: nowrap; }
 .an-ev b.casi { color: #f9ab00; }
 @media (max-width: 560px) { .an-ev { grid-template-columns: minmax(0, 1fr) 4.2rem; } }
+
+/* Días apilados en Análisis */
+.an-dia { display: flex; align-items: baseline; gap: 0.8rem; margin: 1.4rem 0 0.6rem; font: 800 1.6rem/1 "Big Shoulders Display", sans-serif; letter-spacing: 0.01em; }
+.an-dia:first-child { margin-top: 0.4rem; }
+.an-dia-n { font: 500 0.85rem/1.2 "Public Sans", sans-serif; color: var(--tinta-suave); }
+#an-dias:empty { display: none; }
+
+/* Pestaña Picks */
+#picks { padding-top: 0.6rem; }
+.pk-tit { margin: 1.2rem 0 0.7rem; }
+h2.pk-tit { font: 800 1.6rem/1 "Big Shoulders Display", sans-serif; }
+#pk-ahora { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr)); gap: 0.8rem; }
+#pk-ahora > h2, #pk-ahora > .vacio { grid-column: 1 / -1; margin-bottom: 0; }
+.pk { background: var(--panel); border: 1px solid var(--linea); border-left: 3px solid var(--gana); border-radius: 12px; padding: 0.9rem 1rem; display: grid; gap: 0.45rem; align-content: start; }
+.pk-cab { display: flex; justify-content: space-between; gap: 0.6rem; color: var(--tinta-suave); font-size: 0.82rem; }
+.pk-partido { font-weight: 600; }
+.pk-sel { font: 800 1.9rem/1 "Big Shoulders Display", sans-serif; color: var(--gana); }
+.pk-cifras { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem 0.9rem; margin: 0.2rem 0 0; }
+.pk-cifras dt { font-size: 0.75rem; color: var(--tinta-suave); }
+.pk-cifras dd { margin: 0.1rem 0 0; font-weight: 600; font-variant-numeric: tabular-nums; }
+.pk-cifras .pos dd { color: var(--gana); }
+.pk-razon { margin: 0; font-size: 0.85rem; color: var(--tinta-suave); }
+.pk-ver { justify-self: start; margin-top: 0.2rem; background: transparent; color: var(--tinta); border: 1px solid #2c3039; border-radius: 999px; padding: 0.35rem 0.8rem; font: inherit; font-size: 0.85rem; cursor: pointer; }
+.pk-ver:hover { border-color: var(--tinta-suave); }
+.pk-ver:focus-visible { outline: 2px solid var(--acento); outline-offset: 2px; }
+.pk-record { font-weight: 600; margin: 0 0 0.6rem; }
+.pk-lista { border: 1px solid var(--linea); border-radius: 12px; overflow: hidden; background: var(--panel); }
+.pk-fila { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0.8rem; align-items: center; padding: 0.65rem 0.9rem; }
+.pk-fila + .pk-fila { border-top: 1px solid var(--linea); }
+.pk-f1 { font-weight: 600; }
+.pk-f2 { font-size: 0.8rem; color: var(--tinta-suave); }
+.pk-f2.pos { color: var(--gana); } .pk-f2.neg { color: var(--pierde); }
+.pk-de { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pk-de > div:first-child { font-weight: 700; }
+.pk-lista .vacio { padding: 0.75rem 0.9rem; margin: 0; }

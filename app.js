@@ -732,6 +732,7 @@
   const bandera = (liga) => BANDERA[liga.split(' · ')[0]] || BANDERA[liga] || '';
   const filaJuego = (g) => {
     const d = el('details', 'an-juego' + (g.apostar ? ' verde' : ''));
+    d.dataset.id = g.id;
     const s = el('summary', 'an-row');
     s.append(el('span', 'an-hora', g.sin_hora ? '—' : new Date(g.inicio).toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'America/Caracas' })));
     const eq = el('span', 'an-equipos');
@@ -748,45 +749,132 @@
   const pintarAnalisis = () => {
     const caja = $('#an-juegos');
     caja.replaceChildren();
-    const chips = $('#an-dias');
-    chips.replaceChildren();
+    $('#an-dias').replaceChildren();
     if (!JA || !JA.juegos) { caja.append(el('p', 'vacio', 'Todavía no hay análisis cargados.')); return; }
-    const delDep = JA.juegos.filter((g) => dep === 'Todos' || g.deporte === dep);
-    const dias = [...new Set(JA.juegos.map((g) => String(g.inicio).slice(0, 10)))].sort();
-    if (!anDia || !dias.includes(anDia)) anDia = dias.includes(hoy()) && JA.juegos.some((g) => String(g.inicio).slice(0, 10) === hoy() && new Date(g.inicio) > new Date(Date.now() - 3 * 3600e3)) ? hoy() : dias[dias.length - 1];
-    for (const d of dias) {
-      const n = delDep.filter((g) => String(g.inicio).slice(0, 10) === d).length;
-      const b = el('button', '', `${d === hoy() ? 'Hoy' : F.dia(d)} · ${n}`);
-      b.type = 'button';
-      b.setAttribute('aria-pressed', String(d === anDia));
-      b.addEventListener('click', () => { anDia = d; pintarAnalisis(); });
-      chips.append(b);
-    }
+    const xs = JA.juegos.filter((g) => dep === 'Todos' || g.deporte === dep);
     $('#an-nota').textContent = `Actualizado ${JA.generado.slice(11, 16)}. Toca un juego para ver su análisis. «Apostar» solo cuando el valor esperado llega a 3 % y el motor respalda ese lado.`;
-    const xs = delDep.filter((g) => String(g.inicio).slice(0, 10) === anDia);
     if (!xs.length) {
       caja.append(el('p', 'vacio', ['NBA', 'NFL', 'Fútbol', 'LVBP', 'NCAAB', 'Todos'].includes(dep)
-        ? 'No hay juegos analizados para este día. Los de NBA y LVBP aparecen cuando corren sus motores con la cartelera (desde las 10:30 am).'
+        ? 'No hay juegos analizados de este deporte para hoy ni mañana. Los de NBA y LVBP aparecen cuando corren sus motores con la cartelera (desde las 10:30 am).'
         : 'El análisis por juego está disponible para NBA, NFL, NCAAB, LVBP y fútbol de las ligas principales.'));
+      $('#titular').textContent = 'Sin juegos analizados';
+      $('#bajada').textContent = '';
       return;
     }
-    const ligas = new Map();
-    for (const g of xs) { if (!ligas.has(g.liga)) ligas.set(g.liga, []); ligas.get(g.liga).push(g); }
-    const orden = [...ligas.keys()].sort((a, b) => (ligas.get(b).some((g) => g.apostar) - ligas.get(a).some((g) => g.apostar)) || a.localeCompare(b, 'es'));
-    for (const liga of orden) {
-      const grupo = el('section', 'an-grupo');
-      const cab = el('h3', 'an-grupo-cab');
-      cab.append(el('span', 'an-bandera', bandera(liga)), el('span', '', liga), el('span', 'an-n', String(ligas.get(liga).length)));
-      grupo.append(cab);
-      for (const g of ligas.get(liga)) grupo.append(filaJuego(g));
-      caja.append(grupo);
+    // todos los días, uno debajo del otro (hoy primero), y dentro de cada día por liga
+    const dias = [...new Set(xs.map((g) => String(g.inicio).slice(0, 10)))].sort();
+    const manana = new Date(Date.parse(hoy() + 'T12:00:00Z') + 864e5).toISOString().slice(0, 10);
+    for (const dia of dias) {
+      const delDia = xs.filter((g) => String(g.inicio).slice(0, 10) === dia);
+      const cabDia = el('h2', 'an-dia');
+      cabDia.append(el('span', '', dia === hoy() ? 'Hoy' : dia === manana ? 'Mañana' : F.dia(dia)),
+        el('span', 'an-dia-n', `${delDia.length} juego${delDia.length === 1 ? '' : 's'}${delDia.some((g) => g.apostar) ? ` · ${delDia.filter((g) => g.apostar).length} para apostar` : ''}`));
+      caja.append(cabDia);
+      const ligas = new Map();
+      for (const g of delDia) { if (!ligas.has(g.liga)) ligas.set(g.liga, []); ligas.get(g.liga).push(g); }
+      const orden = [...ligas.keys()].sort((a, b) => (ligas.get(b).some((g) => g.apostar) - ligas.get(a).some((g) => g.apostar)) || a.localeCompare(b, 'es'));
+      for (const liga of orden) {
+        const grupo = el('section', 'an-grupo');
+        const cab = el('h3', 'an-grupo-cab');
+        cab.append(el('span', 'an-bandera', bandera(liga)), el('span', '', liga), el('span', 'an-n', String(ligas.get(liga).length)));
+        grupo.append(cab);
+        for (const g of ligas.get(liga)) grupo.append(filaJuego(g));
+        caja.append(grupo);
+      }
     }
     const verdes = xs.filter((g) => g.apostar);
-    {
-      $('#titular').textContent = `${xs.length} juego${xs.length === 1 ? '' : 's'} analizado${xs.length === 1 ? '' : 's'}${anDia === hoy() ? ' hoy' : ''}`;
-      $('#bajada').textContent = verdes.length ? `${verdes.length} con valor para apostar: ${verdes.map((g) => g.mejor.apuesta).join(', ')}.` : 'Ninguno llega todavía a 3 % de valor con el respaldo del motor.';
+    $('#titular').textContent = `${xs.length} juego${xs.length === 1 ? '' : 's'} analizado${xs.length === 1 ? '' : 's'} hoy y mañana`;
+    $('#bajada').textContent = verdes.length ? `${verdes.length} con valor para apostar: ${verdes.map((g) => g.mejor.apuesta).join(', ')}. Están juntos en la pestaña Picks.` : 'Ninguno llega todavía a 3 % de valor con el respaldo del motor.';
+  };
+  const abrirJuego = (id) => {
+    mostrar('analisis');
+    const d = [...document.querySelectorAll('#an-juegos .an-juego')].find((x) => x.dataset.id === id);
+    if (!d) return;
+    d.open = true;
+    d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  // ---------------------------------------------------------------- Picks
+  const cuotaTxt = (d) => `${d.toFixed(2)} (${F.am(decAm(d))})`;
+  const pintarPicks = () => {
+    const ahora = new Date();
+    const delDep = (x) => dep === 'Todos' || x.deporte === dep;
+    const yaEmpezo = (g) => (g.sin_hora ? new Date(String(g.inicio).slice(0, 10) + 'T23:59:00-04:00') : new Date(g.inicio)) < ahora;
+    // 1. picks del análisis (motor + mercado), los que todavía no empiezan
+    const caja = $('#pk-ahora');
+    caja.replaceChildren();
+    const verdes = (JA && JA.juegos ? JA.juegos : []).filter((g) => g.apostar && g.mejor && delDep(g) && !yaEmpezo(g));
+    caja.append(el('h2', 'pk-tit', verdes.length ? `Para apostar · ${verdes.length}` : 'Para apostar'));
+    if (!verdes.length) caja.append(el('p', 'vacio', 'Ningún juego llega ahora a 3 % de valor con el respaldo del motor. Se revisa cada hora.'));
+    for (const g of verdes) {
+      const m = g.mejor;
+      const c = el('article', 'pk');
+      const cab = el('div', 'pk-cab');
+      cab.append(el('span', '', `${bandera(g.liga)} ${g.liga}`), el('span', '', g.sin_hora ? F.dia(String(g.inicio).slice(0, 10)) : hora_(g.inicio)));
+      c.append(cab);
+      c.append(el('div', 'pk-partido', `${g.visita} @ ${g.local}`));
+      c.append(el('div', 'pk-sel', m.apuesta));
+      const cifras = el('dl', 'pk-cifras');
+      const par = (k, v, cl = '') => { const w = el('div', cl); w.append(el('dt', '', k), el('dd', '', v)); cifras.append(w); };
+      par('Cuota', `${cuotaTxt(m.cuota)} · ${m.casa}`);
+      par('Tómala hasta', cuotaTxt(1.03 / m.p));
+      par('Probabilidad', F.pct(m.p));
+      par('Valor', F.pcts(m.ev), 'pos');
+      c.append(cifras);
+      if (g.razon) c.append(el('p', 'pk-razon', g.razon));
+      const b = el('button', 'pk-ver', 'Ver el análisis del juego');
+      b.type = 'button';
+      b.addEventListener('click', () => abrirJuego(g.id));
+      c.append(b);
+      caja.append(c);
     }
-    if (verdes.length === 1) caja.querySelector('.an-juego.verde').open = true;
+    // 2. picks solo por precio (vigilante) que no estén ya arriba
+    const cp = $('#pk-precio');
+    cp.replaceChildren();
+    const tomados = new Set(verdes.map((g) => `${g.local}|${g.visita}`));
+    const porPrecio = ligasPrecio().flatMap((l) => l.partidos.filter((p) => new Date(p.inicio) > ahora && !tomados.has(`${p.local}|${p.visita}`))
+      .flatMap((p) => p.lados.filter((x) => APOSTABLE.has(x.tipo)).map((x) => ({ ...x, p_: p, liga: l.nombre }))));
+    if (porPrecio.length) {
+      cp.append(el('h3', 'pk-tit', `Solo por precio · ${porPrecio.length}`));
+      cp.append(el('p', 'nota', 'Aquí el motor no respalda ese lado (o no tiene modelo para esa liga): la ventaja sale solo de comparar la mejor cuota con el precio justo de Pinnacle. Más cautela con estos.'));
+      const lista = el('div', 'pk-lista');
+      for (const l of porPrecio.sort((a, b) => a.p_.inicio.localeCompare(b.p_.inicio))) {
+        const f = el('div', 'pk-fila');
+        const iz = el('div', '');
+        iz.append(el('div', 'pk-f1', `${l.nombre} · ${F.am(l.mejor)} en ${l.casa}`), el('div', 'pk-f2', `${l.p_.local} vs ${l.p_.visita} · ${l.liga} · ${hora(l.p_.inicio)}`));
+        const de = el('div', 'pk-de');
+        de.append(el('div', 'pos', F.pcts(l.ventaja)), el('div', 'pk-f2', `hasta ${F.am(minimaDe(l))} · ${F.pct(l.p)}`));
+        f.append(iz, de);
+        lista.append(f);
+      }
+      cp.append(lista);
+    }
+    // 3. resultados
+    const H = (JA && JA.picks ? JA.picks : []).filter(delDep);
+    const liq = H.filter((x) => ['GANADO', 'PERDIDO', 'PUSH'].includes(x.resultado));
+    const g_ = liq.filter((x) => x.resultado === 'GANADO').length;
+    const p_ = liq.filter((x) => x.resultado === 'PERDIDO').length;
+    const e_ = liq.filter((x) => x.resultado === 'PUSH').length;
+    const u = liq.reduce((s, x) => s + (x.unidades || 0), 0);
+    $('#pk-record').textContent = liq.length
+      ? `${g_} ganado${g_ === 1 ? '' : 's'}, ${p_} perdido${p_ === 1 ? '' : 's'}${e_ ? `, ${e_} nulos` : ''} · ${F.u(u)} unidades apostando 1 por pick · rendimiento ${F.pcts(u / liq.length)}. ${H.length - liq.length} esperando resultado.`
+      : H.length ? `${H.length} pick${H.length === 1 ? '' : 's'} guardado${H.length === 1 ? '' : 's'}, esperando resultado. El registro empezó el 26 de noviembre.` : 'Todavía no hay picks guardados. El registro empezó el 26 de noviembre.';
+    const RES_TXT = { GANADO: 'Ganado', PERDIDO: 'Perdido', PUSH: 'Nulo', PENDIENTE: 'Pendiente' };
+    const lh = $('#pk-hist');
+    lh.replaceChildren();
+    if (!H.length) lh.append(el('p', 'vacio', 'Sin picks guardados todavía.'));
+    for (const x of H.slice(0, 100)) {
+      const f = el('div', 'pk-fila');
+      const iz = el('div', '');
+      iz.append(el('div', 'pk-f1', `${x.apuesta} · ${x.cuota.toFixed(2)} en ${x.casa}`),
+        el('div', 'pk-f2', `${F.dia(String(x.inicio).slice(0, 10))} · ${x.partido}${x.marcador ? ' · ' + x.marcador.split('-').reverse().join('-') : ''}`));
+      const de = el('div', 'pk-de');
+      const cl = x.resultado === 'GANADO' ? 'pos' : x.resultado === 'PERDIDO' ? 'neg' : '';
+      de.append(el('div', cl, RES_TXT[x.resultado] || x.resultado), el('div', 'pk-f2 ' + signo(x.unidades), x.unidades == null ? `valor ${F.pcts(x.ev)}` : `${F.u(x.unidades)} u`));
+      f.append(iz, de);
+      lh.append(f);
+    }
+    $('#pk-nota').textContent = JA ? `Actualizado ${JA.generado.slice(11, 16)}. Cada pick se guarda antes de que empiece el juego, con la cuota de ese momento, y se califica solo cuando hay marcador.` : '';
   };
 
   // ---------------------------------------------------------------- Precios (vigilante)
@@ -902,15 +990,15 @@
   };
 
   // ---------------------------------------------------------------- Pestañas
-  const PESTANAS = ['analisis', 'precios', 'historial', 'mas'];
+  const PESTANAS = ['picks', 'analisis', 'precios', 'historial', 'mas'];
   const tabVisible = (tab) => (tab === 'precios' ? !['MLB', 'LVBP'].includes(dep) : true);
-  let tabActual = 'analisis';
+  let tabActual = 'picks';
   const ajustarTabs = () => {
     document.querySelectorAll('.pestanas button').forEach((b) => { b.hidden = !tabVisible(b.dataset.tab); });
     if (!tabVisible(tabActual)) mostrar('analisis');
   };
   const mostrar = (tab) => {
-    if (!PESTANAS.includes(tab) || !tabVisible(tab)) tab = 'analisis';
+    if (!PESTANAS.includes(tab) || !tabVisible(tab)) tab = 'picks';
     tabActual = tab;
     document.querySelectorAll('main > section[data-tab]').forEach((s) => s.classList.toggle('fuera', s.dataset.tab !== tab));
     document.querySelectorAll('.pestanas button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.tab === tab)));
@@ -1004,6 +1092,7 @@
     pintarResultados();
     pintarHistorial();
     pintarAnalisis();
+    pintarPicks();
     pintarLigas();
     pintarRendimiento();
     pintarMotor();

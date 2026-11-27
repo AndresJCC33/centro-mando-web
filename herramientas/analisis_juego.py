@@ -44,6 +44,8 @@ NBA_NOMBRES = {"ATL": "Atlanta Hawks", "BOS": "Boston Celtics", "BKN": "Brooklyn
                "POR": "Portland Trail Blazers", "SAC": "Sacramento Kings", "SAS": "San Antonio Spurs", "TOR": "Toronto Raptors",
                "UTA": "Utah Jazz", "WAS": "Washington Wizards"}
 AVISOS = []
+RES = {}   # (deporte, local, visita, fecha) -> (goles/puntos local, visita) de juegos terminados, para calificar picks
+HIST = os.path.join(DATOS, "picks_historial.json")
 
 
 # ---------------------------------------------------------------- utilidades
@@ -115,7 +117,8 @@ def valor(apuestas):
         # diferencias así casi siempre son un dato malo (cancha neutral mal cargada, lesión, pocos juegos)
         ok = bool(pm is not None and pk is not None and pk <= pm <= pk + 0.20)
         out.append({"apuesta": a, "casa": c, "cuota": round(d, 2), "p": round(p, 4), "ev": round(p * d - 1, 4),
-                    "motor_ok": ok, "lejos": bool(pm is not None and pk is not None and pm > pk + 0.20)})
+                    "motor_ok": ok, "lejos": bool(pm is not None and pk is not None and pm > pk + 0.20),
+                    "meta": x[6] if len(x) >= 7 else None})
     return sorted(out, key=lambda x: -x["ev"])
 
 
@@ -172,6 +175,8 @@ def nfl(partidos, hoy, ahora):
     m2 = nfl_series.Motor2(pbp, t, d)
     perf = nfl_series.perfil(pbp, t)
     hist_cierre = g[g.season.between(2012, t - 1) & g.result.notna()]
+    for r_ in G1[G1.result.notna()].itertuples():
+        RES[("NFL", r_.home_team, r_.away_team, str(r_.gameday))] = (int(r_.home_score), int(r_.away_score))
     sal = []
     for p in partidos:
         al, av = nombres.NFL.get(p["local"]), nombres.NFL.get(p["visita"])
@@ -214,12 +219,12 @@ def nfl(partidos, hoy, ahora):
         ml_ok_l = pk is not None and p1 >= pk and p2 >= pk
         ml_ok_v = pk is not None and p1 <= pk and p2 <= pk
         # moneyline: los dos motores tienen que ver ese lado por encima del mercado (se usa el más prudente)
-        ap = [(f"{al} moneyline", ll["casa"] if ll else "", dec_de(ll), pfin, min(p1, p2), pk_),
-              (f"{av} moneyline", lv["casa"] if lv else "", dec_de(lv), 1 - pfin, 1 - max(p1, p2), 1 - pk_),
-              (f"{al} {hcp:+g}", "cierre nflverse", am_dec(x.home_spread_odds), p_hcp, cub, hm),
-              (f"{av} {-hcp:+g}", "cierre nflverse", am_dec(x.away_spread_odds), 1 - p_hcp, 1 - cub, 1 - hm),
-              (f"Over {x.total_line:g}", "cierre nflverse", am_dec(x.over_odds), p_ov, ovm, om),
-              (f"Under {x.total_line:g}", "cierre nflverse", am_dec(x.under_odds), 1 - p_ov, 1 - ovm, 1 - om)]
+        ap = [(f"{al} moneyline", ll["casa"] if ll else "", dec_de(ll), pfin, min(p1, p2), pk_, {"m": "ml", "lado": "l"}),
+              (f"{av} moneyline", lv["casa"] if lv else "", dec_de(lv), 1 - pfin, 1 - max(p1, p2), 1 - pk_, {"m": "ml", "lado": "v"}),
+              (f"{al} {hcp:+g}", "cierre nflverse", am_dec(x.home_spread_odds), p_hcp, cub, hm, {"m": "hcp", "lado": "l", "linea": hcp}),
+              (f"{av} {-hcp:+g}", "cierre nflverse", am_dec(x.away_spread_odds), 1 - p_hcp, 1 - cub, 1 - hm, {"m": "hcp", "lado": "v", "linea": hcp}),
+              (f"Over {x.total_line:g}", "cierre nflverse", am_dec(x.over_odds), p_ov, ovm, om, {"m": "tot", "lado": "o", "linea": float(x.total_line)}),
+              (f"Under {x.total_line:g}", "cierre nflverse", am_dec(x.under_odds), 1 - p_ov, 1 - ovm, 1 - om, {"m": "tot", "lado": "u", "linea": float(x.total_line)})]
         V = valor(ap)
         acuerdo = pk is not None and (p1 - pk) * (p2 - pk) > 0
         datos = []
@@ -243,6 +248,7 @@ def nfl(partidos, hoy, ahora):
             MARG, TOT, hcp, float(x.total_line), V, acuerdo, datos,
             extra=[f"Mariscales: {x.home_qb_name} y {x.away_qb_name}" + (f" (ajuste {aj:+.1f} pts)" if abs(aj) >= 0.5 else ""),
                    f"Puntos medios: {al} {(sa.mean() + (tot1 + mu1) / 2) / 2:.1f}, {av} {(sb.mean() + (tot1 - mu1) / 2) / 2:.1f}"]))
+        sal[-1]["res"] = ["NFL", al, av, str(x.gameday)]
     return sal
 
 
@@ -266,6 +272,10 @@ def nba(hoy, ahora):
         an = json.load(open(os.path.join(DATOS, "analisis.json"), encoding="utf-8")).get("nba") or {}
     except (OSError, ValueError):
         an = {}
+    for r in rows:
+        if r["deporte"] in ("NBA", "LVBP") and r.get("marcador") and "-" in str(r["marcador"]):
+            v_, l_ = (int(z) for z in str(r["marcador"]).split("-")[:2])
+            RES[(r["deporte"], r["local"], r["visitante"], r["fecha"])] = (l_, v_)
     fechas = {(hoy + timedelta(days=k)).isoformat() for k in (0, 1)}
     cart = {}
     for f in sorted(fechas):
@@ -291,26 +301,27 @@ def nba(hoy, ahora):
         if c:
             if c.get("ml_local") and c.get("ml_visitante"):
                 pkk = pk if pk is not None else 0.5
-                ap += [(f"{L} moneyline", "cuota típica", am_dec(c["ml_local"]), pfin, pm, pkk),
-                       (f"{V_} moneyline", "cuota típica", am_dec(c["ml_visitante"]), 1 - pfin, 1 - pm, 1 - pkk)]
+                ap += [(f"{L} moneyline", "cuota típica", am_dec(c["ml_local"]), pfin, pm, pkk, {"m": "ml", "lado": "l"}),
+                       (f"{V_} moneyline", "cuota típica", am_dec(c["ml_visitante"]), 1 - pfin, 1 - pm, 1 - pkk, {"m": "ml", "lado": "v"})]
             if c.get("handicap_local") is not None and c.get("cuota_hcp_local") and c.get("cuota_hcp_visitante"):
                 hcp = float(c["handicap_local"])
                 cub = float((M + hcp > 0).mean() / max(1e-9, (M + hcp != 0).mean()))
                 hk = 1 / am_dec(c["cuota_hcp_local"]), 1 / am_dec(c["cuota_hcp_visitante"])
                 ph = mezcla2(cub, hk[0] / sum(hk))
                 hm = hk[0] / sum(hk)
-                ap += [(f"{L} {hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_local"]), ph, cub, hm),
-                       (f"{V_} {-hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_visitante"]), 1 - ph, 1 - cub, 1 - hm)]
+                ap += [(f"{L} {hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_local"]), ph, cub, hm, {"m": "hcp", "lado": "l", "linea": hcp}),
+                       (f"{V_} {-hcp:+g}", "cuota típica", am_dec(c["cuota_hcp_visitante"]), 1 - ph, 1 - cub, 1 - hm, {"m": "hcp", "lado": "v", "linea": hcp})]
             if c.get("total") and c.get("cuota_over") and c.get("cuota_under"):
                 lt = float(c["total"])
                 ovm = float((T > lt).mean() / max(1e-9, (T != lt).mean()))
                 ok = 1 / am_dec(c["cuota_over"]), 1 / am_dec(c["cuota_under"])
                 po = mezcla2(ovm, ok[0] / sum(ok))
                 om = ok[0] / sum(ok)
-                ap += [(f"Over {lt:g}", "cuota típica", am_dec(c["cuota_over"]), po, ovm, om),
-                       (f"Under {lt:g}", "cuota típica", am_dec(c["cuota_under"]), 1 - po, 1 - ovm, 1 - om)]
+                ap += [(f"Over {lt:g}", "cuota típica", am_dec(c["cuota_over"]), po, ovm, om, {"m": "tot", "lado": "o", "linea": lt}),
+                       (f"Under {lt:g}", "cuota típica", am_dec(c["cuota_under"]), 1 - po, 1 - ovm, 1 - om, {"m": "tot", "lado": "u", "linea": lt})]
         elif r.get("cuota_fav_am"):
-            ap.append((f"{r['favorito']} moneyline", "cuota típica", am_dec(r["cuota_fav_am"]), pfin if r["favorito"] == L else 1 - pfin))
+            ap.append((f"{r['favorito']} moneyline", "cuota típica", am_dec(r["cuota_fav_am"]), pfin if r["favorito"] == L else 1 - pfin,
+                       pm if r["favorito"] == L else 1 - pm, None, {"m": "ml", "lado": "l" if r["favorito"] == L else "v"}))
         datos = []
         if L in an and V_ in an:
             a, b = an[L], an[V_]
@@ -326,6 +337,7 @@ def nba(hoy, ahora):
         p = {"local": NBA_NOMBRES.get(L, L), "visita": NBA_NOMBRES.get(V_, V_), "inicio": r["fecha"] + "T19:00-04:00", "sin_hora": True}
         sal.append(_tarjeta("NBA", "NBA", p, L, V_, pk, [("Motor NBA", pm)], pfin, M, T, hcp, lt, valor(ap),
                             True, datos, extra=[f"Señal del motor: {r['senal']} ({r['filtro'].lower()})" if r.get("senal") else ""]))
+        sal[-1]["res"] = ["NBA", L, V_, r["fecha"]]
     return sal
 
 
@@ -406,6 +418,13 @@ def ncaab(hoy):
         me = json.load(open(os.path.join(DATOS, "motores_eeuu.json"), encoding="utf-8"))["deportes"]["NCAAB"]["juegos"]
     except (OSError, KeyError, ValueError):
         return []
+    try:
+        for x in json.load(open(os.path.join(DATOS, "motores_eeuu_historial.json"), encoding="utf-8"))["juegos"]:
+            if x.get("deporte") == "NCAAB" and x.get("marcador"):
+                gl_, gv_ = (int(z) for z in x["marcador"].split("-"))
+                RES[("NCAAB", str(x["k_local"]), str(x["k_visita"]), x["fecha"])] = (gl_, gv_)
+    except (OSError, ValueError, KeyError):
+        pass
     dias = {hoy.isoformat(), (hoy + timedelta(days=1)).isoformat()}
     t = ME.temporada_actual(hoy)
     caja = os.path.join(ME.TMP, f"mbb_box_{t}.parquet")
@@ -460,7 +479,7 @@ def ncaab(hoy):
             es_l = lado["nombre"] == j["local"]
             pp = lado["p_final"]
             dec = (1 + lado["ventaja_final"]) / pp if pp else None
-            ap.append((f"{lado['nombre']}", lado.get("casa") or "mejor casa", dec, pp, pm if es_l else 1 - pm, (pk if es_l else 1 - pk) if pk is not None else None))
+            ap.append((f"{lado['nombre']}", lado.get("casa") or "mejor casa", dec, pp, pm if es_l else 1 - pm, (pk if es_l else 1 - pk) if pk is not None else None, {"m": "ml", "lado": "l" if es_l else "v"}))
         V = valor(ap)
         datos = []
         if len(ff) and il in ff.index and iv in ff.index:
@@ -480,6 +499,7 @@ def ncaab(hoy):
         sal.append(_tarjeta("NCAAB", "NCAAB", p, _sigla(j["local"]), _sigla(j["visita"]), pk, [("Motor NCAAB", pm)], pf, M, T, None, None, V, True, datos,
                             extra=[f"Posesiones esperadas: {j.get('posesiones', 0):.0f}" + (" · cancha neutral" if j.get("neutral") else ""),
                                    "Pocos juegos esta temporada: el motor se apoya en la anterior." if (j.get("pj_local") or 0) < 5 or (j.get("pj_visita") or 0) < 5 else ""]))
+        sal[-1]["res"] = ["NCAAB", str(il), str(iv), j["inicio"][:10]]
     return sal
 
 
@@ -553,6 +573,8 @@ def futbol(partidos, hoy):
         if not filas:
             continue
         g = pd.DataFrame(filas, columns=["fecha", "local", "visita", "gl", "gv"])
+        for r_ in g.itertuples():
+            RES[("F", r_.local, r_.visita, r_.fecha.strftime("%Y-%m-%d"))] = (int(r_.gl), int(r_.gv))
         R = _poisson_ratings(g, d)
         # empates: cociente real / Poisson en los partidos de la temporada actual
         act = g[g.fecha >= pd.Timestamp(f"{a}-07-01")]
@@ -591,9 +613,9 @@ def futbol(partidos, hoy):
             goles, extras = None, {}
         pmm = mot[3] if mot else [None] * 3
         pkk = pk if pk is not None else [None] * 3
-        ap = [(f"{p['local']}", ll["casa"] if ll else "", dec_de(ll), pfin[0], pmm[0], pkk[0]),
-              ("Empate", le["casa"] if le else "", dec_de(le), pfin[1], pmm[1], pkk[1]),
-              (f"{p['visita']}", lv["casa"] if lv else "", dec_de(lv), pfin[2], pmm[2], pkk[2])]
+        ap = [(f"{p['local']}", ll["casa"] if ll else "", dec_de(ll), pfin[0], pmm[0], pkk[0], {"m": "1x2", "lado": "l"}),
+              ("Empate", le["casa"] if le else "", dec_de(le), pfin[1], pmm[1], pkk[1], {"m": "1x2", "lado": "e"}),
+              (f"{p['visita']}", lv["casa"] if lv else "", dec_de(lv), pfin[2], pmm[2], pkk[2], {"m": "1x2", "lado": "v"})]
         V = valor(ap)
         # en fútbol el «acuerdo» es que el motor y el mercado señalen el mismo lado con más valor
         acuerdo = bool(mot) and pk is not None and int(np.argmax(mot[3] - pk)) == int(np.argmax(pfin - pk))
@@ -611,6 +633,7 @@ def futbol(partidos, hoy):
             datos.append({"t": f"{p['local']} en casa y {p['visita']} fuera (promedios por partido)", "cab": ["", p["local"], p["visita"]], "filas": filas})
         liga = p["_liga"]
         sal.append(_tarjeta_futbol(liga, p, pk, mot, pfin, goles, extras, V, acuerdo, datos))
+        sal[-1]["res"] = ["F", l, v, p["inicio"][:10]]
     return sal
 
 
@@ -681,6 +704,62 @@ def _tarjeta(dep, liga, p, l, v, pk, motores, pfin, MARG, TOT, hcp, lt, V, acuer
             "total": t, "valor": V, "apostar": apostar, "razon": razon, "mejor": mejor, "datos": datos, "pocas": pocas}
 
 
+def calificar(meta, gl, gv):
+    m, lado = meta["m"], meta["lado"]
+    if m in ("ml", "1x2"):
+        gano = {"l": gl > gv, "v": gl < gv, "e": gl == gv}[lado]
+        return "GANADO" if gano else "PERDIDO"
+    if m == "hcp":
+        d = gl - gv + meta["linea"]
+        d = d if lado == "l" else -d
+    else:
+        d = (gl + gv - meta["linea"]) * (1 if lado == "o" else -1)
+    return "GANADO" if d > 0 else "PUSH" if d == 0 else "PERDIDO"
+
+
+def picks_historial(juegos, ahora):
+    try:
+        H = {x["id"]: x for x in json.load(open(HIST, encoding="utf-8"))["picks"]}
+    except (OSError, ValueError, KeyError):
+        H = {}
+    vivos = set()
+    for g in juegos:
+        empezo = datetime.fromisoformat(g["inicio"]) <= ahora and not g.get("sin_hora")
+        if g.get("sin_hora"):  # NBA: la hora real no está; se congela al día siguiente
+            empezo = datetime.fromisoformat(g["inicio"][:10] + "T23:59-04:00") <= ahora
+        pid = None
+        if g["apostar"] and g.get("mejor") and g["mejor"].get("meta"):
+            m = g["mejor"]
+            pid = f"{g['id']}|{m['apuesta']}"
+            vivos.add(pid)
+            if not empezo:
+                prev = H.get(pid, {})
+                H[pid] = dict(id=pid, juego=g["id"], deporte=g["deporte"], liga=g["liga"], inicio=g["inicio"], sin_hora=g.get("sin_hora", False),
+                              partido=f"{g['visita']} @ {g['local']}", apuesta=m["apuesta"], casa=m["casa"], cuota=m["cuota"], p=m["p"],
+                              ev=m["ev"], meta=m["meta"], res=g.get("res"), resultado="PENDIENTE", unidades=None, marcador=None,
+                              guardado=prev.get("guardado") or ahora.isoformat(timespec="minutes"), actualizado=ahora.isoformat(timespec="minutes"))
+        if not empezo:  # un pick que dejó de ser verde antes de empezar se retira
+            for k in [k for k, x in H.items() if x["juego"] == g["id"] and x["resultado"] == "PENDIENTE" and k != pid]:
+                del H[k]
+    for x in H.values():
+        if x["resultado"] != "PENDIENTE" or not x.get("res"):
+            continue
+        dep, l, v, f = x["res"]
+        f0 = datetime.strptime(f, "%Y-%m-%d").date()
+        for dd in (0, -1, 1):
+            k = (dep, l, v, (f0 + timedelta(days=dd)).isoformat())
+            if k in RES:
+                gl, gv = RES[k]
+                x["resultado"] = calificar(x["meta"], gl, gv)
+                x["unidades"] = round(x["cuota"] - 1, 3) if x["resultado"] == "GANADO" else 0.0 if x["resultado"] == "PUSH" else -1.0
+                x["marcador"] = f"{gl}-{gv}"
+                break
+    lista = sorted(H.values(), key=lambda x: x["inicio"], reverse=True)
+    with open(HIST, "w", encoding="utf-8") as fh:
+        json.dump({"picks": lista}, fh, ensure_ascii=False, indent=0)
+    return lista
+
+
 def correr():
     os.makedirs(ME.TMP, exist_ok=True)
     ahora = datetime.now(timezone.utc)
@@ -706,7 +785,13 @@ def correr():
             traceback.print_exc()
             AVISOS.append(f"{nombre}: {type(e).__name__}: {e}")
     juegos.sort(key=lambda j: j["inicio"])
-    doc = {"generado": datetime.now(CARACAS).isoformat(timespec="minutes"), "dias": sorted(dias), "juegos": juegos, "avisos": AVISOS}
+    try:
+        picks = picks_historial(juegos, ahora)
+    except Exception as e:  # noqa: BLE001
+        AVISOS.append(f"historial de picks: {type(e).__name__}: {e}")
+        picks = []
+    doc = {"generado": datetime.now(CARACAS).isoformat(timespec="minutes"), "dias": sorted(dias), "juegos": juegos,
+           "picks": picks[:300], "avisos": AVISOS}
     with open(SALIDA, "w", encoding="utf-8") as f:
         json.dump(doc, f, ensure_ascii=False, separators=(",", ":"))
     print("análisis por juego:", {d: sum(j["deporte"] == d for j in juegos) for d in ("NFL", "NBA", "Fútbol", "LVBP", "NCAAB")}, "| avisos:", AVISOS)
