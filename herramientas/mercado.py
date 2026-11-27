@@ -94,9 +94,15 @@ def _linea(s):
         return None
 
 
+def _g(d, *ks):
+    for k in ks:
+        d = d.get(k) if isinstance(d, dict) else None
+    return d
+
+
 def _probs(ml, cual, tres):
     lados = ["home", "away"] + (["draw"] if tres else [])
-    decs = [am_dec(((ml.get(l) or {}).get(cual) or {}).get("odds")) for l in lados]
+    decs = [am_dec(_g(ml, l, cual, "odds")) for l in lados]
     if any(d is None for d in decs):
         return None
     p = sin_margen(decs)
@@ -104,27 +110,27 @@ def _probs(ml, cual, tres):
 
 
 def leer_evento(ev, deporte, liga):
-    comp = ev["competitions"][0]
-    if not comp.get("odds"):
+    comp = (ev.get("competitions") or [{}])[0] or {}
+    od = next((x for x in (comp.get("odds") or []) if isinstance(x, dict)), None)
+    if not od:
         return None
-    od = comp["odds"][0]
-    eq = {c["homeAway"]: c["team"] for c in comp["competitors"]}
+    eq = {c.get("homeAway"): c.get("team") or {} for c in comp.get("competitors") or [] if isinstance(c, dict)}
     if "home" not in eq or "away" not in eq:
         return None
-    ml = od.get("moneyline") or {}
+    ml = od.get("moneyline") if isinstance(od.get("moneyline"), dict) else {}
     tres = deporte == "Fútbol"
     p0, p1 = _probs(ml, "open", tres), _probs(ml, "close", tres)
-    ps = od.get("pointSpread") or {}
-    tt = od.get("total") or {}
-    h0, h1 = _linea(((ps.get("home") or {}).get("open") or {}).get("line")), _linea(((ps.get("home") or {}).get("close") or {}).get("line"))
-    t0, t1 = _linea(((tt.get("over") or {}).get("open") or {}).get("line")), _linea(((tt.get("over") or {}).get("close") or {}).get("line"))
+    ps = od.get("pointSpread") if isinstance(od.get("pointSpread"), dict) else {}
+    tt = od.get("total") if isinstance(od.get("total"), dict) else {}
+    h0, h1 = _linea(_g(ps, "home", "open", "line")), _linea(_g(ps, "home", "close", "line"))
+    t0, t1 = _linea(_g(tt, "over", "open", "line")), _linea(_g(tt, "over", "close", "line"))
     if p1 is None and h1 is None:
         return None
     fav0 = "l" if (od.get("homeTeamOdds") or {}).get("favoriteAtOpen") else "v" if (od.get("awayTeamOdds") or {}).get("favoriteAtOpen") else None
     fav1 = "l" if (od.get("homeTeamOdds") or {}).get("favorite") else "v" if (od.get("awayTeamOdds") or {}).get("favorite") else None
     return {
         "id": ev["id"], "deporte": deporte, "liga": liga, "inicio": ev["date"],
-        "estado": (comp.get("status") or ev.get("status") or {}).get("type", {}).get("state"),
+        "estado": _g(comp.get("status") or ev.get("status") or {}, "type", "state"),
         "local": eq["home"].get("displayName"), "visita": eq["away"].get("displayName"),
         "sl": eq["home"].get("abbreviation"), "sv": eq["away"].get("abbreviation"),
         "casa": (od.get("provider") or {}).get("displayName") or (od.get("provider") or {}).get("name"),
@@ -237,7 +243,11 @@ def correr():
                 if ev["id"] in vistos:
                     continue
                 vistos.add(ev["id"])
-                j = leer_evento(ev, dep, liga)
+                try:
+                    j = leer_evento(ev, dep, liga)
+                except (AttributeError, KeyError, TypeError, ValueError) as e:
+                    avisos.append(f"{liga} {ev.get('id')}: {type(e).__name__}: {e}")
+                    continue
                 if not j:
                     continue
                 ini = datetime.fromisoformat(j["inicio"].replace("Z", "+00:00"))
