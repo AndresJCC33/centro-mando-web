@@ -213,8 +213,9 @@ def nfl(partidos, hoy, ahora):
         pk_ = pk if pk is not None else 0.5
         ml_ok_l = pk is not None and p1 >= pk and p2 >= pk
         ml_ok_v = pk is not None and p1 <= pk and p2 <= pk
-        ap = [(f"{al} moneyline", ll["casa"] if ll else "", dec_de(ll), pfin, 1.0 if ml_ok_l else 0.0, 0.5),
-              (f"{av} moneyline", lv["casa"] if lv else "", dec_de(lv), 1 - pfin, 1.0 if ml_ok_v else 0.0, 0.5),
+        # moneyline: los dos motores tienen que ver ese lado por encima del mercado (se usa el más prudente)
+        ap = [(f"{al} moneyline", ll["casa"] if ll else "", dec_de(ll), pfin, min(p1, p2), pk_),
+              (f"{av} moneyline", lv["casa"] if lv else "", dec_de(lv), 1 - pfin, 1 - max(p1, p2), 1 - pk_),
               (f"{al} {hcp:+g}", "cierre nflverse", am_dec(x.home_spread_odds), p_hcp, cub, hm),
               (f"{av} {-hcp:+g}", "cierre nflverse", am_dec(x.away_spread_odds), 1 - p_hcp, 1 - cub, 1 - hm),
               (f"Over {x.total_line:g}", "cierre nflverse", am_dec(x.over_odds), p_ov, ovm, om),
