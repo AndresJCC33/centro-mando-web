@@ -854,9 +854,9 @@
     const xs = JA.juegos.filter((g) => dep === 'Todos' || g.deporte === dep);
     $('#an-nota').textContent = `Actualizado ${JA.generado.slice(11, 16)}. Toca un juego para ver su análisis. «Apostar» solo cuando el valor esperado llega a 3 % y el motor respalda ese lado.`;
     if (!xs.length) {
-      caja.append(el('p', 'vacio', ['NBA', 'NFL', 'Fútbol', 'LVBP', 'NCAAB', 'Todos'].includes(dep)
+      caja.append(el('p', 'vacio', ['NBA', 'NFL', 'Fútbol', 'LVBP', 'NCAAB', 'NCAAF', 'Todos'].includes(dep)
         ? 'No hay juegos analizados de este deporte para hoy ni mañana. Los de NBA y LVBP aparecen cuando corren sus motores con la cartelera (desde las 10:30 am).'
-        : 'El análisis por juego está disponible para NBA, NFL, NCAAB, LVBP y fútbol de las ligas principales.'));
+        : 'El análisis por juego está disponible para NBA, NFL, NCAAF, NCAAB, LVBP y fútbol.'));
       $('#titular').textContent = 'Sin juegos analizados';
       $('#bajada').textContent = '';
       return;
@@ -883,7 +883,7 @@
       }
     }
     const verdes = xs.filter((g) => g.apostar);
-    $('#titular').textContent = `${xs.length} juego${xs.length === 1 ? '' : 's'} analizado${xs.length === 1 ? '' : 's'} hoy y mañana`;
+    $('#titular').textContent = `${xs.length} juego${xs.length === 1 ? '' : 's'} analizado${xs.length === 1 ? '' : 's'} en los próximos días`;
     $('#bajada').textContent = verdes.length ? `${verdes.length} con valor para apostar: ${verdes.map((g) => g.mejor.apuesta).join(', ')}. Están juntos en la pestaña Picks.` : 'Ninguno llega todavía a 3 % de valor con el respaldo del motor.';
   };
   const abrirJuego = (id) => {
@@ -1210,9 +1210,12 @@
       ['Simulación', 'El margen y el total salen de miles de juegos reales con un margen esperado parecido, así respeta los números clave (3, 7, 10).'],
       ['En prueba', 'En el backtest 2014-2026 su error medio fue 10,28 puntos (10,33 sin el ajuste del mariscal) contra 9,92 del cierre: decide el precio y el motor se mide aparte.']],
       n: 'El titular sale del calendario de nflverse; lesiones del resto del equipo todavía no entran.' },
-    NCAAF: { t: 'NCAAF: por ahora solo precio', p: [
-      ['Precio', 'Compara la mejor cuota de las casas con el precio justo de Pinnacle sin margen. Sin motor propio todavía: el estudio de 2014-2023 mostró que un modelo con datos de cada juego sí le gana a la línea de apertura, así que es el siguiente motor a construir.']],
-      n: 'Temporada regular hasta fin de noviembre; luego campeonatos de conferencia y bowls.' },
+    NCAAF: { t: 'Cómo trabaja el motor de la NCAAF', p: [
+      ['Puntos', 'Con todos los marcadores de la temporada (y la anterior como punto de partida) calcula cuánto anota y cuánto permite cada equipo, ajustado por la fuerza de cada rival y la ventaja de local.'],
+      ['Elo', 'Lo combina con el Elo de CFBD de cada equipo antes del juego. Juntos fallan el margen por 15,95 puntos de media (2023-2026), parecido al cierre de las casas.'],
+      ['Simulación', 'Juega el partido 200.000 veces con ese margen y ese total para sacar ganador, hándicap y total.'],
+      ['Precio', 'Valor contra el precio justo de Pinnacle. Si el motor se aparta más de 10 puntos del mercado no respalda la apuesta: casi siempre es una lesión (sobre todo del mariscal) que el motor no ve.']],
+      n: 'Sábado es la jornada grande: los juegos salen desde el jueves. El motor no sabe de lesiones.' },
     MLB: { t: 'Cómo trabaja el motor de MLB', p: [
       ['Statcast', 'Baja cada lanzamiento de la temporada: velocidad de bate, ángulo y velocidad de salida, giro de la bola. Con eso mide la calidad real del contacto (xwOBA), la tendencia al jonrón y al ponche de cada bateador y lanzador.'],
       ['Duelos', 'Cruza cada bateador con cada lanzador con un Log5 jerárquico (liga, equipo, jugador) y ajusta por estadio y clima.'],

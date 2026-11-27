@@ -265,7 +265,7 @@ def lectura(j):
 def correr():
     ahora = datetime.now(timezone.utc)
     hoy = ahora.astimezone(CARACAS).date()
-    dias = {hoy.isoformat(), (hoy + timedelta(days=1)).isoformat()}
+    dias = {(hoy + timedelta(days=k)).isoformat() for k in (0, 1, 2)}
     try:
         fotos = json.load(open(FOTOS, encoding="utf-8"))
     except (OSError, ValueError):
@@ -274,7 +274,7 @@ def correr():
     juegos, avisos = [], []
     for ruta, (dep, liga) in RUTAS.items():
         vistos = set()
-        for k in (-1, 0, 1):
+        for k in (-1, 0, 1, 2):
             f = (hoy + timedelta(days=k)).strftime("%Y%m%d")
             try:
                 d = json.loads(bajar(f"{ESPN}/{ruta}/scoreboard?dates={f}&limit=400"

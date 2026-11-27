@@ -61,3 +61,38 @@ def ncaab(nombre, espn):
     if pun and pun[0][0] >= 0.6 and (len(pun) == 1 or pun[0][0] - pun[1][0] > 0.1):
         return pun[0][1]
     return None
+
+
+# The Odds API (escuela + mascota) -> escuela en cfbfastR, cuando el prefijo no basta
+ALIAS_NCAAF = {"Appalachian State Mountaineers": "App State", "Southern Mississippi Golden Eagles": "Southern Miss",
+               "Louisiana-Monroe Warhawks": "UL Monroe", "UL Monroe Warhawks": "UL Monroe",
+               "Louisiana Ragin Cajuns": "Louisiana", "Louisiana Ragin' Cajuns": "Louisiana",
+               "Massachusetts Minutemen": "Massachusetts", "UMass Minutemen": "Massachusetts", "Connecticut Huskies": "UConn", "FIU Panthers": "Florida International",
+               "Florida Int'l Golden Panthers": "Florida International", "UTEP Miners": "UTEP", "Texas El Paso Miners": "UTEP",
+               "UCF Knights": "UCF", "Central Florida Knights": "UCF", "SMU Mustangs": "SMU", "BYU Cougars": "BYU",
+               "Mississippi Rebels": "Ole Miss", "Ole Miss Rebels": "Ole Miss", "NC State Wolfpack": "NC State",
+               "North Carolina State Wolfpack": "NC State", "Sam Houston State Bearkats": "Sam Houston",
+               "Sam Houston Bearkats": "Sam Houston", "Hawaii Rainbow Warriors": "Hawai'i", "Miami Hurricanes": "Miami",
+               "Miami (OH) RedHawks": "Miami (OH)", "Army Black Knights": "Army", "Navy Midshipmen": "Navy",
+               "UAB Blazers": "UAB", "UNLV Rebels": "UNLV", "UTSA Roadrunners": "UTSA", "Southern Methodist Mustangs": "SMU"}
+
+
+def ncaaf(nombre, escuelas):
+    """escuelas: nombres de cfbfastR. Devuelve la escuela cuyo nombre es el comienzo más largo del nombre de la casa."""
+    if nombre in escuelas:
+        return nombre
+    a = ALIAS_NCAAF.get(nombre)
+    if a in escuelas:
+        return a
+    def nn(s):
+        s = unicodedata.normalize("NFKD", str(s)).encode("ascii", "ignore").decode().lower()
+        s = s.replace("&", " and ").replace("'", "")
+        return " ".join(re.findall(r"[a-z0-9]+", s))
+    k = nn(nombre)
+    cand = [(len(nn(e)), e) for e in escuelas if k == nn(e) or k.startswith(nn(e) + " ")]
+    if not cand:
+        return None
+    cand.sort(reverse=True)
+    # el nombre que sobra debe ser la mascota (1-3 palabras); si sobra más, es otra escuela («Texas» en «Texas State …»)
+    resto = k[cand[0][0]:].split()
+    return cand[0][1] if len(resto) <= 3 else None

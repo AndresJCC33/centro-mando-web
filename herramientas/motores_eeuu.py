@@ -25,14 +25,22 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(__file__))
 TMP = os.environ.setdefault("EEUU_DATOS", "/tmp/eeuu_datos")
 from actualizar import bajar, CARACAS, DATOS  # noqa: E402
-from eeuu import ncaab_datos, ncaab_motor, nhl_motor, nhl2, nfl_motor, nfl_qb, nombres  # noqa: E402
+from eeuu import ncaab_datos, ncaab_motor, ncaaf_motor, nhl_motor, nhl2, nfl_motor, nfl_qb, nombres  # noqa: E402
 
 SALIDA = os.path.join(DATOS, "motores_eeuu.json")
 HIST = os.path.join(DATOS, "motores_eeuu_historial.json")
 SDV = "https://github.com/sportsdataverse/sportsdataverse-data/releases/download"
 NFLV = "https://github.com/nflverse/nflverse-data/releases/download"
 # peso del motor en la probabilidad final (el resto es el mercado). Solo NCAAB mejoró al cierre en el backtest.
-MEZCLA = {"NCAAB": 0.1, "NHL": 0.0, "NFL": 0.0}
+MEZCLA = {"NCAAB": 0.1, "NHL": 0.0, "NFL": 0.0, "NCAAF": 0.0}
+CFB = "https://raw.githubusercontent.com/sportsdataverse/cfbfastR-data/main/schedules/parquet"
+# NCAAF (backtest 2023-2026, 3.090 juegos FBS, cada semana con lo jugado antes): margen = a*modelo_puntos + b*dif_Elo
+# (error medio 15,95 pts; solo puntos 16,52; el cierre en 2014-2023 rondó 15,9); total = c*modelo_total + d (16,1).
+NCAAF_M = (0.4876, 0.01831)    # margen
+NCAAF_HFA_ELO = 70.7           # ventaja de local en puntos de Elo (ajustada en el backtest)
+NCAAF_T = (0.7756, 11.749)     # total
+NCAAF_SD = (16.0, 16.1)        # desviación del margen y del total
+NCAAF_RIDGE = ((1.0, 1.0), (8.0, 0.6))   # (lambda, arrastre) para el margen y para el total
 PJ_MEZCLA = 4  # con menos juegos de un equipo esta temporada, el motor no entra en la mezcla
 SD_NCAAB = (11.3, 17.0)  # desviación del margen y del total (residuos del backtest con 6+ juegos)
 NFL_B = (16.686, 0.713, 0.637, 1.167, 0.123)  # margen = b0*epa_dif + b1*pts_dif + b2*local + b3*qb_dif + b4 (2012-2025)
@@ -208,7 +216,58 @@ def motor_nfl(partidos, hoy):
     return sal, res
 
 
-MOTORES = {"NCAAB": motor_ncaab, "NHL": motor_nhl, "NFL": motor_nfl}
+# ---------------------------------------------------------------- NCAAF
+def motor_ncaaf(partidos, hoy):
+    t = hoy.year if hoy.month >= 7 else hoy.year - 1
+    rutas = [_bajar(f"{CFB}/cfb_schedules_{y}.parquet", f"cfb_sched_{y}.parquet") for y in (t - 1, t)]
+    g = ncaaf_motor.juegos(rutas)
+    G0, G1 = g[g.temporada == t - 1], g[g.temporada == t]
+    fin0 = G0.fecha.max() + pd.Timedelta(days=1)
+    (lm, am_), (lt, at) = NCAAF_RIDGE
+    Rm = ncaaf_motor.ajustar(G1, pd.Timestamp(hoy), ncaaf_motor.ajustar(G0, fin0, None, lm, am_)["r"], lm, am_)
+    Rt = ncaaf_motor.ajustar(G1, pd.Timestamp(hoy), ncaaf_motor.ajustar(G0, fin0, None, lt, at)["r"], lt, at)
+    escuelas = set(G1.local) | set(G1.visita)
+    pend = G1[~G1.jugado]
+    sal, sin = [], []
+    for p in partidos:
+        el, ev = nombres.ncaaf(p["local"], escuelas), nombres.ncaaf(p["visita"], escuelas)
+        if not el or not ev:
+            sin.append(p["local"] if not el else p["visita"])
+            continue
+        fila = pend[(pend.local == el) & (pend.visita == ev)]
+        inv = False
+        if not len(fila):  # la casa a veces pone al revés local y visita (cancha neutral)
+            fila = pend[(pend.local == ev) & (pend.visita == el)]
+            inv = len(fila) > 0
+        neu = bool(fila.neutral.iloc[0]) if len(fila) else False
+        if inv:
+            neu = True
+        pl, pv = ncaaf_motor.predecir(Rm, el, ev, neu)
+        tl, tv = ncaaf_motor.predecir(Rt, el, ev, neu)
+        elo_l = float(fila.elo_v.iloc[0] if inv else fila.elo_l.iloc[0]) if len(fila) else None
+        elo_v = float(fila.elo_l.iloc[0] if inv else fila.elo_v.iloc[0]) if len(fila) else None
+        dif_elo = None if elo_l is None or elo_v is None or np.isnan(elo_l) or np.isnan(elo_v) else \
+            elo_l - elo_v + (0.0 if neu else NCAAF_HFA_ELO)
+        # sin Elo, el margen del modelo de puntos solo (con su escala propia)
+        mu = NCAAF_M[0] * (pl - pv) + NCAAF_M[1] * dif_elo if dif_elo is not None else (pl - pv) * 0.85
+        tot = NCAAF_T[0] * (tl + tv) + NCAAF_T[1]
+        sal.append(dict(p_local=ncaaf_motor.p_gana(mu, NCAAF_SD[0]), pts_local=(tot + mu) / 2, pts_visita=(tot - mu) / 2,
+                        margen=round(mu, 2), total=round(tot, 2), margen_puntos=round(pl - pv, 2),
+                        p_elo=ncaaf_motor.p_elo(elo_l, elo_v, neu, NCAAF_HFA_ELO) if elo_l is not None else None,
+                        elo_local=elo_l, elo_visita=elo_v, neutral=neu, escuela_local=el, escuela_visita=ev,
+                        pj_local=int(Rm["pj"].get(el, 0)), pj_visita=int(Rm["pj"].get(ev, 0)), _p=p,
+                        id_local=el, id_visita=ev))
+    if sin:
+        AVISOS.append("NCAAF sin equipo en los datos: " + ", ".join(sorted(set(sin))))
+    res = {}
+    for r in G1[G1.jugado].itertuples():
+        f = r.fecha.tz_convert("America/Caracas").strftime("%Y-%m-%d")
+        res[(r.local, r.visita, f)] = (int(r.pl), int(r.pv))
+        res[(r.visita, r.local, f)] = (int(r.pv), int(r.pl))   # por si la casa los puso al revés
+    return sal, res
+
+
+MOTORES = {"NCAAB": motor_ncaab, "NHL": motor_nhl, "NFL": motor_nfl, "NCAAF": motor_ncaaf}
 
 
 def leer(ruta, defecto):

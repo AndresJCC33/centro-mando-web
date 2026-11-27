@@ -103,7 +103,7 @@ def tramos_hcp(m, linea_local, local, visita):
     return [{"n": n, "p": round(float(p), 4), "c": c} for x in t if x for n, p, c in [x]]
 
 
-def valor(apuestas):
+def valor(apuestas, tope=0.20):
     """apuestas: (texto, casa, cuota_decimal, prob_final[, prob_motor, prob_mercado]). Ordenadas por valor esperado.
     «motor_ok»: el motor ve ese lado al menos tan probable como el mercado (si no, el valor sale solo de la cuota)."""
     out = []
@@ -114,9 +114,9 @@ def valor(apuestas):
         pm, pk = (x[4], x[5]) if len(x) >= 6 else (None, None)
         # el motor debe ver ese lado al menos tan probable como el mercado, pero sin irse a más de 20 puntos:
         # diferencias así casi siempre son un dato malo (cancha neutral mal cargada, lesión, pocos juegos)
-        ok = bool(pm is not None and pk is not None and pk <= pm <= pk + 0.20)
+        ok = bool(pm is not None and pk is not None and pk <= pm <= pk + tope)
         out.append({"apuesta": a, "casa": c, "cuota": round(d, 2), "p": round(p, 4), "ev": round(p * d - 1, 4),
-                    "motor_ok": ok, "lejos": bool(pm is not None and pk is not None and pm > pk + 0.20),
+                    "motor_ok": ok, "lejos": bool(pm is not None and pk is not None and pm > pk + tope),
                     "meta": x[6] if len(x) >= 7 else None})
     return sorted(out, key=lambda x: -x["ev"])
 
@@ -679,7 +679,7 @@ def _tarjeta(dep, liga, p, l, v, pk, motores, pfin, MARG, TOT, hcp, lt, V, acuer
     ml, tm = float(np.mean(MARG)), float(np.mean(TOT))
     pl_, pv_ = (tm + ml) / 2, (tm - ml) / 2
     t = {"linea": lt, "over": round(float((TOT > lt).mean()), 4), "under": round(float((TOT < lt).mean()), 4)} if lt else {}
-    rango = {"NFL": (3, (12, 84)), "NBA": (4, (170, 280)), "NCAAB": (3, (100, 190)), "LVBP": (1, (0, 30))}[dep]
+    rango = {"NFL": (3, (12, 84)), "NCAAF": (3, (10, 100)), "NBA": (4, (170, 280)), "NCAAB": (3, (100, 190)), "LVBP": (1, (0, 30))}[dep]
     t["hist"] = hist(TOT, rango[0], rango[1])
     pocas = [f"Gana {fav} con {pf:.0%}" + (f" (mercado {max(pk, 1 - pk):.0%}, motores {max(pmot, 1 - pmot):.0%})." if pk is not None else ".")]
     if hcp is not None:
@@ -696,6 +696,68 @@ def _tarjeta(dep, liga, p, l, v, pk, motores, pfin, MARG, TOT, hcp, lt, V, acuer
             "favorito": fav, "p_fav": round(pf, 4), "marcador": [round(pl_, 1), round(pv_, 1)], "total_esp": round(tm, 1),
             "hcp": {"linea": hcp, "tramos": tramos_hcp(MARG, hcp, l, v)} if hcp is not None else None,
             "total": t, "valor": V, "apostar": apostar, "razon": razon, "mejor": mejor, "datos": datos, "pocas": pocas}
+
+
+def ncaaf(hoy):
+    """Fútbol americano universitario: motor de puntos + Elo de CFBD (motores_eeuu.json) contra el precio de Pinnacle;
+    hándicap y total con la línea de DraftKings que trae el mercado (datos/mercado.json), sin cuota: solo como referencia."""
+    try:
+        me = json.load(open(os.path.join(DATOS, "motores_eeuu.json"), encoding="utf-8"))["deportes"]["NCAAF"]["juegos"]
+    except (OSError, KeyError, ValueError):
+        return []
+    try:
+        mk = {(j.get("n_local"), j.get("n_visita")): j for j in json.load(open(os.path.join(DATOS, "mercado.json"), encoding="utf-8"))["juegos"]
+              if j.get("deporte") == "NCAAF"}
+    except (OSError, KeyError, ValueError):
+        mk = {}
+    try:
+        for x in json.load(open(os.path.join(DATOS, "motores_eeuu_historial.json"), encoding="utf-8"))["juegos"]:
+            if x.get("deporte") == "NCAAF" and x.get("marcador"):
+                gl_, gv_ = (int(z) for z in x["marcador"].split("-"))
+                RES[("NCAAF", str(x["k_local"]), str(x["k_visita"]), x["fecha"])] = (gl_, gv_)
+    except (OSError, ValueError, KeyError):
+        pass
+    dias = {(hoy + timedelta(days=k)).isoformat() for k in (0, 1, 2)}   # el sábado es la jornada grande: se ve desde el jueves
+    ahora = datetime.now(timezone.utc)
+    sal = []
+    for j in me:
+        if j["inicio"][:10] not in dias or datetime.fromisoformat(j["inicio"]) < ahora - timedelta(hours=4):
+            continue
+        mu, tm = j["margen"], j["total"]
+        rng = np.random.default_rng(zlib.crc32(f"{j['local']}{j['visita']}{j['inicio']}".encode()))
+        M = np.rint(rng.normal(mu, ME.NCAAF_SD[0], 200_000))
+        M = np.where(M == 0, np.where(rng.random(len(M)) < norm.cdf(mu / ME.NCAAF_SD[0]), 1, -1), M)  # prórroga
+        T = np.rint(rng.normal(tm, ME.NCAAF_SD[1], 200_000))
+        pm, pk = j["p_motor"], j.get("p_mercado")
+        pfin = mezcla2(pm, pk)
+        ap = []
+        for lado in j.get("lados", []):
+            es_l = lado["nombre"] == j["local"]
+            pp = lado["p_final"]   # probabilidad del mercado con la que se calculó su ventaja
+            dec = (1 + lado["ventaja_final"]) / pp if pp else None
+            ap.append((f"{lado['nombre']}", lado.get("casa") or "mejor casa", dec, pfin if es_l else 1 - pfin, pm if es_l else 1 - pm,
+                       (pk if es_l else 1 - pk) if pk is not None else None, {"m": "ml", "lado": "l" if es_l else "v"}))
+        # En NCAAF las noticias pesan mucho (un mariscal lesionado mueve 7-10 puntos) y el motor no las ve:
+        # si se aparta más de 10 puntos del mercado, no respalda la apuesta.
+        V = valor(ap, tope=0.10)
+        m = mk.get((j["local"], j["visita"])) or {}
+        hcp, lt = m.get("hcp"), m.get("tot")
+        motores = [("Motor NCAAF", pm)] + ([("Elo de CFBD", j["p_elo"])] if j.get("p_elo") is not None else [])
+        datos = [{"t": "Cómo los ve el motor", "cab": ["", j["local"], j["visita"]], "filas": [
+            ["Elo previo (CFBD)", f"{j['elo_local']:.0f}" if j.get("elo_local") else "—", f"{j['elo_visita']:.0f}" if j.get("elo_visita") else "—"],
+            ["Juegos esta temporada", str(j.get("pj_local") or 0), str(j.get("pj_visita") or 0)],
+        ]}]
+        extra = [f"Margen esperado {j['local']} {mu:+.1f} (modelo de puntos {j['margen_puntos']:+.1f}); total {tm:.1f}."
+                 + (" Cancha neutral." if j.get("neutral") else ""),
+                 "Hándicap y total con la línea de DraftKings, sin cuota: sirven de referencia, el valor se mide en el ganador." if (hcp is not None or lt) else ""]
+        if pk is not None and abs(pm - pk) >= 0.12:
+            extra.append(f"El motor se aparta {abs(pm - pk):.0%} del mercado: casi siempre es una noticia que el motor no ve "
+                         "(lesión del mariscal, suspensiones, clima). Revisa antes de apostar.")
+        p = {"local": j["local"], "visita": j["visita"], "inicio": j["inicio"]}
+        sal.append(_tarjeta("NCAAF", "NCAAF", p, _sigla(j["local"]), _sigla(j["visita"]), pk, motores, pfin,
+                            M, T, hcp, lt, V, True, datos, extra=extra))
+        sal[-1]["res"] = ["NCAAF", str(j["id_local"]), str(j["id_visita"]), j["inicio"][:10]]
+    return sal
 
 
 def calificar(meta, gl, gv):
@@ -771,7 +833,8 @@ def correr():
                 sel["Fútbol"].append(dict(p, _clave=l["clave"], _liga=l["nombre"]))
     juegos = []
     for nombre, fn in (("NFL", lambda: nfl(sel["NFL"], hoy, ahora)), ("NBA", lambda: nba(hoy, ahora)),
-                       ("Fútbol", lambda: futbol(sel["Fútbol"], hoy)), ("LVBP", lambda: lvbp(hoy)), ("NCAAB", lambda: ncaab(hoy))):
+                       ("Fútbol", lambda: futbol(sel["Fútbol"], hoy)), ("LVBP", lambda: lvbp(hoy)), ("NCAAB", lambda: ncaab(hoy)),
+                       ("NCAAF", lambda: ncaaf(hoy))):
         try:
             juegos += fn()
         except Exception as e:  # noqa: BLE001
