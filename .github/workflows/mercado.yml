@@ -1,0 +1,25 @@
+name: Mercado (hacia dónde se mueven las líneas)
+# Gratis: líneas de apertura y actuales del marcador público de ESPN, con una foto propia cada hora.
+on:
+  workflow_dispatch:
+    inputs:
+      modo:
+        description: "vacío = corrida normal; sondeo = ver qué trae la fuente"
+        default: ""
+permissions:
+  contents: write
+concurrency:
+  group: mercado
+  cancel-in-progress: false
+jobs:
+  mercado:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install curl_cffi
+      - name: Mercado
+        run: python herramientas/mercado.py ${{ inputs.modo }}
