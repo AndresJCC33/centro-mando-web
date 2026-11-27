@@ -744,7 +744,7 @@
     const desde = new Date(p.desde).toLocaleString('es-VE', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
     const top = [...ls].sort((a, b) => b.mov - a.mov)[0];
     if (top.mov < 0.015) return { t: `Mercado estable: Pinnacle casi no ha movido la línea (desde el ${desde})`, c: '' };
-    return { t: `El dinero fuerte va con ${top.nombre}: Pinnacle lo subió de ${pct0(top.p_apertura)} a ${pct0(top.p)} (desde el ${desde})`, c: 'sube' };
+    return { t: `El mercado se mueve hacia ${top.nombre}: Pinnacle lo subió de ${pct0(top.p_apertura)} a ${pct0(top.p)} (desde el ${desde})`, c: 'sube' };
   };
   const hora_ = (iso) => new Date(iso).toLocaleString('es-VE', { weekday: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/Caracas' });
   const BANDERA = { 'Inglaterra': '🏴󠁧󠁢󠁥󠁮󠁧󠁿', 'España': '🇪🇸', 'Alemania': '🇩🇪', 'Italia': '🇮🇹', 'Francia': '🇫🇷', 'Países Bajos': '🇳🇱',
