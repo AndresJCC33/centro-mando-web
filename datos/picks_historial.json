@@ -1,0 +1,91 @@
+{
+"picks": [
+{
+"id": "NFL|PIT|DEN|2026-11-27|PIT moneyline",
+"juego": "NFL|PIT|DEN|2026-11-27",
+"deporte": "NFL",
+"liga": "NFL",
+"inicio": "2026-11-27T16:00-04:00",
+"sin_hora": false,
+"partido": "Denver Broncos @ Pittsburgh Steelers",
+"apuesta": "PIT moneyline",
+"casa": "William Hill",
+"cuota": 2.9,
+"p": 0.3589,
+"ev": 0.0409,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NFL",
+"PIT",
+"DEN",
+"2026-11-27"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T00:15+00:00",
+"actualizado": "2026-11-27T00:15+00:00"
+},
+{
+"id": "F|Levante|Real Racing Club de Santander|2026-11-27|Levante",
+"juego": "F|Levante|Real Racing Club de Santander|2026-11-27",
+"deporte": "Fútbol",
+"liga": "España · LaLiga",
+"inicio": "2026-11-27T16:00-04:00",
+"sin_hora": false,
+"partido": "Real Racing Club de Santander @ Levante",
+"apuesta": "Levante",
+"casa": "1xBet",
+"cuota": 2.18,
+"p": 0.4832,
+"ev": 0.0533,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Levante",
+"Santander",
+"2026-11-27"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T00:15+00:00",
+"actualizado": "2026-11-27T00:15+00:00"
+},
+{
+"id": "NCAAB|Louisville|St. John's Red|2026-11-26|Louisville Cardinals",
+"juego": "NCAAB|Louisville|St. John's Red|2026-11-26",
+"deporte": "NCAAB",
+"liga": "NCAAB",
+"inicio": "2026-11-26T22:00-04:00",
+"sin_hora": false,
+"partido": "St. John's Red Storm @ Louisville Cardinals",
+"apuesta": "Louisville Cardinals",
+"casa": "Unibet (NL)",
+"cuota": 2.23,
+"p": 0.4685,
+"ev": 0.0448,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NCAAB",
+"97",
+"2599",
+"2026-11-26"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-27T00:15+00:00",
+"actualizado": "2026-11-27T00:15+00:00"
+}
+]
+}
