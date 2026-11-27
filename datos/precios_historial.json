@@ -18,12 +18,36 @@
 "ventaja": 0.0557,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-26T10:41-04:00",
-"p_cierre": 0.2892,
-"clv": 0.0556,
+"p_cierre": 0.2898,
+"clv": 0.0578,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
+},
+{
+"id": "3876ad367184af2f8fc04a544fc894aa|Draw",
+"evento": "3876ad367184af2f8fc04a544fc894aa",
+"deporte_api": "soccer_italy_serie_a",
+"liga": "Italia · Serie A",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T15:45-04:00",
+"partido": "Como vs Juventus",
+"seleccion": "Empate",
+"clave": "Draw",
+"cuota": 285,
+"cuota_dec": 3.849,
+"casa": "1xBet",
+"p_justa": 0.2716,
+"ventaja": 0.0455,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-27T10:35-04:00",
+"p_cierre": 0.2716,
+"clv": 0.0455,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
 },
 {
 "id": "d0b3104f6b235f9a40a98879fffefb93|Coritiba",
@@ -44,10 +68,11 @@
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-26T21:01-04:00",
 "p_cierre": 0.2265,
-"clv": 0.0508,
+"clv": 0.0507,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "630736ab8e87597d5ac6e58133d7f7d0|Standard Liege",
@@ -91,12 +116,12 @@
 "ventaja": 0.049,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.2124,
-"clv": 0.0197,
+"p_cierre": 0.2147,
+"clv": 0.0308,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Draw",
@@ -116,12 +141,12 @@
 "ventaja": 0.0691,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.1181,
-"clv": -0.0317,
+"p_cierre": 0.1214,
+"clv": -0.0046,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "c979bd4559d2d81a8e2fe8f2d4aec376|Monza",
@@ -141,12 +166,12 @@
 "ventaja": 0.2462,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.0731,
-"clv": 0.0962,
+"p_cierre": 0.0758,
+"clv": 0.1367,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "523fa336e1cf685100957e5e6359fc4c|FC Zwolle",
@@ -166,12 +191,12 @@
 "ventaja": 0.1616,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.1731,
-"clv": 0.0817,
+"p_cierre": 0.1714,
+"clv": 0.0711,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "69fc06d019491be2aa1bf69b8f8041e3|Deportivo La Coruña",
@@ -191,12 +216,12 @@
 "ventaja": 0.2622,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.0776,
-"clv": -0.108,
+"p_cierre": 0.0775,
+"clv": -0.1091,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "f745c0453880329819da1ecfde118f1c|Draw",
@@ -216,12 +241,12 @@
 "ventaja": 0.0327,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-26T10:41-04:00",
-"p_cierre": 0.2951,
-"clv": 0.0326,
+"p_cierre": 0.2959,
+"clv": 0.0354,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "09bb0ba9a9025d64fed410375c0c8f80|Draw",
@@ -241,12 +266,60 @@
 "ventaja": 0.0405,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2818,
-"clv": 0.0342,
+"p_cierre": 0.2793,
+"clv": 0.025,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
+},
+{
+"id": "e12585885a7f135127f276b7f1ecdf89|Hull City",
+"evento": "e12585885a7f135127f276b7f1ecdf89",
+"deporte_api": "soccer_epl",
+"liga": "Inglaterra · Premier League",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T10:05-04:00",
+"partido": "Crystal Palace vs Hull City",
+"seleccion": "Hull City",
+"clave": "Hull City",
+"cuota": 325,
+"cuota_dec": 4.25,
+"casa": "Unibet (SE)",
+"p_justa": 0.2476,
+"ventaja": 0.0523,
+"tipo": "VALOR SIN CONFIANZA",
+"detectado": "2026-11-27T10:35-04:00",
+"p_cierre": 0.2476,
+"clv": 0.0523,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+},
+{
+"id": "a846e6934bbb0f1a707bae28d3c52e9b|Feyenoord",
+"evento": "a846e6934bbb0f1a707bae28d3c52e9b",
+"deporte_api": "soccer_netherlands_eredivisie",
+"liga": "Países Bajos · Eredivisie",
+"deporte": "Fútbol",
+"fecha": "2026-11-29",
+"inicio": "2026-11-29T09:30-04:00",
+"partido": "Feyenoord vs Ajax",
+"seleccion": "Feyenoord",
+"clave": "Feyenoord",
+"cuota": 140,
+"cuota_dec": 2.4,
+"casa": "Unibet (NL)",
+"p_justa": 0.4324,
+"ventaja": 0.0378,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-27T10:35-04:00",
+"p_cierre": 0.4324,
+"clv": 0.0378,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
 },
 {
 "id": "3c54622721e80cdfbb954b810a125a04|Draw",
@@ -266,12 +339,12 @@
 "ventaja": 0.0352,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.272,
-"clv": 0.0336,
+"p_cierre": 0.2722,
+"clv": 0.0344,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "f45e9062c2f755b977c98d496c22697b|Draw",
@@ -291,12 +364,12 @@
 "ventaja": 0.0553,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2513,
-"clv": 0.0203,
+"p_cierre": 0.2448,
+"clv": -0.0061,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "bcf1bfc44adf70bf134bd132c4a5ba87|Cardiff City",
@@ -345,7 +418,7 @@
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "c99772cba1418e72f2eded26e4afeb59|Alavés",
@@ -365,12 +438,12 @@
 "ventaja": 0.0747,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.0397,
-"clv": -0.1667,
+"p_cierre": 0.0387,
+"clv": -0.1877,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "708641646f92ec14288beaaf1154e996|SC Cambuur",
@@ -390,12 +463,12 @@
 "ventaja": 0.0369,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.4559,
-"clv": 0.0577,
+"p_cierre": 0.4579,
+"clv": 0.0623,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "f96c1137c9d3f7e2e691275a2988fa1d|Draw",
@@ -415,12 +488,12 @@
 "ventaja": 0.0536,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2695,
-"clv": 0.0513,
+"p_cierre": 0.2731,
+"clv": 0.0654,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "12002f6f804a122db48271ff05be03c0|Lorient",
@@ -440,12 +513,12 @@
 "ventaja": 0.1357,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.0675,
-"clv": -0.0547,
+"p_cierre": 0.0674,
+"clv": -0.0561,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "aaa86a483888836242da663a46957894|Draw",
@@ -465,12 +538,12 @@
 "ventaja": 0.0307,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.2821,
-"clv": 0.0297,
+"p_cierre": 0.2868,
+"clv": 0.0468,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "8031222f3f3e8384a69c0ca5e1166458|Go Ahead Eagles",
@@ -490,12 +563,12 @@
 "ventaja": 0.261,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.0884,
-"clv": 0.0162,
+"p_cierre": 0.0866,
+"clv": -0.0045,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "5d838190a8f5932d7fcfbcc26bacdd9c|Eintracht Frankfurt",
@@ -508,19 +581,19 @@
 "partido": "VfB Stuttgart vs Eintracht Frankfurt",
 "seleccion": "Eintracht Frankfurt",
 "clave": "Eintracht Frankfurt",
-"cuota": 316,
-"cuota_dec": 4.16,
-"casa": "1xBet",
-"p_justa": 0.2514,
-"ventaja": 0.0458,
-"tipo": "VALOR SIN CONFIANZA",
+"cuota": 295,
+"cuota_dec": 3.949,
+"casa": "Unibet (SE)",
+"p_justa": 0.263,
+"ventaja": 0.0387,
+"tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2483,
-"clv": 0.0329,
+"p_cierre": 0.263,
+"clv": 0.0941,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "365e1a00908ab1cd5a51a53ede2b86b2|Union Berlin",
@@ -540,12 +613,12 @@
 "ventaja": 0.0647,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.1522,
-"clv": 0.0275,
+"p_cierre": 0.1437,
+"clv": -0.0299,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "f84a9da7eedd0ca11a28a1a7a8edddc7|FC Schalke 04",
@@ -565,11 +638,12 @@
 "ventaja": 0.0427,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-26T21:01-04:00",
-"p_cierre": 0.3535,
-"clv": 0.0427,
+"p_cierre": 0.3532,
+"clv": 0.0419,
 "resultado": "PENDIENTE",
 "marcador": "",
-"unidades": null
+"unidades": null,
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "af3432ca724da03d38f0ff4e62045e4c|Parma",
@@ -589,12 +663,12 @@
 "ventaja": 0.0421,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.168,
-"clv": 0.025,
+"p_cierre": 0.1662,
+"clv": 0.014,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "c81520b9a9794749cfdab57f89bdeb16|Rayo Vallecano",
@@ -614,12 +688,12 @@
 "ventaja": 0.1053,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.1787,
-"clv": 0.0724,
+"p_cierre": 0.1779,
+"clv": 0.0676,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "a1d96ec37a8b7022ef39a7755a655243|Charlton Athletic",
@@ -694,6 +768,30 @@
 "unidades": null
 },
 {
+"id": "ebb91d3cb7c017b0bf6de2b333909d71|UC Davis Aggies",
+"evento": "ebb91d3cb7c017b0bf6de2b333909d71",
+"deporte_api": "basketball_ncaab",
+"liga": "NCAAB",
+"deporte": "NCAAB",
+"fecha": "2026-11-27",
+"inicio": "2026-11-27T21:00-04:00",
+"partido": "UC Davis Aggies vs Pacific Tigers",
+"seleccion": "UC Davis Aggies",
+"clave": "UC Davis Aggies",
+"cuota": 260,
+"cuota_dec": 3.599,
+"casa": "Unibet (SE)",
+"p_justa": 0.2962,
+"ventaja": 0.0661,
+"tipo": "VALOR PROBADO",
+"detectado": "2026-11-27T10:35-04:00",
+"p_cierre": 0.2962,
+"clv": 0.0661,
+"resultado": "PENDIENTE",
+"marcador": "",
+"unidades": null
+},
+{
 "id": "40d95e660c301c2d8a5a7a6317017b65|Draw",
 "evento": "40d95e660c301c2d8a5a7a6317017b65",
 "deporte_api": "soccer_epl",
@@ -711,12 +809,12 @@
 "ventaja": 0.0508,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2862,
-"clv": 0.0675,
+"p_cierre": 0.2766,
+"clv": 0.0317,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "02ff879cf54f6d1fec2664efee0431db|Draw",
@@ -736,12 +834,12 @@
 "ventaja": 0.0402,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T13:37-04:00",
-"p_cierre": 0.2831,
-"clv": 0.0446,
+"p_cierre": 0.2845,
+"clv": 0.0498,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "e9a663f13e7503c0ac20a54804338b60|Draw",
@@ -761,12 +859,12 @@
 "ventaja": 0.032,
 "tipo": "VALOR PROBADO",
 "detectado": "2026-11-25T14:05-04:00",
-"p_cierre": 0.2956,
-"clv": 0.0582,
+"p_cierre": 0.2964,
+"clv": 0.0611,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "7aa2e13c09deb4fbd70e62312e82a514|Willem II",
@@ -786,12 +884,12 @@
 "ventaja": 0.1175,
 "tipo": "VALOR SIN CONFIANZA",
 "detectado": "2026-11-25T13:01-04:00",
-"p_cierre": 0.1333,
-"clv": -0.0002,
+"p_cierre": 0.0951,
+"clv": -0.2867,
 "resultado": "PENDIENTE",
 "marcador": "",
 "unidades": null,
-"foto_cierre": "2026-11-26T21:01-04:00"
+"foto_cierre": "2026-11-27T10:35-04:00"
 },
 {
 "id": "87fec8c093d5b8f825bc61121105cc27|Stanford Cardinal",
