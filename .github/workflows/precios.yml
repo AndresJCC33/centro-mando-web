@@ -4,10 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       modo:
-        description: "vacío = corrida normal; sondeo = ver créditos y casas"
+        description: "vacío = corrida normal; sondeo = ver créditos y casas; ligas = revisar ligas sin gastar créditos"
         default: ""
   schedule:
-    - cron: "40 13 * * *"   # 9:40 am de Caracas, una vez al día (13 ligas ≈ 13 créditos + marcadores)
+    - cron: "40 13 * * *"   # 9:40 am de Caracas, una vez al día (1 crédito por liga con partidos en 36 h + marcadores)
 permissions:
   contents: write
 concurrency:
@@ -30,12 +30,12 @@ jobs:
           GDRIVE_REFRESH_TOKEN: ${{ secrets.GDRIVE_REFRESH_TOKEN }}
         run: python herramientas/precios.py ${{ inputs.modo }}
       - name: Motores NCAAB, NHL y NFL (simulación; no gasta créditos)
-        if: ${{ inputs.modo != 'sondeo' }}
+        if: ${{ inputs.modo != 'sondeo' && inputs.modo != 'ligas' }}
         continue-on-error: true
         timeout-minutes: 15
         run: python herramientas/motores_eeuu.py
       - name: Publicar si cambió
-        if: ${{ inputs.modo != 'sondeo' }}
+        if: ${{ inputs.modo != 'sondeo' && inputs.modo != 'ligas' }}
         run: |
           git config user.name "centro-mando-bot"
           git config user.email "actions@users.noreply.github.com"

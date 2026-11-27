@@ -38,10 +38,26 @@ LIGAS = {
     "soccer_netherlands_eredivisie": ("Países Bajos · Eredivisie", "Fútbol", "h2h"),
     "soccer_spain_segunda_division": ("España · LaLiga 2", "Fútbol", "h2h"),
     "soccer_germany_bundesliga2": ("Alemania · 2. Bundesliga", "Fútbol", "h2h"),
+    # Desde el 26-nov: ligas donde el estudio de 7 temporadas (football-data) vio más veces la mejor cuota
+    # por encima del precio justo de Pinnacle con ROI positivo (estudios/ligas del repo motores).
+    "soccer_argentina_primera_division": ("Argentina · Liga Profesional", "Fútbol", "h2h"),
+    "soccer_brazil_campeonato": ("Brasil · Serie A", "Fútbol", "h2h"),
+    "soccer_england_league2": ("Inglaterra · League Two", "Fútbol", "h2h"),
+    "soccer_belgium_first_div": ("Bélgica · Pro League", "Fútbol", "h2h"),
+    "soccer_austria_bundesliga": ("Austria · Bundesliga", "Fútbol", "h2h"),
+    "soccer_italy_serie_b": ("Italia · Serie B", "Fútbol", "h2h"),
+    "soccer_denmark_superliga": ("Dinamarca · Superliga", "Fútbol", "h2h"),
+    "soccer_mexico_ligamx": ("México · Liga MX", "Fútbol", "h2h"),
+    "soccer_japan_j_league": ("Japón · J1 League", "Fútbol", "h2h"),
+    "soccer_efl_champ": ("Inglaterra · Championship", "Fútbol", "h2h"),
     "basketball_ncaab": ("NCAAB", "NCAAB", "h2h"),
     "icehockey_nhl": ("NHL", "NHL", "h2h"),
     "americanfootball_nfl": ("NFL", "NFL", "h2h"),
+    "americanfootball_ncaaf": ("NCAAF", "NCAAF", "h2h"),
 }
+# Las cuotas de una liga solo se piden (1 crédito) si tiene partidos en las próximas HORAS_PEDIR horas; la lista de
+# partidos (/events) es gratis. Así se pueden seguir muchas ligas sin gastar créditos en días sin juegos.
+HORAS_PEDIR = 36
 # Si quedan menos créditos que esto, el vigilante se detiene para no dejar sin cuotas a la cartelera automática.
 RESERVA_CREDITOS = 60
 SHARP = "pinnacle"
@@ -196,6 +212,19 @@ def correr():
     ligas, creditos, avisos = [], None, []
     for k, (nombre, deporte, mercados) in LIGAS.items():
         try:
+            evs, _ = api(f"/sports/{k}/events", clave)  # gratis
+            pronto = [e for e in evs if ahora < datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00"))
+                      <= ahora + timedelta(hours=HORAS_PEDIR)]
+            # también si hay un pick guardado por jugar (para su foto de cierre)
+            pend = any(p["deporte_api"] == k and p["resultado"] == "PENDIENTE"
+                       and datetime.fromisoformat(p["inicio"]) > ahora for p in picks.values())
+            if not pronto and not pend:
+                ligas.append(dict(clave=k, nombre=nombre, deporte=deporte, partidos=[]))
+                continue
+        except Exception as ex:  # noqa: BLE001
+            avisos.append(f"{nombre} (lista de partidos): {ex}")
+            continue
+        try:
             datos, info = api(f"/sports/{k}/odds", clave, regions=REGIONES, markets=mercados, oddsFormat="decimal")
             creditos = info.get("x-requests-remaining")
         except Exception as ex:  # noqa: BLE001
@@ -271,8 +300,27 @@ def correr():
           "| picks guardados:", len(lista), "| avisos:", avisos)
 
 
+def revisar_ligas():
+    """Sin gastar créditos (/sports y /events son gratis): ¿existe cada liga y cuántos partidos tiene pronto?"""
+    clave = clave_odds()
+    ahora = datetime.now(timezone.utc)
+    activos, info = api("/sports", clave)
+    activos = {d["key"] for d in activos}
+    print("créditos:", info)
+    for k, (nombre, _, _) in LIGAS.items():
+        if k not in activos:
+            print(f"{nombre:34s} {k:38s} NO ACTIVA HOY")
+            continue
+        evs, _ = api(f"/sports/{k}/events", clave)
+        t = [datetime.fromisoformat(e["commence_time"].replace("Z", "+00:00")) for e in evs]
+        print(f"{nombre:34s} {k:38s} {sum(ahora < x <= ahora + timedelta(hours=HORAS_PEDIR) for x in t):3d} en {HORAS_PEDIR} h"
+              f" | {sum(ahora < x <= ahora + timedelta(days=7) for x in t):3d} en 7 días")
+
+
 if __name__ == "__main__":
     if sys.argv[1:] == ["sondeo"]:
         sondeo()
+    elif sys.argv[1:] == ["ligas"]:
+        revisar_ligas()
     else:
         correr()

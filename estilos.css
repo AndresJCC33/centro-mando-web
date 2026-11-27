@@ -35,6 +35,7 @@ body[data-dep="NBA"] .cancha-fondo { background: url("fondos/nba.svg?v=1") 80% 5
 body[data-dep="NCAAB"] .cancha-fondo { background: url("fondos/ncaab.svg?v=1") 80% 50% / cover no-repeat, var(--cancha-b); --marca: "NCAAB"; }
 body[data-dep="NHL"] .cancha-fondo { background: url("fondos/nhl.svg?v=1") 50% 50% / cover no-repeat, var(--cancha-b); --marca: "NHL"; }
 body[data-dep="NFL"] .cancha-fondo { background: url("fondos/nfl.svg?v=1") 50% 50% / cover no-repeat, var(--cancha-b); --marca: "NFL"; }
+body[data-dep="NCAAF"] .cancha-fondo { background: url("fondos/nfl.svg?v=1") 50% 50% / cover no-repeat, var(--cancha-b); --marca: "NCAAF"; }
 body[data-dep="MLB"] .cancha-fondo { background: url("fondos/mlb.svg?v=2") 72% 100% / cover no-repeat, #0f1d33; --marca: "MLB"; }
 body[data-dep="LVBP"] .cancha-fondo { background: url("fondos/lvbp.svg?v=2") 72% 100% / cover no-repeat, #2a1a14; --marca: "LVBP"; }
 .cancha-fondo::before { content: var(--marca, ""); position: absolute; right: -0.04em; bottom: -0.18em; z-index: 1; font: 800 clamp(6rem, 24vw, 17rem)/1 "Big Shoulders Display", "Arial Black", sans-serif; letter-spacing: 0.02em; color: transparent; -webkit-text-stroke: 2px rgba(255, 255, 255, 0.22); pointer-events: none; }
@@ -123,7 +124,7 @@ select { font: inherit; padding: 0.4rem 0.6rem; border: 1px solid var(--linea); 
 body:not([data-dep="Todos"]) .regla { display: none; }
 body[data-dep="NBA"] .regla[data-regla="NBA"], body[data-dep="LVBP"] .regla[data-regla="LVBP"], body[data-dep="MLB"] .regla[data-regla="MLB"],
 body[data-dep="Fútbol"] .regla[data-regla="Fútbol"], body[data-dep="Fútbol"] .regla[data-regla="Precios"],
-body[data-dep="NCAAB"] .regla[data-regla="Precios"], body[data-dep="NHL"] .regla[data-regla="Precios"], body[data-dep="NFL"] .regla[data-regla="Precios"] { display: block; }
+body[data-dep="NCAAB"] .regla[data-regla="Precios"], body[data-dep="NHL"] .regla[data-regla="Precios"], body[data-dep="NFL"] .regla[data-regla="Precios"], body[data-dep="NCAAF"] .regla[data-regla="Precios"] { display: block; }
 .regla[data-regla="MLB"] { border-top-color: #d94a4a; }
 .glosario { display: grid; grid-template-columns: minmax(9rem, max-content) 1fr; gap: 0.5rem 1.25rem; margin: 0.5rem 0 0; }
 .glosario dt { font-weight: 600; }
@@ -183,6 +184,7 @@ body[data-dep="NCAAB"] { --acento: #4f8cff; --cancha-a: #2b4c8c; --cancha-b: #1d
 .pasos b { color: var(--tinta); }
 body[data-dep="NHL"] { --acento: #5fb3d9; --cancha-a: #3d6f8a; --cancha-b: #24485c; }
 body[data-dep="NFL"] { --acento: #c9a227; --cancha-a: #3f6b2e; --cancha-b: #2c4d20; }
+body[data-dep="NCAAF"] { --acento: #c9a227; --cancha-a: #3f6b2e; --cancha-b: #2c4d20; }
 body[data-dep="MLB"] { --acento: #d94a4a; --cancha-a: #9a3b2c; --cancha-b: #2e6b45; }
 /* Análisis por partido */
 details.analisis { margin-top: 0.5rem; border-top: 1px solid var(--linea); padding-top: 0.4rem; }

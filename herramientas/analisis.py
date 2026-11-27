@@ -18,7 +18,7 @@ import os
 import re
 import sys
 import unicodedata
-from datetime import datetime
+from datetime import datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(__file__))
 from actualizar import bajar, CARACAS, DATOS  # noqa: E402
@@ -31,11 +31,21 @@ MAX_NUEVOS = 150  # cajas nuevas por corrida (la primera vez se pone al día en 
 # ---------------------------------------------------------------- fútbol
 LIGAS_FD = {"E0": "Premier", "E1": "Championship", "SP1": "LaLiga", "SP2": "LaLiga 2", "D1": "Bundesliga",
             "D2": "2. Bundesliga", "I1": "Serie A", "I2": "Serie B", "F1": "Ligue 1", "F2": "Ligue 2",
-            "N1": "Eredivisie", "P1": "Portugal", "T1": "Turquia", "B1": "Belgica", "G1": "Grecia", "SC0": "Escocia"}
+            "N1": "Eredivisie", "P1": "Portugal", "T1": "Turquia", "B1": "Belgica", "G1": "Grecia", "SC0": "Escocia",
+            "E3": "League Two",
+            # ligas «extra» de football-data (archivo new/<país>.csv: solo goles, sin tiros ni tarjetas)
+            "ARG": "Argentina", "BRA": "Brasil", "AUT": "Austria", "DNK": "Dinamarca", "MEX": "Mexico", "JPN": "Japon"}
+# liga principal dentro del archivo extra (el de Argentina trae también la Copa de la Liga)
+EXTRA_FD = {"ARG": "Liga Profesional", "BRA": "Serie A", "AUT": "Bundesliga", "DNK": "Superliga", "MEX": "Liga MX",
+            "JPN": "J1 League"}
 # deporte de The Odds API -> liga de football-data (para buscar el nombre solo dentro de esa liga)
 API_FD = {"soccer_epl": "E0", "soccer_spain_la_liga": "SP1", "soccer_germany_bundesliga": "D1",
           "soccer_italy_serie_a": "I1", "soccer_france_ligue_one": "F1", "soccer_netherlands_eredivisie": "N1",
-          "soccer_greece_super_league": "G1", "soccer_spain_segunda_division": "SP2", "soccer_germany_bundesliga2": "D2"}
+          "soccer_greece_super_league": "G1", "soccer_spain_segunda_division": "SP2", "soccer_germany_bundesliga2": "D2",
+          "soccer_efl_champ": "E1", "soccer_england_league2": "E3", "soccer_belgium_first_div": "B1",
+          "soccer_italy_serie_b": "I2", "soccer_argentina_primera_division": "ARG", "soccer_brazil_campeonato": "BRA",
+          "soccer_austria_bundesliga": "AUT", "soccer_denmark_superliga": "DNK", "soccer_mexico_ligamx": "MEX",
+          "soccer_japan_j_league": "JPN"}
 # nombre en The Odds API -> nombre en football-data, cuando la búsqueda aproximada no basta
 ALIAS = {
     "Manchester City": "Man City", "Manchester United": "Man United", "Wolverhampton Wanderers": "Wolves",
@@ -86,6 +96,38 @@ STATS_FD = [("goles", "FTHG", "FTAG"), ("tiros", "HS", "AS"), ("arco", "HST", "A
             ("faltas", "HF", "AF"), ("amarillas", "HY", "AY"), ("rojas", "HR", "AR")]
 
 
+def filas_fd(cod, temporadas, dias=None):
+    """Partidos jugados de una liga de football-data, con las columnas del formato principal
+    (Date, HomeTeam, AwayTeam, FTHG, FTAG y, si las hay, tiros, córners, faltas y tarjetas).
+    temporadas: códigos «2526» del formato principal. En las ligas extra (un archivo con todas las temporadas)
+    se toman la temporada más reciente (dias=None) o los partidos de los últimos «dias» días."""
+    if cod not in EXTRA_FD:
+        filas = []
+        for temp in temporadas:
+            txt = bajar(f"https://www.football-data.co.uk/mmz4281/{temp}/{cod}.csv").decode("utf-8-sig", "replace")
+            filas += [r for r in csv.DictReader(io.StringIO(txt)) if r.get("HomeTeam") and _num(r, "FTHG") is not None]
+        return filas
+    crudo = bajar(f"https://www.football-data.co.uk/new/{cod}.csv")
+    try:
+        txt = crudo.decode("utf-8-sig")
+    except UnicodeDecodeError:
+        txt = crudo.decode("latin-1")
+    filas = []
+    for r in csv.DictReader(io.StringIO(txt)):
+        r = {(k or "").replace("\ufeff", "").replace("ï»¿", "").strip(): v for k, v in r.items()}
+        if (r.get("League") or "").strip() != EXTRA_FD[cod] or not r.get("Home") or _num(r, "HG") is None:
+            continue
+        filas.append({"Date": r["Date"], "HomeTeam": r["Home"].strip(), "AwayTeam": r["Away"].strip(),
+                      "FTHG": r["HG"], "FTAG": r["AG"], "Season": (r.get("Season") or "").strip()})
+    if not filas:
+        return filas
+    if dias is None:
+        ult = max(filas, key=lambda r: _fecha(r["Date"]))["Season"]
+        return [r for r in filas if r["Season"] == ult]
+    desde = (datetime.now(CARACAS).date() - timedelta(days=dias)).isoformat()
+    return [r for r in filas if _fecha(r["Date"]) >= desde]
+
+
 def futbol(avisos):
     hoy = datetime.now(CARACAS).date()
     a = hoy.year if hoy.month >= 7 else hoy.year - 1
@@ -93,11 +135,10 @@ def futbol(avisos):
     equipos, por_liga = {}, {}
     for cod, liga in LIGAS_FD.items():
         try:
-            txt = bajar(f"https://www.football-data.co.uk/mmz4281/{temp}/{cod}.csv").decode("utf-8-sig", "replace")
+            filas = filas_fd(cod, [temp])
         except Exception as e:  # noqa: BLE001
             avisos.append(f"football-data {cod}: {type(e).__name__}: {e}")
             continue
-        filas = [r for r in csv.DictReader(io.StringIO(txt)) if r.get("HomeTeam") and _num(r, "FTHG") is not None]
         filas.sort(key=lambda r: _fecha(r["Date"]))
         acum = {}
         for r in filas:

@@ -26,15 +26,14 @@ from scipy.stats import norm, poisson
 sys.path.insert(0, os.path.dirname(__file__))
 import motores_eeuu as ME  # noqa: E402  (descargas, TMP, nombres)
 from actualizar import bajar, CARACAS, DATOS  # noqa: E402
+from analisis import API_FD, filas_fd  # noqa: E402
 from eeuu import nfl_motor, nfl_qb, nfl_series, nombres  # noqa: E402
 
 SALIDA = os.path.join(DATOS, "juegos_analisis.json")
 PESO_MOTORES = 0.2
 VALOR_MIN = 0.03
 SD_NBA = (12.66, 17.93)
-LIGAS_FUT = {"soccer_epl": "E0", "soccer_spain_la_liga": "SP1", "soccer_germany_bundesliga": "D1",
-             "soccer_italy_serie_a": "I1", "soccer_france_ligue_one": "F1", "soccer_netherlands_eredivisie": "N1",
-             "soccer_uefa_champs_league": None}
+LIGAS_FUT = {**API_FD, "soccer_uefa_champs_league": None}   # todas las ligas del vigilante con datos en football-data
 NBA_NOMBRES = {"ATL": "Atlanta Hawks", "BOS": "Boston Celtics", "BKN": "Brooklyn Nets", "CHA": "Charlotte Hornets",
                "CHI": "Chicago Bulls", "CLE": "Cleveland Cavaliers", "DAL": "Dallas Mavericks", "DEN": "Denver Nuggets",
                "DET": "Detroit Pistons", "GSW": "Golden State Warriors", "HOU": "Houston Rockets", "IND": "Indiana Pacers",
@@ -558,26 +557,21 @@ def futbol(partidos, hoy):
     d = pd.Timestamp(hoy)
     for cod in {c for c in LIGAS_FUT.values() if c}:
         filas = []
-        for tmp in temps:
-            try:
-                import csv
-                import io
-                txt = bajar(f"https://www.football-data.co.uk/mmz4281/{tmp}/{cod}.csv").decode("utf-8-sig", "replace")
-                for r in csv.DictReader(io.StringIO(txt)):
-                    if r.get("HomeTeam") and r.get("FTHG") not in (None, ""):
-                        dd = r["Date"]
-                        f = datetime.strptime(dd, "%d/%m/%Y" if len(dd) == 10 else "%d/%m/%y")
-                        filas.append((f, r["HomeTeam"], r["AwayTeam"], int(float(r["FTHG"])), int(float(r["FTAG"]))))
-            except Exception as e:  # noqa: BLE001
-                AVISOS.append(f"football-data {cod} {tmp}: {e}")
+        try:
+            for r in filas_fd(cod, temps, dias=730):
+                dd = r["Date"]
+                f = datetime.strptime(dd, "%d/%m/%Y" if len(dd) == 10 else "%d/%m/%y")
+                filas.append((f, r["HomeTeam"], r["AwayTeam"], int(float(r["FTHG"])), int(float(r["FTAG"]))))
+        except Exception as e:  # noqa: BLE001
+            AVISOS.append(f"football-data {cod}: {e}")
         if not filas:
             continue
         g = pd.DataFrame(filas, columns=["fecha", "local", "visita", "gl", "gv"])
         for r_ in g.itertuples():
             RES[("F", r_.local, r_.visita, r_.fecha.strftime("%Y-%m-%d"))] = (int(r_.gl), int(r_.gv))
         R = _poisson_ratings(g, d)
-        # empates: cociente real / Poisson en los partidos de la temporada actual
-        act = g[g.fecha >= pd.Timestamp(f"{a}-07-01")]
+        # empates: cociente real / Poisson en los partidos del último año (sirve igual para ligas de año calendario)
+        act = g[g.fecha >= d - pd.Timedelta(days=365)]
         pe = [np.trace(_matriz(*_esperados(R, r.local, r.visita), 1.0)) for r in act.itertuples()
               if r.local in R["r"] and r.visita in R["r"]]
         emp = float(np.clip((act.gl == act.gv).mean() / np.mean(pe), 0.85, 1.35)) if len(pe) >= 30 else 1.0
