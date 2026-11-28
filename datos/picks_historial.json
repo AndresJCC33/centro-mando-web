@@ -27,7 +27,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NFL|ARI|WAS|2026-11-29|ARI moneyline",
@@ -56,7 +56,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Real Sociedad|Sevilla|2026-11-29|Real Sociedad",
@@ -85,7 +85,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Vitoria|Santos|2026-11-29|Vitoria",
@@ -114,7 +114,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NFL|CIN|NO|2026-11-29|NO moneyline",
@@ -143,7 +143,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NFL|MIA|NYJ|2026-11-29|MIA moneyline",
@@ -172,7 +172,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Arsenal|Manchester City|2026-11-29|Empate",
@@ -201,7 +201,36 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
+},
+{
+"id": "F|Royal Antwerp|Anderlecht|2026-11-29|Royal Antwerp",
+"juego": "F|Royal Antwerp|Anderlecht|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Bélgica · Pro League",
+"inicio": "2026-11-29T11:00-04:00",
+"sin_hora": false,
+"partido": "Anderlecht @ Royal Antwerp",
+"apuesta": "Royal Antwerp",
+"casa": "Unibet (SE)",
+"cuota": 3.9,
+"p": 0.2892,
+"ev": 0.1278,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Antwerp",
+"Anderlecht",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T15:31+00:00",
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Fulham|Bournemouth|2026-11-29|Empate",
@@ -230,7 +259,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Crystal Palace|Hull City|2026-11-29|Hull City",
@@ -259,7 +288,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Sunderland|Tottenham Hotspur|2026-11-29|Sunderland",
@@ -288,7 +317,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Auxerre|Marseille|2026-11-29|Auxerre",
@@ -317,7 +346,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Randers FC|AC Horsens|2026-11-29|AC Horsens",
@@ -346,7 +375,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Everton|Liverpool|2026-11-29|Empate",
@@ -375,7 +404,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Udinese|Fiorentina|2026-11-29|Udinese",
@@ -404,7 +433,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|América|Monterrey|2026-11-28|América",
@@ -433,7 +462,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NCAAF|Houston|Baylor|2026-11-28|Baylor Bears",
@@ -462,7 +491,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Velez Sarsfield BA|Independiente|2026-11-28|Independiente",
@@ -491,7 +520,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NCAAB|CSU Fullerton|Weber State|2026-11-28|CSU Fullerton Titans",
@@ -520,7 +549,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NCAAB|Furman|Austin Peay|2026-11-28|Furman Paladins",
@@ -549,7 +578,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NCAAF|Virginia Tech|Virginia|2026-11-28|Virginia Cavaliers",
@@ -578,7 +607,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Le Mans FC|Lille|2026-11-28|Le Mans FC",
@@ -607,7 +636,36 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
+},
+{
+"id": "F|Lommel SK|SV Zulte-Waregem|2026-11-28|Lommel SK",
+"juego": "F|Lommel SK|SV Zulte-Waregem|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Bélgica · Pro League",
+"inicio": "2026-11-28T15:45-04:00",
+"sin_hora": false,
+"partido": "SV Zulte-Waregem @ Lommel SK",
+"apuesta": "Lommel SK",
+"casa": "Tipico",
+"cuota": 3.0,
+"p": 0.3527,
+"ev": 0.0581,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Lommel SK",
+"Waregem",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T15:31+00:00",
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Ipswich Town|Aston Villa|2026-11-28|Ipswich Town",
@@ -636,7 +694,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-27T14:41+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|VfB Stuttgart|Eintracht Frankfurt|2026-11-28|VfB Stuttgart",
@@ -665,7 +723,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "NCAAB|Princeton|St. Thomas (MN)|2026-11-28|Princeton Tigers",
@@ -694,7 +752,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-28T14:32+00:00",
-"actualizado": "2026-11-28T14:32+00:00"
+"actualizado": "2026-11-28T15:31+00:00"
 },
 {
 "id": "F|Excelsior|SC Telstar|2026-11-28|SC Telstar",
