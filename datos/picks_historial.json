@@ -1,17 +1,75 @@
 {
 "picks": [
 {
-"id": "F|SC Cambuur|Sparta Rotterdam|2026-11-28|SC Cambuur",
-"juego": "F|SC Cambuur|Sparta Rotterdam|2026-11-28",
+"id": "F|Atletico Mineiro|Vasco da Gama|2026-11-29|Atletico Mineiro",
+"juego": "F|Atletico Mineiro|Vasco da Gama|2026-11-29",
 "deporte": "Fútbol",
-"liga": "Países Bajos · Eredivisie",
-"inicio": "2026-11-28T16:00-04:00",
+"liga": "Brasil · Serie A",
+"inicio": "2026-11-29T18:30-04:00",
 "sin_hora": false,
-"partido": "Sparta Rotterdam @ SC Cambuur",
-"apuesta": "SC Cambuur",
+"partido": "Vasco da Gama @ Atletico Mineiro",
+"apuesta": "Atletico Mineiro",
+"casa": "Unibet (SE)",
+"cuota": 2.65,
+"p": 0.3892,
+"ev": 0.0314,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Atletico-MG",
+"Vasco",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NFL|ARI|WAS|2026-11-29|ARI moneyline",
+"juego": "NFL|ARI|WAS|2026-11-29",
+"deporte": "NFL",
+"liga": "NFL",
+"inicio": "2026-11-29T17:25-04:00",
+"sin_hora": false,
+"partido": "Washington Commanders @ Arizona Cardinals",
+"apuesta": "ARI moneyline",
+"casa": "Unibet (SE)",
+"cuota": 3.85,
+"p": 0.2748,
+"ev": 0.058,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NFL",
+"ARI",
+"WAS",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Real Sociedad|Sevilla|2026-11-29|Real Sociedad",
+"juego": "F|Real Sociedad|Sevilla|2026-11-29",
+"deporte": "Fútbol",
+"liga": "España · LaLiga",
+"inicio": "2026-11-29T16:00-04:00",
+"sin_hora": false,
+"partido": "Sevilla @ Real Sociedad",
+"apuesta": "Real Sociedad",
 "casa": "1xBet",
-"cuota": 2.23,
-"p": 0.4715,
+"cuota": 2.22,
+"p": 0.4736,
 "ev": 0.0514,
 "meta": {
 "m": "1x2",
@@ -19,15 +77,537 @@
 },
 "res": [
 "F",
-"Cambuur",
-"Sparta Rotterdam",
+"Sociedad",
+"Sevilla",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Vitoria|Santos|2026-11-29|Vitoria",
+"juego": "F|Vitoria|Santos|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Brasil · Serie A",
+"inicio": "2026-11-29T15:00-04:00",
+"sin_hora": false,
+"partido": "Santos @ Vitoria",
+"apuesta": "Vitoria",
+"casa": "Coolbet",
+"cuota": 3.15,
+"p": 0.3313,
+"ev": 0.0435,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Vitoria",
+"Santos",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NFL|CIN|NO|2026-11-29|NO moneyline",
+"juego": "NFL|CIN|NO|2026-11-29",
+"deporte": "NFL",
+"liga": "NFL",
+"inicio": "2026-11-29T14:00-04:00",
+"sin_hora": false,
+"partido": "New Orleans Saints @ Cincinnati Bengals",
+"apuesta": "NO moneyline",
+"casa": "MyBookie.ag",
+"cuota": 5.7,
+"p": 0.1812,
+"ev": 0.0327,
+"meta": {
+"m": "ml",
+"lado": "v"
+},
+"res": [
+"NFL",
+"CIN",
+"NO",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NFL|MIA|NYJ|2026-11-29|MIA moneyline",
+"juego": "NFL|MIA|NYJ|2026-11-29",
+"deporte": "NFL",
+"liga": "NFL",
+"inicio": "2026-11-29T14:00-04:00",
+"sin_hora": false,
+"partido": "New York Jets @ Miami Dolphins",
+"apuesta": "MIA moneyline",
+"casa": "William Hill",
+"cuota": 3.1,
+"p": 0.3422,
+"ev": 0.0608,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NFL",
+"MIA",
+"NYJ",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Arsenal|Manchester City|2026-11-29|Empate",
+"juego": "F|Arsenal|Manchester City|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Inglaterra · Premier League",
+"inicio": "2026-11-29T12:30-04:00",
+"sin_hora": false,
+"partido": "Manchester City @ Arsenal",
+"apuesta": "Empate",
+"casa": "1xBet",
+"cuota": 3.88,
+"p": 0.2668,
+"ev": 0.0353,
+"meta": {
+"m": "1x2",
+"lado": "e"
+},
+"res": [
+"F",
+"Arsenal",
+"Man City",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Fulham|Bournemouth|2026-11-29|Empate",
+"juego": "F|Fulham|Bournemouth|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Inglaterra · Premier League",
+"inicio": "2026-11-29T10:05-04:00",
+"sin_hora": false,
+"partido": "Bournemouth @ Fulham",
+"apuesta": "Empate",
+"casa": "1xBet",
+"cuota": 3.72,
+"p": 0.2814,
+"ev": 0.047,
+"meta": {
+"m": "1x2",
+"lado": "e"
+},
+"res": [
+"F",
+"Fulham",
+"Bournemouth",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Crystal Palace|Hull City|2026-11-29|Hull City",
+"juego": "F|Crystal Palace|Hull City|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Inglaterra · Premier League",
+"inicio": "2026-11-29T10:05-04:00",
+"sin_hora": false,
+"partido": "Hull City @ Crystal Palace",
+"apuesta": "Hull City",
+"casa": "Unibet (SE)",
+"cuota": 4.25,
+"p": 0.2737,
+"ev": 0.1631,
+"meta": {
+"m": "1x2",
+"lado": "v"
+},
+"res": [
+"F",
+"Crystal Palace",
+"Hull",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Sunderland|Tottenham Hotspur|2026-11-29|Sunderland",
+"juego": "F|Sunderland|Tottenham Hotspur|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Inglaterra · Premier League",
+"inicio": "2026-11-29T10:05-04:00",
+"sin_hora": false,
+"partido": "Tottenham Hotspur @ Sunderland",
+"apuesta": "Sunderland",
+"casa": "BetAnything",
+"cuota": 4.21,
+"p": 0.257,
+"ev": 0.0821,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Sunderland",
+"Tottenham",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Auxerre|Marseille|2026-11-29|Auxerre",
+"juego": "F|Auxerre|Marseille|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Francia · Ligue 1",
+"inicio": "2026-11-29T10:00-04:00",
+"sin_hora": false,
+"partido": "Marseille @ Auxerre",
+"apuesta": "Auxerre",
+"casa": "Unibet (SE)",
+"cuota": 3.85,
+"p": 0.2726,
+"ev": 0.0496,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Auxerre",
+"Marseille",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Randers FC|AC Horsens|2026-11-29|AC Horsens",
+"juego": "F|Randers FC|AC Horsens|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Dinamarca · Superliga",
+"inicio": "2026-11-29T09:00-04:00",
+"sin_hora": false,
+"partido": "AC Horsens @ Randers FC",
+"apuesta": "AC Horsens",
+"casa": "Unibet (SE)",
+"cuota": 3.1,
+"p": 0.3455,
+"ev": 0.0712,
+"meta": {
+"m": "1x2",
+"lado": "v"
+},
+"res": [
+"F",
+"Randers FC",
+"Horsens",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Everton|Liverpool|2026-11-29|Empate",
+"juego": "F|Everton|Liverpool|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Inglaterra · Premier League",
+"inicio": "2026-11-29T08:00-04:00",
+"sin_hora": false,
+"partido": "Liverpool @ Everton",
+"apuesta": "Empate",
+"casa": "1xBet",
+"cuota": 4.21,
+"p": 0.2579,
+"ev": 0.0858,
+"meta": {
+"m": "1x2",
+"lado": "e"
+},
+"res": [
+"F",
+"Everton",
+"Liverpool",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Udinese|Fiorentina|2026-11-29|Udinese",
+"juego": "F|Udinese|Fiorentina|2026-11-29",
+"deporte": "Fútbol",
+"liga": "Italia · Serie A",
+"inicio": "2026-11-29T07:30-04:00",
+"sin_hora": false,
+"partido": "Fiorentina @ Udinese",
+"apuesta": "Udinese",
+"casa": "Unibet (SE)",
+"cuota": 3.25,
+"p": 0.3238,
+"ev": 0.0524,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Udinese",
+"Fiorentina",
+"2026-11-29"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|América|Monterrey|2026-11-28|América",
+"juego": "F|América|Monterrey|2026-11-28",
+"deporte": "Fútbol",
+"liga": "México · Liga MX",
+"inicio": "2026-11-28T23:10-04:00",
+"sin_hora": false,
+"partido": "Monterrey @ América",
+"apuesta": "América",
+"casa": "Unibet (SE)",
+"cuota": 2.23,
+"p": 0.4677,
+"ev": 0.0429,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Club America",
+"Monterrey",
 "2026-11-28"
 ],
 "resultado": "PENDIENTE",
 "unidades": null,
 "marcador": null,
-"guardado": "2026-11-27T14:41+00:00",
-"actualizado": "2026-11-28T03:41+00:00"
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NCAAF|Houston|Baylor|2026-11-28|Baylor Bears",
+"juego": "NCAAF|Houston|Baylor|2026-11-28",
+"deporte": "NCAAF",
+"liga": "NCAAF",
+"inicio": "2026-11-28T22:30-04:00",
+"sin_hora": false,
+"partido": "Baylor Bears @ Houston Cougars",
+"apuesta": "Baylor Bears",
+"casa": "Unibet (SE)",
+"cuota": 2.45,
+"p": 0.4222,
+"ev": 0.0344,
+"meta": {
+"m": "ml",
+"lado": "v"
+},
+"res": [
+"NCAAF",
+"Houston",
+"Baylor",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Velez Sarsfield BA|Independiente|2026-11-28|Independiente",
+"juego": "F|Velez Sarsfield BA|Independiente|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Argentina · Liga Profesional",
+"inicio": "2026-11-28T19:00-04:00",
+"sin_hora": false,
+"partido": "Independiente @ Velez Sarsfield BA",
+"apuesta": "Independiente",
+"casa": "BetAnything",
+"cuota": 4.15,
+"p": 0.2518,
+"ev": 0.0449,
+"meta": {
+"m": "1x2",
+"lado": "v"
+},
+"res": [
+"F",
+"Velez Sarsfield",
+"Independiente",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NCAAB|CSU Fullerton|Weber State|2026-11-28|CSU Fullerton Titans",
+"juego": "NCAAB|CSU Fullerton|Weber State|2026-11-28",
+"deporte": "NCAAB",
+"liga": "NCAAB",
+"inicio": "2026-11-28T18:00-04:00",
+"sin_hora": false,
+"partido": "Weber State Wildcats @ CSU Fullerton Titans",
+"apuesta": "CSU Fullerton Titans",
+"casa": "Unibet (NL)",
+"cuota": 1.17,
+"p": 0.8805,
+"ev": 0.0303,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NCAAB",
+"2239",
+"2692",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NCAAB|Furman|Austin Peay|2026-11-28|Furman Paladins",
+"juego": "NCAAB|Furman|Austin Peay|2026-11-28",
+"deporte": "NCAAB",
+"liga": "NCAAB",
+"inicio": "2026-11-28T17:00-04:00",
+"sin_hora": false,
+"partido": "Austin Peay Governors @ Furman Paladins",
+"apuesta": "Furman Paladins",
+"casa": "1xBet",
+"cuota": 1.37,
+"p": 0.7531,
+"ev": 0.0321,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NCAAB",
+"231",
+"2046",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NCAAF|Virginia Tech|Virginia|2026-11-28|Virginia Cavaliers",
+"juego": "NCAAF|Virginia Tech|Virginia|2026-11-28",
+"deporte": "NCAAF",
+"liga": "NCAAF",
+"inicio": "2026-11-28T16:00-04:00",
+"sin_hora": false,
+"partido": "Virginia Cavaliers @ Virginia Tech Hokies",
+"apuesta": "Virginia Cavaliers",
+"casa": "BetAnything",
+"cuota": 2.25,
+"p": 0.459,
+"ev": 0.0328,
+"meta": {
+"m": "ml",
+"lado": "v"
+},
+"res": [
+"NCAAF",
+"Virginia Tech",
+"Virginia",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Le Mans FC|Lille|2026-11-28|Le Mans FC",
+"juego": "F|Le Mans FC|Lille|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Francia · Ligue 1",
+"inicio": "2026-11-28T15:45-04:00",
+"sin_hora": false,
+"partido": "Lille @ Le Mans FC",
+"apuesta": "Le Mans FC",
+"casa": "Unibet (SE)",
+"cuota": 4.4,
+"p": 0.2503,
+"ev": 0.1013,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Le Mans",
+"Lille",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
 },
 {
 "id": "F|Ipswich Town|Aston Villa|2026-11-28|Ipswich Town",
@@ -38,10 +618,10 @@
 "sin_hora": false,
 "partido": "Aston Villa @ Ipswich Town",
 "apuesta": "Ipswich Town",
-"casa": "Tipico",
-"cuota": 3.7,
-"p": 0.2865,
-"ev": 0.0601,
+"casa": "Coolbet",
+"cuota": 3.57,
+"p": 0.2972,
+"ev": 0.061,
 "meta": {
 "m": "1x2",
 "lado": "l"
@@ -56,7 +636,65 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-27T14:41+00:00",
-"actualizado": "2026-11-28T03:41+00:00"
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|VfB Stuttgart|Eintracht Frankfurt|2026-11-28|VfB Stuttgart",
+"juego": "F|VfB Stuttgart|Eintracht Frankfurt|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Alemania · Bundesliga",
+"inicio": "2026-11-28T13:30-04:00",
+"sin_hora": false,
+"partido": "Eintracht Frankfurt @ VfB Stuttgart",
+"apuesta": "VfB Stuttgart",
+"casa": "1xBet",
+"cuota": 1.89,
+"p": 0.5514,
+"ev": 0.0437,
+"meta": {
+"m": "1x2",
+"lado": "l"
+},
+"res": [
+"F",
+"Stuttgart",
+"Ein Frankfurt",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "NCAAB|Princeton|St. Thomas (MN)|2026-11-28|Princeton Tigers",
+"juego": "NCAAB|Princeton|St. Thomas (MN)|2026-11-28",
+"deporte": "NCAAB",
+"liga": "NCAAB",
+"inicio": "2026-11-28T13:00-04:00",
+"sin_hora": false,
+"partido": "St. Thomas (MN) Tommies @ Princeton Tigers",
+"apuesta": "Princeton Tigers",
+"casa": "Unibet (NL)",
+"cuota": 2.23,
+"p": 0.4803,
+"ev": 0.0711,
+"meta": {
+"m": "ml",
+"lado": "l"
+},
+"res": [
+"NCAAB",
+"163",
+"2900",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
 },
 {
 "id": "F|Excelsior|SC Telstar|2026-11-28|SC Telstar",
@@ -68,9 +706,9 @@
 "partido": "SC Telstar @ Excelsior",
 "apuesta": "SC Telstar",
 "casa": "Unibet (NL)",
-"cuota": 3.65,
-"p": 0.2841,
-"ev": 0.0369,
+"cuota": 3.5,
+"p": 0.3107,
+"ev": 0.0875,
 "meta": {
 "m": "1x2",
 "lado": "v"
@@ -85,36 +723,7 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-27T14:41+00:00",
-"actualizado": "2026-11-28T03:41+00:00"
-},
-{
-"id": "F|Swindon Town|Chesterfield FC|2026-11-28|Swindon Town",
-"juego": "F|Swindon Town|Chesterfield FC|2026-11-28",
-"deporte": "Fútbol",
-"liga": "Inglaterra · League Two",
-"inicio": "2026-11-28T11:00-04:00",
-"sin_hora": false,
-"partido": "Chesterfield FC @ Swindon Town",
-"apuesta": "Swindon Town",
-"casa": "Tipico",
-"cuota": 4.0,
-"p": 0.2578,
-"ev": 0.0311,
-"meta": {
-"m": "1x2",
-"lado": "l"
-},
-"res": [
-"F",
-"Swindon",
-"Chesterfield",
-"2026-11-28"
-],
-"resultado": "PENDIENTE",
-"unidades": null,
-"marcador": null,
-"guardado": "2026-11-27T14:41+00:00",
-"actualizado": "2026-11-28T03:41+00:00"
+"actualizado": "2026-11-28T14:32+00:00"
 },
 {
 "id": "F|Colchester United|York City|2026-11-28|Colchester United",
@@ -126,9 +735,9 @@
 "partido": "York City @ Colchester United",
 "apuesta": "Colchester United",
 "casa": "Unibet (SE)",
-"cuota": 3.15,
-"p": 0.3394,
-"ev": 0.0691,
+"cuota": 3.05,
+"p": 0.3388,
+"ev": 0.0333,
 "meta": {
 "m": "1x2",
 "lado": "l"
@@ -143,7 +752,36 @@
 "unidades": null,
 "marcador": null,
 "guardado": "2026-11-27T14:41+00:00",
-"actualizado": "2026-11-28T03:41+00:00"
+"actualizado": "2026-11-28T14:32+00:00"
+},
+{
+"id": "F|Manchester United|Brentford|2026-11-28|Empate",
+"juego": "F|Manchester United|Brentford|2026-11-28",
+"deporte": "Fútbol",
+"liga": "Inglaterra · Premier League",
+"inicio": "2026-11-28T11:00-04:00",
+"sin_hora": false,
+"partido": "Brentford @ Manchester United",
+"apuesta": "Empate",
+"casa": "1xBet",
+"cuota": 3.98,
+"p": 0.2595,
+"ev": 0.0327,
+"meta": {
+"m": "1x2",
+"lado": "e"
+},
+"res": [
+"F",
+"Man United",
+"Brentford",
+"2026-11-28"
+],
+"resultado": "PENDIENTE",
+"unidades": null,
+"marcador": null,
+"guardado": "2026-11-28T14:32+00:00",
+"actualizado": "2026-11-28T14:32+00:00"
 },
 {
 "id": "F|SC Paderborn|FC Schalke 04|2026-11-28|Empate",
@@ -284,9 +922,9 @@
 "279",
 "2026-11-27"
 ],
-"resultado": "PENDIENTE",
-"unidades": null,
-"marcador": null,
+"resultado": "PERDIDO",
+"unidades": -1.0,
+"marcador": "61-78",
 "guardado": "2026-11-27T14:41+00:00",
 "actualizado": "2026-11-28T00:41+00:00"
 },
@@ -313,9 +951,9 @@
 "DEN",
 "2026-11-27"
 ],
-"resultado": "PENDIENTE",
-"unidades": null,
-"marcador": null,
+"resultado": "GANADO",
+"unidades": 2.15,
+"marcador": "27-5",
 "guardado": "2026-11-27T00:15+00:00",
 "actualizado": "2026-11-27T03:44+00:00"
 },
